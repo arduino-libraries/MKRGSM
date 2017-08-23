@@ -46,6 +46,12 @@ public:
       @return returns 0 if last command is still executing, 1 success, >1 error
     */
   int ready();
+
+private:
+  GSM3_NetworkStatus_t _state;
+  int _readyState;
+  const char* _pin;
+  String _response;
 };
 
 #endif

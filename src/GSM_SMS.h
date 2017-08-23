@@ -59,6 +59,12 @@ public:
    */
   void flush();
 
+private:
+  bool _synch;
+  int _state;
+  String _incomingBuffer;
+  int _smsDataIndex;
+  int _smsDataEndIndex;
 };
 
 #endif

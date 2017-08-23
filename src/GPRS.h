@@ -8,6 +8,8 @@ class GPRS {
 
 public:
 
+  GPRS();
+
   /** Attach to GPRS/GSM network
       @param networkId    APN GPRS
       @param user         Username
@@ -48,6 +50,14 @@ public:
       @return IP address in IPAddress format
    */
   IPAddress getIPAddress();
+
+private:
+  const char* _apn;
+  const char* _username;
+  const char* _password;
+  int _state;
+  GSM3_NetworkStatus_t _status;
+  String _response;
 };
 
 #endif

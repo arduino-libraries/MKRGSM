@@ -3,8 +3,6 @@
 
 #include <Arduino.h>
 
-#include "GSM.h"
-
 class GSMModem {
 
 public:
