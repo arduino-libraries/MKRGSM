@@ -1,9 +1,11 @@
 #ifndef _GSM_VOICE_CALL_H_INCLUDED
 #define _GSM_VOICE_CALL_H_INCLUDED
 
+#include "Modem.h"
+
 enum GSM3_voiceCall_st { IDLE_CALL, CALLING, RECEIVINGCALL, TALKING};
 
-class GSMVoiceCall {
+class GSMVoiceCall : public ModemUcrHandler {
 
 public:
   /** Service creation
@@ -54,6 +56,11 @@ public:
   */    
   int retrieveCallingNumber(char* buffer, int bufsize);
 
+
+  virtual void handleUcr(const String& ucr);
+private:
+  int _synch;
+  GSM3_voiceCall_st _callStatus;
 };
 
 #endif

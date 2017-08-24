@@ -65,6 +65,7 @@ private:
   String _incomingBuffer;
   int _smsDataIndex;
   int _smsDataEndIndex;
+  bool _smsTxActive;
 };
 
 #endif

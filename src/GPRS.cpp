@@ -272,5 +272,21 @@ int GPRS::ready()
 
 IPAddress GPRS::getIPAddress()
 {
+  String response;
+
+  MODEM.send("AT+UPSND=0,0");
+  if (MODEM.waitForResponse(100, &response) == 1) {
+    if (response.startsWith("+UPSND: 0,0,\"") && response.endsWith("\"")) {
+      response.remove(0, 13);
+      response.remove(response.length() - 1);
+
+      IPAddress ip;
+
+      if (ip.fromString(response)) {
+        return ip;
+      }
+    }
+  }
+
   return IPAddress(0, 0, 0, 0);
 }

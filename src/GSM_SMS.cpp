@@ -10,18 +10,39 @@ enum {
 
 GSM_SMS::GSM_SMS(bool synch) :
   _synch(synch),
-  _state(SMS_STATE_IDLE)
+  _state(SMS_STATE_IDLE),
+  _smsTxActive(false)
 {
 }
 
 size_t GSM_SMS::write(uint8_t c)
 {
+  if (_smsTxActive) {
+    return MODEM.write(c);
+  }
+
   return 0;
 }
 
 int GSM_SMS::beginSMS(const char* to)
 {
-  return 0;
+  String command;
+  command.reserve(10 + strlen(to));
+
+  command += "AT+CMGS=\"";
+  command += to;
+  command += "\"";
+
+  MODEM.send(command);
+  if (MODEM.waitForResponse(100) == 2) {
+    _smsTxActive = false;
+
+    return (_synch) ? 0 : 2;
+  }
+
+  _smsTxActive = true;
+
+  return 1;
 }
 
 int GSM_SMS::ready()
@@ -57,7 +78,23 @@ int GSM_SMS::ready()
 
 int GSM_SMS::endSMS()
 {
-  return 0;
+  int r;
+
+  if (_smsTxActive) {
+    MODEM.write(26);
+
+    if (_synch) {
+      while ((r = MODEM.ready()) == 0) {
+        delay(100);
+      }
+    } else {
+      r = MODEM.ready();
+    }
+
+    return r;
+  } else {
+    return (_synch ? 0 : 2);
+  }
 }
 
 int GSM_SMS::available()

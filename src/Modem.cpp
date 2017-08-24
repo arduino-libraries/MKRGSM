@@ -5,7 +5,8 @@ ModemClass::ModemClass(Uart& uart, unsigned long baud) :
   _baud(baud),
   _atCommandState(AT_COMMAND_IDLE),
   _ready(1),
-  _responseDataStorage(NULL)
+  _responseDataStorage(NULL),
+  _ucrHandler(NULL)
 {
   _buffer.reserve(64);
 }
@@ -63,6 +64,11 @@ int ModemClass::reset()
   return (waitForResponse(1000) == 1);
 }
 
+size_t ModemClass::write(uint8_t c)
+{
+  return _uart->write(c);
+}
+
 void ModemClass::send(const char* command)
 {
   _uart->println(command);
@@ -107,34 +113,22 @@ Serial.write(c);
     switch (_atCommandState) {
       case AT_COMMAND_IDLE:
       default: {
-        int urcIndex = _buffer.lastIndexOf("AT");
-        if (urcIndex != -1) {
-          _atCommandState = AT_COMMAND_ECHOING;
-        } else {
-          urcIndex = _buffer.indexOf("\r\n\r\n");
-        }
-
-        if (urcIndex != -1) {
-          _buffer.remove(urcIndex);
+        
+        if (_buffer.startsWith("AT") && _buffer.endsWith("\r\n")) {
+          _atCommandState = AT_RECEIVING_RESPONSE;
+          _buffer = "";
+        }  else if (_buffer.endsWith("\r\n")) {
           _buffer.trim();
 
           if (_buffer.length()) {
-Serial.println("UCR>>> ");
-Serial.print("UCR>>> ");
-Serial.println(_buffer);
-Serial.println("UCR>>> ");
-          }
+            if (_ucrHandler != NULL) {
+              _ucrHandler->handleUcr(_buffer);
+            }
+          }          
 
           _buffer = "";
         }
-        break;
-      }
 
-      case AT_COMMAND_ECHOING: {
-        if (c == '\n') {
-          _buffer = "";
-          _atCommandState = AT_RECEIVING_RESPONSE;
-        }
         break;
       }
 
@@ -147,6 +141,11 @@ Serial.println("UCR>>> ");
             responseResultIndex = _buffer.lastIndexOf("ERROR\r\n");
             if (responseResultIndex != -1) {
               _ready = 2;
+            } else {
+              responseResultIndex = _buffer.lastIndexOf("NO CARRIER\r\n");
+              if (responseResultIndex != -1) {
+                _ready = 3;
+              }
             }
           }
 
@@ -174,6 +173,11 @@ Serial.println("UCR>>> ");
 void ModemClass::setResponseDataStorage(String* responseDataStorage)
 {
   _responseDataStorage = responseDataStorage;
+}
+
+void ModemClass::setUcrHandler(ModemUcrHandler* handler)
+{
+  _ucrHandler = handler;
 }
 
 ModemClass MODEM(SerialGSM, 115200);
