@@ -1,8 +1,9 @@
 #include "Modem.h"
 
-ModemClass::ModemClass(Uart& uart, unsigned long baud) :
+ModemClass::ModemClass(Uart& uart, unsigned long baud, int resetPin) :
   _uart(&uart),
   _baud(baud),
+  _resetPin(resetPin),
   _atCommandState(AT_COMMAND_IDLE),
   _ready(1),
   _responseDataStorage(NULL),
@@ -15,18 +16,23 @@ int ModemClass::begin(bool restart)
 {
   _uart->begin(_baud);
 
-  if (!autosense()) {
-    return 0;
-  }
-
-  if (restart) {
-    if (!reset()) {
-      return 0;
-    }
-
+  if (_resetPin > -1 && restart) {
+    pinMode(_resetPin, OUTPUT);
+    digitalWrite(_resetPin, HIGH);
+    delay(100);
+    digitalWrite(_resetPin, LOW);       
+  } else {
     if (!autosense()) {
       return 0;
     }
+
+    if (!reset()) {
+      return 0;
+    }
+  }
+
+  if (!autosense()) {
+    return 0;
   }
 
   return 1;
@@ -180,4 +186,8 @@ void ModemClass::setUcrHandler(ModemUcrHandler* handler)
   _ucrHandler = handler;
 }
 
+#ifdef GSM_RESETN
+ModemClass MODEM(SerialGSM, 115200, GSM_RESETN);
+#else
 ModemClass MODEM(SerialGSM, 115200);
+#endif

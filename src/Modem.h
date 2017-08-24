@@ -10,7 +10,7 @@ public:
 
 class ModemClass {
 public:
-  ModemClass(Uart& uart, unsigned long baud);
+  ModemClass(Uart& uart, unsigned long baud, int resetPin);
 
   int begin(bool restart = true);
   void end();
@@ -32,6 +32,7 @@ public:
 private:
   Uart* _uart;
   unsigned long _baud;
+  int _resetPin;
 
   enum {
     AT_COMMAND_IDLE,
