@@ -4,7 +4,9 @@
 #include <Server.h>
 #include "GSMClient.h"
 
-class GSMServer : public Server {
+#include "Modem.h"
+
+class GSMServer : public Server, public ModemUrcHandler {
 
 public:
 
@@ -12,7 +14,9 @@ public:
       @param port     Port
       @param synch    True if the server acts synchronously
    */
-  GSMServer(uint8_t port, bool synch=true);
+  GSMServer(uint16_t port, bool synch = true);
+
+  ~GSMServer();
 
   /** Get last command status
       @return returns 0 if last command is still executing, 1 success, >1 error
@@ -28,7 +32,7 @@ public:
                         blocking.
       @return Client if successful, else error
   */
-  GSMClient available(bool synch=true);
+  GSMClient available(bool synch = true);
 
   // Just to keep in line with Ethernet.
   // Write to every open socket...
@@ -66,6 +70,19 @@ public:
    */
   void stop();
 
+  virtual void handleUrc(const String& urc);
+
+private:
+  uint16_t _port;
+  bool _synch;
+
+  int _socket;
+
+  #define MAX_CHILD_SOCKETS 6
+  struct {
+    int socket;
+    bool accepted;
+  } _childSockets[MAX_CHILD_SOCKETS];
 };
 
 #endif

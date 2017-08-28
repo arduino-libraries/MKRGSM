@@ -118,8 +118,7 @@ private:
 
   bool _synch;
   int _socket;
-  int _rxIndex;
-  String _rxBuffer;
+  int _peek;
 };
 
 #endif

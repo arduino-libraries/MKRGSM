@@ -8,7 +8,7 @@ GSMClient::GSMClient(bool synch) :
 GSMClient::GSMClient(int socket, bool synch) :
   _synch(synch),
   _socket(socket),
-  _rxIndex(0)
+  _peek(-1)
 {
    MODEM.addUrcHandler(this);
 }
@@ -181,15 +181,47 @@ GSMClient::operator bool()
 
 int GSMClient::read(uint8_t *buf, size_t size)
 {
-  int canRead = available();
-
-  if (size > canRead) {
-    size = canRead;
+  if (_socket == -1) {
+    return 0;
   }
 
+  if (size == 0) {
+    return 0;
+  }
+
+  if (size > 512) {
+    size = 512;
+  }
+
+  String command;
+  String response;
+  command.reserve(14);
+
+  command += "AT+USORD=";
+  command += _socket;
+  command += ",";
+  command += size;
+
+  MODEM.send(command);
+
+  if (MODEM.waitForResponse(10000, &response) != 1) {
+    return 0;
+  }
+
+  if (!response.startsWith("+USORD: ")) {
+    return 0;
+  }
+
+  int firstQuoteIndex = response.indexOf("\"");
+
+  response.remove(0, firstQuoteIndex + 1);
+  response.remove(response.length() - 1);
+
+  size = response.length() / 2;
+
   for (int i = 0; i < size; i++) {
-    byte n1 = _rxBuffer[_rxIndex];
-    byte n2 = _rxBuffer[_rxIndex + 1];
+    byte n1 = response[i * 2];
+    byte n2 = response[i * 2 + 1];
 
     if (n1 > '9') {
       n1 = (n1 - 'A') + 10;
@@ -204,8 +236,6 @@ int GSMClient::read(uint8_t *buf, size_t size)
     }
 
     buf[i] = (n1 << 4) | n2;
-
-    _rxIndex += 2;
   }
 
   return size;
@@ -214,6 +244,12 @@ int GSMClient::read(uint8_t *buf, size_t size)
 int GSMClient::read()
 {
   byte b;
+
+  if (_peek != -1) {
+    b = _peek;
+    _peek = -1;
+    return b;
+  }
 
   if (read(&b, 1) == 1) {
     return b;
@@ -228,28 +264,25 @@ int GSMClient::available()
     return 0;
   }
 
-  if (_rxBuffer.length() > _rxIndex) {
-    return (_rxBuffer.length() - _rxIndex)  / 2;
-  }
-
   String command;
-  command.reserve(14);
+  String response;
+
+  command.reserve(12);
 
   command += "AT+USORD=";
   command += _socket;
-  command += ",512";
+  command += ",0";
 
   MODEM.send(command);
+  if (MODEM.waitForResponse(10000, &response) == 1) {
+    if (response.startsWith("+USORD: ")) {
+      int commaIndex = response.indexOf(',');
 
-  if (MODEM.waitForResponse(10000, &_rxBuffer) == 1) {
-    if (_rxBuffer.startsWith("+USORD: ")) {
-      int firstQuoteIndex = _rxBuffer.indexOf("\"");
+      if (commaIndex != -1) {
+        response.remove(0, commaIndex + 1);
 
-      _rxBuffer.remove(0, firstQuoteIndex + 1);
-      _rxBuffer.remove(_rxBuffer.length() - 1);
-
-      _rxIndex = 0;
-      return _rxBuffer.length() / 2;
+        return response.toInt();
+      }
     }
   } else {
     _socket = -1;
@@ -260,26 +293,11 @@ int GSMClient::available()
 
 int GSMClient::peek()
 {
-  if (available() < 1) {
-    return -1;
+  if (_peek == -1) {
+    _peek = read();
   }
 
-  byte n1 = _rxBuffer[_rxIndex];
-  byte n2 = _rxBuffer[_rxIndex + 1];
-
-  if (n1 > '9') {
-    n1 = (n1 - 'A') + 10;
-  } else {
-    n1 = (n1 - '0');
-  }
-
-  if (n2 > '9') {
-    n2 = (n2 - 'A') + 10;
-  } else {
-    n2 = (n2 - '0');
-  }
-
-  return ((n1 << 4) | n2);
+  return _peek;
 }
 
 void GSMClient::flush()
