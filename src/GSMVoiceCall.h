@@ -5,13 +5,15 @@
 
 enum GSM3_voiceCall_st { IDLE_CALL, CALLING, RECEIVINGCALL, TALKING};
 
-class GSMVoiceCall : public ModemUcrHandler {
+class GSMVoiceCall : public ModemUrcHandler {
 
 public:
   /** Service creation
       @param synch    If true, the service calls are synchronois
     */
   GSMVoiceCall(bool synch = true);
+
+  virtual ~GSMVoiceCall();
 
   /** Voice call status
       @return Status of the voice call, as described in GSM3MobileVoiceProvider.h
@@ -57,7 +59,7 @@ public:
   int retrieveCallingNumber(char* buffer, int bufsize);
 
 
-  virtual void handleUcr(const String& ucr);
+  virtual void handleUrc(const String& urc);
 private:
   int _synch;
   GSM3_voiceCall_st _callStatus;

@@ -1,13 +1,15 @@
 #include "Modem.h"
 
+bool ModemClass::_debug = false;
+ModemUrcHandler* ModemClass::_urcHandlers[MAX_URC_HANDLERS] = { NULL };
+
 ModemClass::ModemClass(Uart& uart, unsigned long baud, int resetPin) :
   _uart(&uart),
   _baud(baud),
   _resetPin(resetPin),
   _atCommandState(AT_COMMAND_IDLE),
   _ready(1),
-  _responseDataStorage(NULL),
-  _ucrHandler(NULL)
+  _responseDataStorage(NULL)
 {
   _buffer.reserve(64);
 }
@@ -41,6 +43,11 @@ int ModemClass::begin(bool restart)
 void ModemClass::end()
 {
   _uart->end();
+}
+
+void ModemClass::debug()
+{
+  _debug = true;
 }
 
 int ModemClass::autosense(int timeout)
@@ -112,7 +119,9 @@ void ModemClass::poll()
   while (_uart->available()) {
     char c = _uart->read();
 
-Serial.write(c);
+    if (_debug) {
+      Serial.write(c);
+    }
 
     _buffer += c;
 
@@ -127,8 +136,10 @@ Serial.write(c);
           _buffer.trim();
 
           if (_buffer.length()) {
-            if (_ucrHandler != NULL) {
-              _ucrHandler->handleUcr(_buffer);
+            for (int i = 0; i < MAX_URC_HANDLERS; i++) {
+              if (_urcHandlers[i] != NULL) {
+                _urcHandlers[i]->handleUrc(_buffer);
+              }
             }
           }          
 
@@ -181,9 +192,24 @@ void ModemClass::setResponseDataStorage(String* responseDataStorage)
   _responseDataStorage = responseDataStorage;
 }
 
-void ModemClass::setUcrHandler(ModemUcrHandler* handler)
+void ModemClass::addUrcHandler(ModemUrcHandler* handler)
 {
-  _ucrHandler = handler;
+  for (int i = 0; i < MAX_URC_HANDLERS; i++) {
+    if (_urcHandlers[i] == NULL) {
+      _urcHandlers[i] = handler;
+      break;
+    }
+  }
+}
+
+void ModemClass::removeUrcHandler(ModemUrcHandler* handler)
+{
+  for (int i = 0; i < MAX_URC_HANDLERS; i++) {
+    if (_urcHandlers[i] == handler) {
+      _urcHandlers[i] = NULL;
+      break;
+    }
+  }
 }
 
 #ifdef GSM_RESETN

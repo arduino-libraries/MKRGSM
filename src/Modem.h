@@ -3,9 +3,9 @@
 
 #include <Arduino.h>
 
-class ModemUcrHandler {
+class ModemUrcHandler {
 public:
-  virtual void handleUcr(const String& ucr) = 0;
+  virtual void handleUrc(const String& urc) = 0;
 };
 
 class ModemClass {
@@ -15,19 +15,24 @@ public:
   int begin(bool restart = true);
   void end();
 
+  void debug();
+
   int autosense(int timeout = 10000);
 
   int noop();
   int reset();
 
   size_t write(uint8_t c);
+
   void send(const char* command);
   void send(const String& command) { send(command.c_str()); }
   int waitForResponse(unsigned long timeout = 100, String* responseDataStorage = NULL);
   int ready();
   void poll();
   void setResponseDataStorage(String* responseDataStorage);
-  void setUcrHandler(ModemUcrHandler* handler);
+  
+  void addUrcHandler(ModemUrcHandler* handler);
+  void removeUrcHandler(ModemUrcHandler* handler);
 
 private:
   Uart* _uart;
@@ -41,7 +46,10 @@ private:
   int _ready;
   String _buffer;
   String* _responseDataStorage;
-  ModemUcrHandler* _ucrHandler;
+
+  #define MAX_URC_HANDLERS 10
+  static bool _debug;
+  static ModemUrcHandler* _urcHandlers[MAX_URC_HANDLERS];
 };
 
 extern ModemClass MODEM;

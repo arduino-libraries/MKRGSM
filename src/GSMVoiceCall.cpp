@@ -4,11 +4,16 @@ GSMVoiceCall::GSMVoiceCall(bool synch) :
   _synch(synch),
   _callStatus(IDLE_CALL)
 {
+  MODEM.addUrcHandler(this);
+}
+
+GSMVoiceCall::~GSMVoiceCall()
+{
+  MODEM.removeUrcHandler(this);
 }
 
 GSM3_voiceCall_st GSMVoiceCall::getvoiceCallStatus()
 {
-  MODEM.setUcrHandler(this);
   MODEM.poll();
 
   return _callStatus;
@@ -151,10 +156,10 @@ int GSMVoiceCall::retrieveCallingNumber(char* buffer, int bufsize)
   return 0;
 }
 
-void GSMVoiceCall::handleUcr(const String& ucr)
+void GSMVoiceCall::handleUrc(const String& urc)
 {
-  if (ucr.startsWith("+UCALLSTAT: ")) {
-    int status = ucr.charAt(ucr.length() - 1) - '0';
+  if (urc.startsWith("+UCALLSTAT: ")) {
+    int status = urc.charAt(urc.length() - 1) - '0';
 
     if (status == 0 || status == 1 || status == 7) {
       _callStatus = TALKING;

@@ -4,6 +4,9 @@
 
 GSMScanner::GSMScanner(bool trace)
 {
+  if (trace) {
+    MODEM.debug();
+  }
 }
 
 GSM3_NetworkStatus_t GSMScanner::begin()

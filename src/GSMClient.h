@@ -3,7 +3,10 @@
 
 #include <Client.h>
 
-class GSMClient : public Client {
+#include "Modem.h"
+
+
+class GSMClient : public Client, public ModemUrcHandler {
 
 public:
 
@@ -18,6 +21,8 @@ public:
    */
   GSMClient(int socket, bool synch);
 
+  virtual ~GSMClient();
+
   /** Get last command status
       @return returns 0 if last command is still executing, 1 success, >1 error
   */
@@ -29,6 +34,7 @@ public:
       @return returns 0 if last command is still executing, 1 success, 2 if there are no resources
    */
   int connect(IPAddress, uint16_t);
+  int connectSSL(IPAddress, uint16_t);
 
   /** Connect to server by hostname
       @param host     Hostname
@@ -36,11 +42,12 @@ public:
       @return returns 0 if last command is still executing, 1 success, 2 if there are no resources
    */
   int connect(const char *host, uint16_t port);
+  int connectSSL(const char *host, uint16_t port);
 
   /** Initialize write in request
       @param sync     Sync mode
    */
-  void beginWrite(bool sync=false);
+  void beginWrite(bool sync = false);
 
   /** Write a character in request
       @param c      Character
@@ -103,6 +110,16 @@ public:
    */
   void stop();
 
+  virtual void handleUrc(const String& urc);
+
+private:
+  int connect(IPAddress ip, uint16_t port, bool ssl);
+  int connect(const char* host, uint16_t port, bool ssl);
+
+  bool _synch;
+  int _socket;
+  int _rxIndex;
+  String _rxBuffer;
 };
 
 #endif
