@@ -77,6 +77,8 @@ private:
   bool _synch;
 
   int _socket;
+  int _state;
+  String _response;
 
   #define MAX_CHILD_SOCKETS 6
   struct {

@@ -1,5 +1,17 @@
 #include "GSMClient.h"
 
+enum {
+  CLIENT_STATE_IDLE,
+  CLIENT_STATE_CREATE_SOCKET,
+  CLIENT_STATE_WAIT_CREATE_SOCKET_RESPONSE,
+  CLIENT_STATE_ENABLE_SSL,
+  CLIENT_STATE_WAIT_ENABLE_SSL_RESPONSE,
+  CLIENT_STATE_CONNECT,
+  CLIENT_STATE_WAIT_CONNECT_RESPONSE,
+  CLIENT_STATE_CLOSE_SOCKET,
+  CLIENT_STATE_WAIT_CLOSE_SOCKET
+};
+
 GSMClient::GSMClient(bool synch) :
   GSMClient(-1, synch)
 {
@@ -8,6 +20,12 @@ GSMClient::GSMClient(bool synch) :
 GSMClient::GSMClient(int socket, bool synch) :
   _synch(synch),
   _socket(socket),
+  _state(CLIENT_STATE_IDLE),
+  _ip((uint32_t)0),
+  _host(NULL),
+  _port(0),
+  _ssl(false),
+  _writeSync(true),
   _peek(-1)
 {
    MODEM.addUrcHandler(this);
@@ -20,87 +38,198 @@ GSMClient::~GSMClient()
 
 int GSMClient::ready()
 {
-  return MODEM.ready();
+  int ready = MODEM.ready();
+
+  if (ready == 0) {
+    return 0;
+  }
+
+  switch (_state) {
+    case CLIENT_STATE_IDLE:
+    default: {
+      break;
+    }
+
+    case CLIENT_STATE_CREATE_SOCKET: {
+      MODEM.setResponseDataStorage(&_response);
+      MODEM.send("AT+USOCR=6");
+
+      _state = CLIENT_STATE_WAIT_CREATE_SOCKET_RESPONSE;
+      ready = 0;
+      break;
+    }
+
+    case CLIENT_STATE_WAIT_CREATE_SOCKET_RESPONSE: {
+      if (ready > 1 || !_response.startsWith("+USOCR: ")) {
+        _state = CLIENT_STATE_IDLE;
+      } else {
+        _socket = _response.charAt(_response.length() - 1) - '0';
+
+        if (_ssl) {
+          _state = CLIENT_STATE_ENABLE_SSL;
+        } else {
+          _state = CLIENT_STATE_CONNECT;
+        }
+
+        ready = 0;
+      }
+      break;
+    }
+
+    case CLIENT_STATE_ENABLE_SSL: {
+      String command;
+      command.reserve(13);
+
+      command += "AT+USOSEC=";
+      command += _socket;
+      command +=  ",1";
+
+      MODEM.send(command);
+
+      _state = CLIENT_STATE_WAIT_ENABLE_SSL_RESPONSE;
+      ready = 0;
+      break;
+    }
+
+    case CLIENT_STATE_WAIT_ENABLE_SSL_RESPONSE: {
+      if (ready > 1) {
+        _state = CLIENT_STATE_CLOSE_SOCKET;
+      } else {
+        _state = CLIENT_STATE_CONNECT;
+      }
+
+      ready = 0;
+      break;
+    }
+
+    case CLIENT_STATE_CONNECT: {
+      String command;
+
+      if (_host != NULL) {
+        command.reserve(19 + strlen(_host));
+      } else {
+        command.reserve(34);
+      }
+
+      command += "AT+USOCO=";
+      command += _socket;
+      command += ",\"";
+
+      if (_host != NULL) {
+        command += _host;
+      } else {
+        command += _ip[0];
+        command += '.';
+        command += _ip[1];
+        command += '.';
+        command += _ip[2];
+        command += '.';
+        command += _ip[3];
+      }
+
+      command += "\",";
+      command += _port;
+
+      MODEM.send(command);
+
+      _state = CLIENT_STATE_WAIT_CONNECT_RESPONSE;
+      ready = 0;
+      break;
+    }
+
+    case CLIENT_STATE_WAIT_CONNECT_RESPONSE: {
+      if (ready > 1) {
+        _state = CLIENT_STATE_CLOSE_SOCKET;
+
+        ready = 0;
+      } else {
+        _state = CLIENT_STATE_IDLE;
+      }
+      break;
+    }
+
+    case CLIENT_STATE_CLOSE_SOCKET: {
+      String command;
+      command.reserve(10);
+
+      command += "AT+USOCL=";
+      command += _socket;
+
+      MODEM.send(command);
+
+      _state = CLIENT_STATE_WAIT_CLOSE_SOCKET;
+      ready = 0;
+      break;
+    }
+
+    case CLIENT_STATE_WAIT_CLOSE_SOCKET: {
+      _state = CLIENT_STATE_IDLE;
+      _socket = -1;
+      break;
+    }
+  }
+
+  return ready;
 }
 
 int GSMClient::connect(IPAddress ip, uint16_t port)
 {
-  return connect(ip, port, false);
+  _ip = ip;
+  _host = NULL;
+  _port = port;
+  _ssl = false;
+
+  return connect();
 }
 
 int GSMClient::connectSSL(IPAddress ip, uint16_t port)
 {
-  return connect(ip, port, true);
+  _ip = ip;
+  _host = NULL;
+  _port = port;
+  _ssl = true;
+
+  return connect();
 }
 
 int GSMClient::connect(const char *host, uint16_t port)
 {
-  return connect(host, port, false);
+  _ip = (uint32_t)0;
+  _host = host;
+  _port = port;
+  _ssl = false;
+
+  return connect();
 }
 
 int GSMClient::connectSSL(const char *host, uint16_t port)
 {
-  return connect(host, port, true);
+  _ip = (uint32_t)0;
+  _host = host;
+  _port = port;
+  _ssl = true;
+
+  return connect();
 }
 
-int GSMClient::connect(IPAddress ip, uint16_t port, bool ssl)
+int GSMClient::connect()
 {
-  String host;
-  host.reserve(16);
-
-  host += ip[0];
-  host += '.';
-  host += ip[1];
-  host += '.';
-  host += ip[2];
-  host += '.';
-  host += ip[3];
-
-  connect(host.c_str(), port, ssl);
-}
-
-int GSMClient::connect(const char *host, uint16_t port, bool ssl)
-{
-  String command;
-  String response;
-
-  MODEM.send("AT+USOCR=6");
-  if (MODEM.waitForResponse(100, &response) != 1) {
-    return 2;
+  if (_synch) {
+    while (ready() == 0);
+  } else if (ready() == 0) {
+    return 0;
   }
 
-  if (!response.startsWith("+USOCR: ")) {
-    return 2;
-  }
+  _state = CLIENT_STATE_CREATE_SOCKET;
 
-  _socket = response.charAt(response.length() - 1) - '0';
+  if (_synch) {
+    while (ready() == 0) {
+      delay(100);
+    }
 
-  command.reserve(19 + strlen(host));
-
-  if (ssl) {
-    command += "AT+USOSEC=";
-    command += _socket;
-    command +=  ",1";
-
-    MODEM.send(command);
-    if (MODEM.waitForResponse(10000, &response) != 1) {
-      stop();
+    if (_socket == -1) {
       return 2;
     }
-  }
-
-  command = "";
-  command += "AT+USOCO=";
-  command += _socket;
-  command += ",\"";
-  command += host;
-  command += "\",";
-  command += port;
-
-  MODEM.send(command);
-  if (MODEM.waitForResponse(20000) != 1) {
-    stop();
-    return 2;
   }
 
   return 1;
@@ -108,6 +237,7 @@ int GSMClient::connect(const char *host, uint16_t port, bool ssl)
 
 void GSMClient::beginWrite(bool sync)
 {
+  _writeSync = sync;
 }
 
 size_t GSMClient::write(uint8_t c)
@@ -122,6 +252,12 @@ size_t GSMClient::write(const uint8_t *buf)
 
 size_t GSMClient::write(const uint8_t* buf, size_t size)
 {
+  if (_writeSync) {
+    while (ready() == 0);
+  } else if (ready() == 0) {
+    return 0;
+  }
+
   if (_socket == -1) {
     return 0;
   }
@@ -152,15 +288,18 @@ size_t GSMClient::write(const uint8_t* buf, size_t size)
   command += "\"";
   
   MODEM.send(command);
-  if (MODEM.waitForResponse(10000) != 1) {
-    return 0;
+  if (_writeSync) {
+    if (MODEM.waitForResponse(10000) != 1) {
+      return 0;
+    }
   }
 
   return size;
 }
 
-void GSMClient::endWrite(bool sync)
+void GSMClient::endWrite(bool /*sync*/)
 {
+  _writeSync = true;
 }
 
 uint8_t GSMClient::connected()
@@ -219,7 +358,7 @@ int GSMClient::read(uint8_t *buf, size_t size)
 
   size = response.length() / 2;
 
-  for (int i = 0; i < size; i++) {
+  for (size_t i = 0; i < size; i++) {
     byte n1 = response[i * 2];
     byte n2 = response[i * 2 + 1];
 
@@ -260,6 +399,12 @@ int GSMClient::read()
 
 int GSMClient::available()
 {
+  if (_synch) {
+    while (ready() == 0);
+  } else if (ready() == 0) {
+    return 0;
+  }
+
   if (_socket == -1) {
     return 0;
   }

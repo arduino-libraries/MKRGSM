@@ -113,11 +113,19 @@ public:
   virtual void handleUrc(const String& urc);
 
 private:
-  int connect(IPAddress ip, uint16_t port, bool ssl);
-  int connect(const char* host, uint16_t port, bool ssl);
+  int connect();
 
   bool _synch;
   int _socket;
+
+  int _state;
+  IPAddress _ip;
+  const char* _host;
+  uint16_t _port;
+  bool _ssl;
+
+  bool _writeSync;
+  String _response;
   int _peek;
 };
 
