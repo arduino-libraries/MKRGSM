@@ -15,6 +15,8 @@ enum {
   READY_STATE_WAIT_SET_HEX_MODE,
   READY_STATE_SET_AUTOMATIC_TIME_ZONE,
   READY_STATE_WAIT_SET_AUTOMATIC_TIME_ZONE_RESPONSE,
+  READY_STATE_ENABLE_DTMF_DETECTION,
+  READY_STATE_WAIT_ENABLE_DTMF_DETECTION_RESPONSE,
   READY_STATE_CHECK_REGISTRATION,
   READY_STATE_WAIT_CHECK_REGISTRATION_RESPONSE,
   READY_STATE_SET_REPORTING_CALL_STATUS,
@@ -189,6 +191,25 @@ int GSM::ready()
     }
   
     case READY_STATE_WAIT_SET_AUTOMATIC_TIME_ZONE_RESPONSE: {
+      if (ready > 1) {
+        _state = ERROR;
+        ready = 2;
+      } else {
+        _readyState = READY_STATE_ENABLE_DTMF_DETECTION;
+        ready = 0;
+      }
+
+      break;
+    }
+
+    case READY_STATE_ENABLE_DTMF_DETECTION: {
+      MODEM.send("AT+UDTMFD=1,2");
+      _readyState = READY_STATE_WAIT_ENABLE_DTMF_DETECTION_RESPONSE;
+      ready = 0;
+      break; 
+    }
+
+    case READY_STATE_WAIT_ENABLE_DTMF_DETECTION_RESPONSE: {
       if (ready > 1) {
         _state = ERROR;
         ready = 2;

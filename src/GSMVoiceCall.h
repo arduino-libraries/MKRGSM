@@ -58,11 +58,18 @@ public:
   */    
   int retrieveCallingNumber(char* buffer, int bufsize);
 
+  int peekDTMF();
+  int readDTMF();
+  int writeDTMF(char c);
+
+  int enableI2SInput(long sampleRate);
+  int disableI2SInput();
 
   virtual void handleUrc(const String& urc);
 private:
   int _synch;
   GSM3_voiceCall_st _callStatus;
+  String _dtmfBuffer;
 };
 
 #endif
