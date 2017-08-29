@@ -213,7 +213,7 @@ void ModemClass::removeUrcHandler(ModemUrcHandler* handler)
 }
 
 #ifdef GSM_RESETN
-ModemClass MODEM(SerialGSM, 115200, GSM_RESETN);
+ModemClass MODEM(SerialGSM, 230400, GSM_RESETN);
 #else
-ModemClass MODEM(SerialGSM, 115200);
+ModemClass MODEM(SerialGSM, 230400);
 #endif
