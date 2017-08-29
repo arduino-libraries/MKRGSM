@@ -16,7 +16,7 @@ ModemClass::ModemClass(Uart& uart, unsigned long baud, int resetPin) :
 
 int ModemClass::begin(bool restart)
 {
-  _uart->begin(_baud);
+  _uart->begin(_baud > 115200 ? 115200 : _baud);
 
   if (_resetPin > -1 && restart) {
     pinMode(_resetPin, OUTPUT);
@@ -35,6 +35,25 @@ int ModemClass::begin(bool restart)
 
   if (!autosense()) {
     return 0;
+  }
+
+  if (_baud > 115200) {
+    String command;
+    command.reserve(13);
+
+    command += "AT+IPR=";
+    command += _baud;
+
+    MODEM.send(command);
+    if (MODEM.waitForResponse() == 1) {
+      _uart->end();
+      delay(100);
+      _uart->begin(_baud);
+
+      if (!autosense()) {
+        return 0;
+      }
+    }
   }
 
   return 1;
@@ -213,7 +232,7 @@ void ModemClass::removeUrcHandler(ModemUrcHandler* handler)
 }
 
 #ifdef GSM_RESETN
-ModemClass MODEM(SerialGSM, 230400, GSM_RESETN);
+ModemClass MODEM(SerialGSM, 921600, GSM_RESETN);
 #else
-ModemClass MODEM(SerialGSM, 230400);
+ModemClass MODEM(SerialGSM, 921600);
 #endif
