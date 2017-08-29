@@ -1,3 +1,5 @@
+#include <time.h>
+
 #include "Modem.h"
 
 #include "GSM.h"
@@ -11,6 +13,8 @@ enum {
   READY_STATE_WAIT_SET_PREFERRED_MESSAGE_FORMAT_RESPONSE,
   READY_STATE_SET_HEX_MODE,
   READY_STATE_WAIT_SET_HEX_MODE,
+  READY_STATE_SET_AUTOMATIC_TIME_ZONE,
+  READY_STATE_WAIT_SET_AUTOMATIC_TIME_ZONE_RESPONSE,
   READY_STATE_CHECK_REGISTRATION,
   READY_STATE_WAIT_CHECK_REGISTRATION_RESPONSE,
   READY_STATE_SET_REPORTING_CALL_STATUS,
@@ -158,7 +162,7 @@ int GSM::ready()
       break;
     }
 
-    case READY_STATE_SET_HEX_MODE:{
+    case READY_STATE_SET_HEX_MODE: {
       MODEM.send("AT+UDCONF=1,1");
       _readyState = READY_STATE_WAIT_SET_HEX_MODE;
       ready = 0;
@@ -166,6 +170,25 @@ int GSM::ready()
     }
 
     case READY_STATE_WAIT_SET_HEX_MODE: {
+      if (ready > 1) {
+        _state = ERROR;
+        ready = 2;
+      } else {
+        _readyState = READY_STATE_SET_AUTOMATIC_TIME_ZONE;
+        ready = 0;
+      }
+
+      break;
+    }
+
+    case READY_STATE_SET_AUTOMATIC_TIME_ZONE: {
+      MODEM.send("AT+CTZU=1");
+      _readyState = READY_STATE_WAIT_SET_AUTOMATIC_TIME_ZONE_RESPONSE;
+      ready = 0;
+      break; 
+    }
+  
+    case READY_STATE_WAIT_SET_AUTOMATIC_TIME_ZONE_RESPONSE: {
       if (ready > 1) {
         _state = ERROR;
         ready = 2;
@@ -236,4 +259,33 @@ int GSM::ready()
   }
 
   return ready;
+}
+
+unsigned long GSM::getTime()
+{
+  String response;
+
+  MODEM.send("AT+CCLK?");
+  if (MODEM.waitForResponse(100, &response) != 1) {
+    return 0;
+  }
+
+  struct tm now;
+
+  if (strptime(response.c_str(), "+CCLK: \"%y/%m/%d,%H:%M:%S", &now) != NULL) {
+    // adjust for timezone offset which is +/- in 15 minute increments
+
+    time_t result = mktime(&now);
+    time_t delta = ((response.charAt(26) - '0') * 10 + (response.charAt(27) - '0')) * (15 * 60);
+
+    if (response.charAt(25) == '-') {
+      result += delta;
+    } else if (response.charAt(25) == '+') {
+      result -= delta;
+    }
+
+    return result;
+  }
+
+  return 0;
 }

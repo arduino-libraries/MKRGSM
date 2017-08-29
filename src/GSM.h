@@ -47,6 +47,8 @@ public:
     */
   int ready();
 
+  unsigned long getTime();
+
 private:
   GSM3_NetworkStatus_t _state;
   int _readyState;
