@@ -62,6 +62,7 @@ int ModemClass::begin(bool restart)
 void ModemClass::end()
 {
   _uart->end();
+  digitalWrite(_resetPin, HIGH);
 }
 
 void ModemClass::debug()

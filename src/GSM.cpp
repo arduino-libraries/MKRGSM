@@ -62,11 +62,21 @@ int GSM::isAccessAlive()
 
 bool GSM::shutdown()
 {
+  MODEM.send("AT+CPWROFF");
+
+  if (MODEM.waitForResponse(40000) == 1) {
+    MODEM.end();
+
+    return true;
+  }
+
   return false;
 }
 
 bool GSM::secureShutdown()
 {
+  MODEM.end();
+
   return true;
 }
 
