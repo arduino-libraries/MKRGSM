@@ -252,7 +252,7 @@ int GPRS::ready()
     }
 
     case GPRS_STATE_DEATTACH: {
-      MODEM.send("AT+CGATT=1");
+      MODEM.send("AT+CGATT=0");
       _state = GPRS_STATE_WAIT_DEATTACH_RESPONSE;
       ready = 0;
       break;
