@@ -45,27 +45,26 @@ String GSMBand::getBand()
     
 bool GSMBand::setBand(String band)
 {
-  String command;
-  command.reserve(29);
-
-  command += "AT+UBANDSEL=";
+  const char* bands;
 
   if (band == GSM_MODE_EGSM) {
-    command += "900";
+    bands = "900";
   } else if (band == GSM_MODE_DCS) {
-    command += "1800";
+    bands = "1800";
   } else if (band == GSM_MODE_PCS) {
-    command += "1900";
+    bands = "1900";
   } else if (band == GSM_MODE_EGSM_DCS) {
-    command += "900,1900";
+    bands = "900,1900";
   } else if (band == GSM_MODE_GSM850_PCS) {
-    command += "850,1900";
+    bands = "850,1900";
   } else if (band == GSM_MODE_GSM850_EGSM_DCS_PCS) {
-    command += "800,850,900,1900";
+    bands = "800,850,900,1900";
+  } else {
+    return false;
   }
 
   for (int i = 0; i < 10; i++) {
-    MODEM.send(command);
+    MODEM.sendf("AT+UBANDSEL=%s", bands);
     int result = MODEM.waitForResponse(10000);
     
     if (result == 1) {

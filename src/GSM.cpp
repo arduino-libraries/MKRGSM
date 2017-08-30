@@ -124,15 +124,8 @@ int GSM::ready()
 
     case READY_STATE_UNLOCK_SIM: {
       if (_pin != NULL) {
-        String command;
-        command.reserve(10 + strlen(_pin));
-
-        command += "AT+CPIN=\"";
-        command += _pin;
-        command += "\"";
-
         MODEM.setResponseDataStorage(&_response);
-        MODEM.send("AT+CPIN?");
+        MODEM.sendf("AT+CPIN=\"%s\"", _pin);
 
         _readyState = READY_STATE_WAIT_UNLOCK_SIM_RESPONSE;
         ready = 0;

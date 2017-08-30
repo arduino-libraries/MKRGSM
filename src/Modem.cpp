@@ -38,13 +38,7 @@ int ModemClass::begin(bool restart)
   }
 
   if (_baud > 115200) {
-    String command;
-    command.reserve(13);
-
-    command += "AT+IPR=";
-    command += _baud;
-
-    MODEM.send(command);
+    MODEM.sendf("AT+IPR=%ld", _baud);
     if (MODEM.waitForResponse() == 1) {
       _uart->end();
       delay(100);
@@ -108,6 +102,18 @@ void ModemClass::send(const char* command)
   _uart->flush();
   _atCommandState = AT_COMMAND_IDLE;
   _ready = 0;
+}
+
+void ModemClass::sendf(const char *fmt, ...)
+{
+  char buf[BUFSIZ];
+
+  va_list ap;
+  va_start((ap), (fmt));     
+  vsnprintf(buf, sizeof(buf) - 1, fmt, ap);
+  va_end(ap);
+
+  send(buf);
 }
 
 int ModemClass::waitForResponse(unsigned long timeout, String* responseDataStorage)

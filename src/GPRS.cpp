@@ -104,14 +104,7 @@ int GPRS::ready()
       break;
     }
     case GPRS_STATE_SET_APN: {
-      String command;
-      command.reserve(14 + strlen(_apn));
-
-      command += "AT+UPSD=0,1,\"";
-      command += _apn;
-      command += "\"";
-
-      MODEM.send(command);
+      MODEM.sendf("AT+UPSD=0,1,\"%s\"", _apn);
       _state = GPRS_STATE_WAIT_SET_APN_RESPONSE;
       ready = 0;
       break;
@@ -129,14 +122,7 @@ int GPRS::ready()
     }
 
     case GPRS_STATE_SET_USERNAME: {
-      String command;
-      command.reserve(14 + strlen(_username));
-
-      command += "AT+UPSD=0,2,\"";
-      command += _username;
-      command += "\"";
-
-      MODEM.send(command);
+      MODEM.sendf("AT+UPSD=0,2,\"%s\"", _username);
       _state = GPRS_STATE_WAIT_SET_USERNAME_RESPONSE;
       ready = 0;
       break;
@@ -154,14 +140,7 @@ int GPRS::ready()
     }
 
     case GPRS_STATE_SET_PASSWORD: {
-      String command;
-      command.reserve(14 + strlen(_password));
-
-      command += "AT+UPSD=0,3,\"";
-      command += _password;
-      command += "\"";
-
-      MODEM.send(command);
+      MODEM.sendf("AT+UPSD=0,3,\"%s\"", _password);
       _state = GPRS_STATE_WAIT_SET_PASSWORD_RESPONSE;
       ready = 0;
       break;
@@ -297,15 +276,8 @@ IPAddress GPRS::getIPAddress()
 int GPRS::hostByName(const char* hostname, IPAddress& result)
 {
   String response;
-  String command;
-  command.reserve(14 + strlen(hostname));
 
-  command += "AT+UDNSRN=0,\"";
-  command += hostname;
-  command += "\"";
-
-  MODEM.send(command);
-
+  MODEM.sendf("AT+UDNSRN=0,\"%s\"", hostname);
   if (MODEM.waitForResponse(70000, &response) != 1) {
     return 0;
   }
@@ -327,17 +299,10 @@ int GPRS::hostByName(const char* hostname, IPAddress& result)
 int GPRS::ping(const char* hostname, uint8_t ttl)
 {
   String response;
-  String command;
-  command.reserve(25 + strlen(hostname));
-
-  command += "AT+UPING=\"";
-  command += hostname;
-  command += "\",1,32,5000,"; // retries, size, timeout
-  command += ttl;
   
   _pingResult = 0;
 
-  MODEM.send(command);
+  MODEM.sendf("AT+UPING=\"%s\",1,32,5000,%d", hostname, ttl);
   if (MODEM.waitForResponse() != 1) {
     return GPRS_PING_ERROR;
   };

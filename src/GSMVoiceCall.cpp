@@ -36,14 +36,7 @@ int GSMVoiceCall::voiceCall(const char* to, unsigned long timeout)
     }
   }
 
-  String command;
-  command.reserve(4 + strlen(to));
-
-  command += "ATD";
-  command += to;
-  command += ";";
-
-  MODEM.send(command);
+  MODEM.sendf("ATD%s;", to);
 
   if (_synch) {
     if (MODEM.waitForResponse(180000) != 1) {
@@ -206,14 +199,7 @@ int GSMVoiceCall::enableI2SInput(long sampleRate)
       break;
   }
 
-  String command;
-  command.reserve(18);
-
-  command += "AT+UI2S=11,1,0,"; // mode, port, WA
-  command += sampleRateNumber;
-  command += ",1"; // slave
-
-  MODEM.send(command);
+  MODEM.sendf("AT+UI2S=11,1,0,%d,1", sampleRateNumber); // mode, port, WA, sample rate, slave
   if (MODEM.waitForResponse() != 1) {
     return 0;
   }
@@ -279,13 +265,7 @@ int GSMVoiceCall::writeDTMF(char c)
       break;
   }
 
-  String command;
-  command.reserve(8);
-
-  command += "AT+VTS=";
-  command += c;
-
-  MODEM.send(command);
+  MODEM.sendf("AT+VTS=%c", c);
 
   if (MODEM.waitForResponse(420000) != 1) {
     return 0;

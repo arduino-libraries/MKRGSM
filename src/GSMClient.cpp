@@ -77,14 +77,7 @@ int GSMClient::ready()
     }
 
     case CLIENT_STATE_ENABLE_SSL: {
-      String command;
-      command.reserve(13);
-
-      command += "AT+USOSEC=";
-      command += _socket;
-      command +=  ",1";
-
-      MODEM.send(command);
+      MODEM.sendf("AT+USOSEC=%d,1", _socket);
 
       _state = CLIENT_STATE_WAIT_ENABLE_SSL_RESPONSE;
       ready = 0;
@@ -103,34 +96,11 @@ int GSMClient::ready()
     }
 
     case CLIENT_STATE_CONNECT: {
-      String command;
-
       if (_host != NULL) {
-        command.reserve(19 + strlen(_host));
+        MODEM.sendf("AT+USOCO=%d,\"%s\",%d", _socket, _host, _port);
       } else {
-        command.reserve(34);
+        MODEM.sendf("AT+USOCO=%d,\"%d.%d.%d.%d\",%d", _socket, _ip[0], _ip[1], _ip[2], _ip[3], _port);
       }
-
-      command += "AT+USOCO=";
-      command += _socket;
-      command += ",\"";
-
-      if (_host != NULL) {
-        command += _host;
-      } else {
-        command += _ip[0];
-        command += '.';
-        command += _ip[1];
-        command += '.';
-        command += _ip[2];
-        command += '.';
-        command += _ip[3];
-      }
-
-      command += "\",";
-      command += _port;
-
-      MODEM.send(command);
 
       _state = CLIENT_STATE_WAIT_CONNECT_RESPONSE;
       ready = 0;
@@ -149,13 +119,8 @@ int GSMClient::ready()
     }
 
     case CLIENT_STATE_CLOSE_SOCKET: {
-      String command;
-      command.reserve(10);
 
-      command += "AT+USOCL=";
-      command += _socket;
-
-      MODEM.send(command);
+      MODEM.sendf("AT+USOCL=%d", _socket);
 
       _state = CLIENT_STATE_WAIT_CLOSE_SOCKET;
       ready = 0;
@@ -332,17 +297,9 @@ int GSMClient::read(uint8_t *buf, size_t size)
     size = 512;
   }
 
-  String command;
   String response;
-  command.reserve(14);
 
-  command += "AT+USORD=";
-  command += _socket;
-  command += ",";
-  command += size;
-
-  MODEM.send(command);
-
+  MODEM.sendf("AT+USORD=%d,%d", _socket, size);
   if (MODEM.waitForResponse(10000, &response) != 1) {
     return 0;
   }
@@ -409,16 +366,9 @@ int GSMClient::available()
     return 0;
   }
 
-  String command;
   String response;
 
-  command.reserve(12);
-
-  command += "AT+USORD=";
-  command += _socket;
-  command += ",0";
-
-  MODEM.send(command);
+  MODEM.sendf("AT+USORD=%d,0", _socket, 0);
   if (MODEM.waitForResponse(10000, &response) == 1) {
     if (response.startsWith("+USORD: ")) {
       int commaIndex = response.indexOf(',');
@@ -455,13 +405,7 @@ void GSMClient::stop()
     return;
   }
 
-  String command;
-  command.reserve(10);
-
-  command += "AT+USOCL=";
-  command += _socket;
-
-  MODEM.send(command);
+  MODEM.sendf("AT+USOCL=%d", _socket);
   MODEM.waitForResponse(10000);
 
   _socket = -1;

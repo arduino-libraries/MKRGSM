@@ -27,15 +27,7 @@ uint8_t GSMUDP::begin(uint16_t port)
 
   _socket = response.charAt(response.length() - 1) - '0';
 
-  String command;
-  command.reserve(16);
-
-  command += "AT+USOLI=";
-  command += _socket;
-  command += ",";
-  command += port;
-
-  MODEM.send(command);
+  MODEM.sendf("AT+USOLI=%d,%d", _socket, port);
   if (MODEM.waitForResponse(10000) != 1) {
     stop();
     return 0;
@@ -50,13 +42,7 @@ void GSMUDP::stop()
     return;
   }
 
-  String command;
-  command.reserve(10);
-
-  command += "AT+USOCL=";
-  command += _socket;
-
-  MODEM.send(command);
+  MODEM.sendf("AT+USOCL=%d", _socket);
   MODEM.waitForResponse(10000);
 
   _socket = -1;
@@ -157,16 +143,8 @@ size_t GSMUDP::write(const uint8_t *buffer, size_t size)
 int GSMUDP::parsePacket()
 {
   String response;
-  String command;
-  command.reserve(14);
 
-  command += "AT+USORF=";
-  command += _socket;
-  command += ",";
-  command += sizeof(_rxBuffer);
-
-  MODEM.send(command);
-
+  MODEM.sendf("AT+USORF=%d,%d", _socket, sizeof(_rxBuffer));
   if (MODEM.waitForResponse(10000, &response) != 1) {
     return 0;
   }

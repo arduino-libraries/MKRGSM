@@ -66,16 +66,7 @@ int GSMServer::ready()
     }
 
     case SERVER_STATE_LISTEN: {
-      String command;
-
-      command.reserve(16);
-
-      command += "AT+USOLI=";
-      command += _socket;
-      command += ",";
-      command += _port;
-
-      MODEM.send(command);
+      MODEM.sendf("AT+USOLI=%d,%d", _socket, _port);
 
       _state = SERVER_STATE_WAIT_LISTEN_RESPONSE;
       ready = 0;
@@ -93,13 +84,7 @@ int GSMServer::ready()
     }
 
     case SERVER_STATE_CLOSE_SOCKET: {
-      String command;
-      command.reserve(10);
-
-      command += "AT+USOCL=";
-      command += _socket;
-
-      MODEM.send(command);
+      MODEM.sendf("AT+USOCL=%d", _socket);
 
       _state = SERVER_STATE_WAIT_CLOSE_SOCKET;
       ready = 0;
@@ -201,13 +186,7 @@ void GSMServer::stop()
     return;
   }
 
-  String command;
-  command.reserve(10);
-
-  command += "AT+USOCL=";
-  command += _socket;
-
-  MODEM.send(command);
+  MODEM.sendf("AT+USOCL=%d", _socket);
   MODEM.waitForResponse(10000);
 
   _socket = -1;

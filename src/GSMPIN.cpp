@@ -40,14 +40,7 @@ int GSMPIN::isPIN()
 
 int GSMPIN::checkPIN(String pin)
 {
-  String command;
-  command.reserve(10 + pin.length());
-
-  command += "AT+CPIN=\"";
-  command += pin;
-  command += "\"";
-
-  MODEM.send(command);
+  MODEM.sendf("AT+CPIN=\"%s\"", pin.c_str());
   if (MODEM.waitForResponse(10000) == 1) {
     return 0;
   }
@@ -58,16 +51,7 @@ int GSMPIN::checkPIN(String pin)
 
 int GSMPIN::checkPUK(String puk, String pin)
 {
-  String command;
-  command.reserve(13 + puk.length() + pin.length());
-
-  command += "AT+CPIN=\"";
-  command += puk;
-  command += "\",\"";
-  command += pin;
-  command += "\"";
-
-  MODEM.send(command);
+  MODEM.sendf("AT+CPIN=\"%s\",\"%s\"", puk.c_str(), pin.c_str());
   if (MODEM.waitForResponse(10000) == 1) {
     return 0;
   }

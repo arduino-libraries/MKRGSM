@@ -26,14 +26,7 @@ size_t GSM_SMS::write(uint8_t c)
 
 int GSM_SMS::beginSMS(const char* to)
 {
-  String command;
-  command.reserve(10 + strlen(to));
-
-  command += "AT+CMGS=\"";
-  command += to;
-  command += "\"";
-
-  MODEM.send(command);
+  MODEM.sendf("AT+CMGS=\"%s\"", to);
   if (MODEM.waitForResponse(100) == 2) {
     _smsTxActive = false;
 
@@ -200,11 +193,9 @@ void GSM_SMS::flush()
   int smsIndexEnd = _incomingBuffer.indexOf(',');
 
   if (smsIndexStart != -1 && smsIndexEnd != -1) {
-    String command = "AT+CMGD=" + _incomingBuffer.substring(smsIndexStart + 1, smsIndexEnd);
-
     while (MODEM.ready() == 0);
 
-    MODEM.send(command);
+    MODEM.sendf("AT+CMGD=%s", _incomingBuffer.substring(smsIndexStart + 1, smsIndexEnd).c_str());
 
     if (_synch) {
       MODEM.waitForResponse(55000);
