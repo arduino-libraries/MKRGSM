@@ -38,15 +38,17 @@ int ModemClass::begin(bool restart)
   }
 
   if (_baud > 115200) {
-    MODEM.sendf("AT+IPR=%ld", _baud);
-    if (MODEM.waitForResponse() == 1) {
-      _uart->end();
-      delay(100);
-      _uart->begin(_baud);
+    sendf("AT+IPR=%ld", _baud);
+    if (waitForResponse() != 1) {
+      return 0;
+    }
+    
+    _uart->end();
+    delay(100);
+    _uart->begin(_baud);
 
-      if (!autosense()) {
-        return 0;
-      }
+    if (!autosense()) {
+      return 0;
     }
   }
 
