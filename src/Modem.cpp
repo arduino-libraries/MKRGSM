@@ -3,12 +3,10 @@
 bool ModemClass::_debug = false;
 ModemUrcHandler* ModemClass::_urcHandlers[MAX_URC_HANDLERS] = { NULL };
 
-ModemClass::ModemClass(Uart& uart, unsigned long baud, int resetPin, int rtsPin, int ctsPin) :
+ModemClass::ModemClass(Uart& uart, unsigned long baud, int resetPin) :
   _uart(&uart),
   _baud(baud),
   _resetPin(resetPin),
-  _rtsPin(rtsPin),
-  _ctsPin(ctsPin),
   _atCommandState(AT_COMMAND_IDLE),
   _ready(1),
   _responseDataStorage(NULL)
@@ -18,14 +16,6 @@ ModemClass::ModemClass(Uart& uart, unsigned long baud, int resetPin, int rtsPin,
 
 int ModemClass::begin(bool restart)
 {
-  if (_rtsPin > -1) {
-    _uart->attachRts(_rtsPin);
-  }
-
-  if (_ctsPin > -1) {
-    _uart->attachCts(_ctsPin);
-  }
-
   _uart->begin(_baud > 115200 ? 115200 : _baud);
 
   if (_resetPin > -1 && restart) {
@@ -250,4 +240,4 @@ void ModemClass::removeUrcHandler(ModemUrcHandler* handler)
   }
 }
 
-ModemClass MODEM(SerialGSM, 921600, GSM_RESETN, GSM_RTS, GSM_CTS);
+ModemClass MODEM(SerialGSM, 921600, GSM_RESETN);
