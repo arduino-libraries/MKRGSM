@@ -57,6 +57,9 @@ public:
       @param used     New PIN lock status
    */
   void setPINUsed(bool used);
+
+private:
+  bool _pinUsed;
 };
 
 #endif

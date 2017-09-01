@@ -2,7 +2,8 @@
 
 #include "GSMPIN.h"
 
-GSMPIN::GSMPIN()
+GSMPIN::GSMPIN() :
+  _pinUsed(false)
 {
 }
 
@@ -61,12 +62,45 @@ int GSMPIN::checkPUK(String puk, String pin)
 
 void GSMPIN::changePIN(String old, String pin)
 {
-#warning "changePIN not implemented"
+  MODEM.sendf("AT+CPWD=\"SC\",\"%s\",\"%s\"", old.c_str(), pin.c_str());
+  if (MODEM.waitForResponse(10000) == 1) {
+    Serial.println("Pin changed succesfully.");
+  } else {
+    Serial.println("ERROR");
+  }
 }
 
 void GSMPIN::switchPIN(String pin)
 {
-#warning "switchPIN not implemented"
+  String response;
+
+  MODEM.send("AT+CLCK=\"SC\",2");
+  if (MODEM.waitForResponse(180000, &response) != 1) {
+    Serial.println("ERROR");
+    return;
+  }
+
+  if (response == "+CLCK: 0") {
+    MODEM.sendf("AT+CLCK=\"SC\",1,\"%s\"", pin.c_str());
+    if (MODEM.waitForResponse(180000, &response) == 1) {
+      Serial.println("OK. PIN lock on.");
+      _pinUsed = true;
+    } else {
+      Serial.println("ERROR");
+      _pinUsed = false;
+    }
+  } else if (response == "+CLCK: 1") {
+    MODEM.sendf("AT+CLCK=\"SC\",0,\"%s\"", pin.c_str());
+    if (MODEM.waitForResponse(180000, &response) == 1) {
+      Serial.println("OK. PIN lock off.");
+      _pinUsed = false;
+    } else {
+      Serial.println("ERROR");
+      _pinUsed = true;
+    }
+  } else {
+    Serial.println("ERROR");
+  }
 }
 
 int GSMPIN::checkReg()
@@ -94,13 +128,10 @@ int GSMPIN::checkReg()
 
 bool GSMPIN::getPINUsed()
 {
-#warning "getPINUsed not implemented"
-
-  return false;
+  return _pinUsed;
 }
 
 void GSMPIN::setPINUsed(bool used)
 {
-#warning "setPINUsed not implemented"
-
+  _pinUsed = used;
 }
