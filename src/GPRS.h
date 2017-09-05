@@ -62,7 +62,7 @@ public:
       @param synchronous  Sync mode
       @return connection status
    */
-  GSM3_NetworkStatus_t attachGPRS(char* apn, char* user_name, char* password, bool synchronous = true);
+  GSM3_NetworkStatus_t attachGPRS(const char* apn, const char* user_name, const char* password, bool synchronous = true);
 
   /** Detach GPRS service
       @param synchronous  Sync mode

@@ -24,7 +24,7 @@
 // Include the GSM library
 #include <GSM1400.h>
 
-#define PINNUMBER ""
+const char PINNUMBER[] = "";
 
 // initialize the library instance
 GSM gsmAccess;

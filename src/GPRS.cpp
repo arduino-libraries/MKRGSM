@@ -56,7 +56,7 @@ GPRS::~GPRS()
   MODEM.removeUrcHandler(this);
 }
 
-GSM3_NetworkStatus_t GPRS::attachGPRS(char* apn, char* user_name, char* password, bool synchronous)
+GSM3_NetworkStatus_t GPRS::attachGPRS(const char* apn, const char* user_name, const char* password, bool synchronous)
 {
   _apn = apn;
   _username = user_name;

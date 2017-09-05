@@ -23,7 +23,7 @@
 #include <GSM1400.h>
 
 // PIN Number
-#define PINNUMBER ""
+const char PINNUMBER[] = "";
 
 // initialize the library instance
 GSM gsmAccess; // include a 'true' parameter for debug enabled

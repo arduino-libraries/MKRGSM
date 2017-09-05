@@ -20,12 +20,12 @@
 #include <GSM1400.h>
 
 // PIN Number
-#define PINNUMBER ""
+const char PINNUMBER[] = "";
 
 // APN data
-#define GPRS_APN       "GPRS_APN" // replace your GPRS APN
-#define GPRS_LOGIN     "login"    // replace with your GPRS login
-#define GPRS_PASSWORD  "password" // replace with your GPRS password
+const char GPRS_APN[]      = "GPRS_APN"; // replace your GPRS APN
+const char GPRS_LOGIN[]    = "login";    // replace with your GPRS login
+const char GPRS_PASSWORD[] = "password"; // replace with your GPRS password
 
 // initialize the library instance
 GSMClient client;
