@@ -78,8 +78,10 @@ void loop() {
       if (client.available()) {
         Serial.println("Receiving request!");
         bool sendResponse = false;
-        while (char c = client.read()) {
-          if (c == '\n') {
+        while (int c = client.read()) {
+          if (c == -1) {
+            break;
+          } else if (c == '\n') {
             sendResponse = true;
           }
         }
@@ -109,5 +111,4 @@ void loop() {
     }
   }
 }
-
 

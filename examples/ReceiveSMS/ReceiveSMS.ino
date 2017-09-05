@@ -57,7 +57,7 @@ void setup() {
 }
 
 void loop() {
-  char c;
+  int c;
 
   // If there are any SMSs available()
   if (sms.available()) {
@@ -75,8 +75,8 @@ void loop() {
     }
 
     // Read message bytes and print them
-    while (c = sms.read()) {
-      Serial.print(c);
+    while ((c = sms.read()) != -1) {
+      Serial.print((char)c);
     }
 
     Serial.println("\nEND OF MESSAGE");
@@ -89,5 +89,4 @@ void loop() {
   delay(1000);
 
 }
-
 

@@ -194,7 +194,7 @@ int GSM_SMS::read()
     return _incomingBuffer[_smsDataIndex++];
   }
 
-  return 0;
+  return -1;
 }
 
 int GSM_SMS::peek()
