@@ -68,6 +68,9 @@ public:
 
   unsigned long getTime();
 
+  int lowPowerMode();
+  int noLowPowerMode();
+
 private:
   GSM3_NetworkStatus_t _state;
   int _readyState;

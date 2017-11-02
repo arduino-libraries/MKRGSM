@@ -332,3 +332,13 @@ unsigned long GSM::getTime()
 
   return 0;
 }
+
+int GSM::lowPowerMode()
+{
+  return MODEM.lowPowerMode();
+}
+
+int GSM::noLowPowerMode()
+{
+  return MODEM.noLowPowerMode();
+}

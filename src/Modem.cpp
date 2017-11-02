@@ -22,10 +22,12 @@
 bool ModemClass::_debug = false;
 ModemUrcHandler* ModemClass::_urcHandlers[MAX_URC_HANDLERS] = { NULL };
 
-ModemClass::ModemClass(Uart& uart, unsigned long baud, int resetPin) :
+ModemClass::ModemClass(Uart& uart, unsigned long baud, int resetPin, int dtrPin) :
   _uart(&uart),
   _baud(baud),
   _resetPin(resetPin),
+  _dtrPin(dtrPin),
+  _lowPowerMode(false),
   _atCommandState(AT_COMMAND_IDLE),
   _ready(1),
   _responseDataStorage(NULL)
@@ -71,6 +73,16 @@ int ModemClass::begin(bool restart)
     }
   }
 
+  if (_dtrPin > -1) {
+    pinMode(_dtrPin, OUTPUT);
+    noLowPowerMode();
+
+    send("AT+UPSV=3");
+    if (waitForResponse() != 1) {
+      return 0;
+    }
+  }
+
   return 1;
 }
 
@@ -78,6 +90,10 @@ void ModemClass::end()
 {
   _uart->end();
   digitalWrite(_resetPin, HIGH);
+
+  if (_dtrPin > -1) {
+    digitalWrite(_dtrPin, LOW);
+  }
 }
 
 void ModemClass::debug()
@@ -112,6 +128,32 @@ int ModemClass::reset()
   return (waitForResponse(1000) == 1);
 }
 
+int ModemClass::lowPowerMode()
+{
+  if (_dtrPin > -1) {
+    _lowPowerMode = true;
+
+    digitalWrite(_dtrPin, HIGH);
+
+    return 1;
+  }
+
+  return 0;
+}
+
+int ModemClass::noLowPowerMode()
+{
+  if (_dtrPin > -1) {
+    _lowPowerMode = false;
+
+    digitalWrite(_dtrPin, LOW);
+
+    return 1;
+  }
+
+  return 0;
+}
+
 size_t ModemClass::write(uint8_t c)
 {
   return _uart->write(c);
@@ -119,10 +161,18 @@ size_t ModemClass::write(uint8_t c)
 
 void ModemClass::send(const char* command)
 {
+  if (_lowPowerMode) {
+    digitalWrite(_dtrPin, LOW);
+  }
+
   _uart->println(command);
   _uart->flush();
   _atCommandState = AT_COMMAND_IDLE;
   _ready = 0;
+
+  if (_lowPowerMode) {
+    digitalWrite(_dtrPin, HIGH);
+  }
 }
 
 void ModemClass::sendf(const char *fmt, ...)
@@ -259,4 +309,4 @@ void ModemClass::removeUrcHandler(ModemUrcHandler* handler)
   }
 }
 
-ModemClass MODEM(SerialGSM, 921600, GSM_RESETN);
+ModemClass MODEM(SerialGSM, 921600, GSM_RESETN, GSM_DTR);

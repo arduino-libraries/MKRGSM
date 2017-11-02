@@ -32,7 +32,7 @@ public:
 
 class ModemClass {
 public:
-  ModemClass(Uart& uart, unsigned long baud, int resetPin);
+  ModemClass(Uart& uart, unsigned long baud, int resetPin, int dtrPin);
 
   int begin(bool restart = true);
   void end();
@@ -43,6 +43,9 @@ public:
 
   int noop();
   int reset();
+
+  int lowPowerMode();
+  int noLowPowerMode();
 
   size_t write(uint8_t c);
 
@@ -62,6 +65,8 @@ private:
   Uart* _uart;
   unsigned long _baud;
   int _resetPin;
+  int _dtrPin;
+  bool _lowPowerMode;
 
   enum {
     AT_COMMAND_IDLE,
