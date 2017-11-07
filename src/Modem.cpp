@@ -169,10 +169,6 @@ void ModemClass::send(const char* command)
   _uart->flush();
   _atCommandState = AT_COMMAND_IDLE;
   _ready = 0;
-
-  if (_lowPowerMode) {
-    digitalWrite(_dtrPin, HIGH);
-  }
 }
 
 void ModemClass::sendf(const char *fmt, ...)
@@ -264,6 +260,10 @@ void ModemClass::poll()
           }
 
           if (_ready != 0) {
+            if (_lowPowerMode) {
+              digitalWrite(_dtrPin, HIGH);
+            }
+
             if (_responseDataStorage != NULL) {
               _buffer.remove(responseResultIndex);
               _buffer.trim();
