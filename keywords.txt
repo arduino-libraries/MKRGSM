@@ -1,5 +1,5 @@
 #######################################
-# Syntax Coloring Map For GSM
+# Syntax Coloring Map For MKRGSM
 ####################################### 
 # Class
 #######################################
@@ -14,7 +14,9 @@ GSMServer	KEYWORD1
 GSMModem	KEYWORD1
 GSMScanner	KEYWORD1
 GSMPIN	KEYWORD1
-GSMBand KEYWORD1
+GSMBand	KEYWORD1
+GSMSSLClient	KEYWORD1
+GSMUdp	KEYWORD1
 
 #######################################
 # Methods and Functions 
@@ -49,6 +51,16 @@ setPINUsed	KEYWORD2
 getBand		KEYWORD2
 setBand		KEYWORD2
 getvoiceCallStatus	KEYWORD2
+hostByName	KEYWORD2
+ping	KEYWORD2
+getTime	KEYWORD2
+lowPowerMode	KEYWORD2
+noLowPowerMode	KEYWORD2
+peekDTMF	KEYWORD2
+readDTMF	KEYWORD2
+writeDTMF	KEYWORD2
+enableI2SInput	KEYWORD2
+disableI2SInputdisableI2SInput
 
 #######################################
 # Constants
