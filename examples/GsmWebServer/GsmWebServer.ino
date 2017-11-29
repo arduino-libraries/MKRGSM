@@ -2,18 +2,19 @@
  GSM Web Server
 
  A simple web server that shows the value of the analog input pins.
- using a GSM shield.
+ using a MKR GSM 1400 board.
 
  Circuit:
- * GSM shield attached
+ * MKR GSM 1400 board
+ * Antenna
  * Analog inputs attached to pins A0 through A5 (optional)
 
  created 8 Mar 2012
  by Tom Igoe
- */
+*/
 
 // libraries
-#include <GSM1400.h>
+#include <MKRGSM.h>
 
 // PIN Number
 const char PINNUMBER[] = "";

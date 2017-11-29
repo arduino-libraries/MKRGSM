@@ -8,21 +8,18 @@
  Then it scans for nearby networks and prints out their signal strengths.
 
  Circuit:
- * GSM shield
+ * MKR GSM 1400 board
+ * Antenna
  * SIM card
 
  Created 8 Mar 2012
  by Tom Igoe, implemented by Javier Carazo
  Modified 4 Feb 2013
  by Scott Fitzgerald
-
- http://www.arduino.cc/en/Tutorial/GSMToolsGsmScanNetworks
-
- This example code is part of the public domain
- */
+*/
 
 // libraries
-#include <GSM1400.h>
+#include <MKRGSM.h>
 
 // PIN Number
 const char PINNUMBER[] = "";

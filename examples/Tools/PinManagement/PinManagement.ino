@@ -4,20 +4,16 @@
  a SIM card inserted into a GSM shield.
 
  Circuit:
- * GSM shield
+ * MKR GSM 1400 board
+ * Antenna
  * SIM card
 
  Created 12 Jun 2012
  by David del Peral
-
- This example code is part of the public domain
-
- http://www.arduino.cc/en/Tutorial/GSMToolsPinManagement
-
- */
+*/
 
 // libraries
-#include <GSM1400.h>
+#include <MKRGSM.h>
 
 // pin manager object
 GSMPIN PINManager;

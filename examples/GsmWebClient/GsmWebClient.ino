@@ -1,23 +1,21 @@
 /*
   Web client
 
- This sketch connects to a website through a GSM shield. Specifically,
+ This sketch connects to a website through a MKR GSM 1400 board. Specifically,
  this example downloads the URL "http://www.arduino.cc/asciilogo.txt" and
  prints it to the Serial monitor.
 
  Circuit:
- * GSM shield attached to an Arduino
+ * MKR GSM 1400 board
+ * Antenna
  * SIM card with a data plan
 
  created 8 Mar 2012
  by Tom Igoe
-
- http://www.arduino.cc/en/Tutorial/GSMExamplesWebClient
-
- */
+*/
 
 // libraries
-#include <GSM1400.h>
+#include <MKRGSM.h>
 
 // PIN Number
 const char PINNUMBER[] = "";

@@ -1,7 +1,7 @@
 /*
  SMS sender
 
- This sketch, for the Arduino GSM shield,sends an SMS message
+ This sketch, for the MKR GSM 1400 board,sends an SMS message
  you enter in the serial monitor. Connect your Arduino with the
  GSM shield and SIM card, open the serial monitor, and wait for
  the "READY" message to appear in the monitor. Next, type a
@@ -9,20 +9,16 @@
  monitor is set to send a newline when you press return.
 
  Circuit:
- * GSM shield
+ * MKR GSM 1400 board
+ * Antenna
  * SIM card that can send SMS
 
  created 25 Feb 2012
  by Tom Igoe
-
- This example is in the public domain.
-
- http://www.arduino.cc/en/Tutorial/GSMExamplesSendSMS
-
- */
+*/
 
 // Include the GSM library
-#include <GSM1400.h>
+#include <MKRGSM.h>
 
 const char PINNUMBER[] = "";
 

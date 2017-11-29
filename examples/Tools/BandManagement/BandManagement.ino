@@ -1,7 +1,7 @@
 /*
  Band Management
 
- This sketch, for the Arduino GSM shield, checks the band
+ This sketch, for the MKR GSM 1400 board, checks the band
  currently configured in the modem and allows you to change
  it.
 
@@ -14,16 +14,15 @@
 
 
  Circuit:
- * GSM shield
+ * MKR GSM 1400 board
+ * Antenna
 
  created 12 June 2012
  by Javier Zorzano, Scott Fitzgerald
-
- This example is in the public domain.
- */
+*/
 
 // libraries
-#include <GSM1400.h>
+#include <MKRGSM.h>
 
 // initialize the library instance
 GSMBand band;
