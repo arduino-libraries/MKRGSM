@@ -1,24 +1,20 @@
 /*
  SMS receiver
 
- This sketch, for the Arduino GSM shield, waits for a SMS message
+ This sketch, for the MKR GSM 1400 board, waits for a SMS message
  and displays it through the Serial port.
 
  Circuit:
- * GSM shield attached to and Arduino
+ * MKR GSM 1400 board
+ * Antenna
  * SIM card that can receive SMS messages
 
  created 25 Feb 2012
  by Javier Zorzano / TD
-
- This example is in the public domain.
-
- http://www.arduino.cc/en/Tutorial/GSMExamplesReceiveSMS
-
 */
 
 // include the GSM library
-#include <GSM1400.h>
+#include <MKRGSM.h>
 
 // PIN Number for the SIM
 const char PINNUMBER[] = "";

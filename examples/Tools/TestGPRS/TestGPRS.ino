@@ -1,24 +1,20 @@
 /*
 
- This sketch test the GSM shield's ability to connect to a
- GPERS network. It asks for APN information through the
+ This sketch test the MKR GSM 1400 board's ability to connect to a
+ GPRS network. It asks for APN information through the
  serial monitor and tries to connect to arduino.cc.
 
  Circuit:
- * GSM shield attached
+ * MKR GSM 1400 board
+ * Antenna
  * SIM card with data plan
 
  Created 18 Jun 2012
  by David del Peral
-
- This example code is part of the public domain
-
- http://www.arduino.cc/en/Tutorial/GSMToolsTestGPRS
-
- */
+*/
 
 // libraries
-#include <GSM1400.h>
+#include <MKRGSM.h>
 
 // PIN Number
 const char PINNUMBER[] = "";

@@ -5,18 +5,15 @@
  and the server IP address.
 
  Circuit:
- * GSM shield attached
+ * MKR GSM 1400 board
+ * Antenna
 
  created
  by David Cuartielles
  modified 21 Nov 2012
  by Tom Igoe
-
- http://www.arduino.cc/en/Tutorial/GSMToolsTestWebServer
-
- This example code is part of the public domain
- */
-#include <GSM1400.h>
+*/
+#include <MKRGSM.h>
 
 // PIN Number
 const char PINNUMBER[] = "";

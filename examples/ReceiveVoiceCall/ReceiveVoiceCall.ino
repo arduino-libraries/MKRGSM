@@ -1,28 +1,20 @@
 /*
  Receive Voice Call
 
- This sketch, for the Arduino GSM shield, receives voice calls,
+ This sketch, for the MKR GSM 1400 board, receives voice calls,
  displays the calling number, waits a few seconds then hangs up.
 
  Circuit:
- * GSM shield
- * Voice circuit. Refer to to the GSM shield getting started guide
-   at http://www.arduino.cc/en/Guide/ArduinoGSMShield#toc11
+ * MKR GSM 1400 board
+ * Antenna
  * SIM card that can accept voice calls
-
- With no voice circuit the call will connect, but will not send or receive sound
 
  created Mar 2012
  by Javier Zorzano
-
- This example is in the public domain.
-
- http://www.arduino.cc/en/Tutorial/GSMExamplesReceiveVoiceCall
-
- */
+*/
 
 // Include the GSM library
-#include <GSM1400.h>
+#include <MKRGSM.h>
 
 // PIN Number
 const char PINNUMBER[] = "";

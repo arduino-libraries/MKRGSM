@@ -1,25 +1,21 @@
 /*
 
  This example tests to see if the modem of the
- GSM shield is working correctly. You do not need
+ MKR GSM 1400 board is working correctly. You do not need
  a SIM card for this example.
 
  Circuit:
- * GSM shield attached
+ * MKR GSM 1400 board
+ * Antenna
 
  Created 12 Jun 2012
  by David del Peral
  modified 21 Nov 2012
  by Tom Igoe
-
- http://www.arduino.cc/en/Tutorial/GSMToolsTestModem
-
- This sample code is part of the public domain
-
- */
+*/
 
 // libraries
-#include <GSM1400.h>
+#include <MKRGSM.h>
 
 // modem verification object
 GSMModem modem;
