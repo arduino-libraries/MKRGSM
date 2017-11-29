@@ -4,7 +4,7 @@
 # Class
 #######################################
 
-GSM1400	KEYWORD1
+MKRGSM	KEYWORD1
 GSM	KEYWORD1
 GSMVoiceCall	KEYWORD1
 GSM_SMS	KEYWORD1

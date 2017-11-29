@@ -1,5 +1,5 @@
 /*
-  This file is part of the GSM1400 library.
+  This file is part of the MKR GSM library.
   Copyright (C) 2017  Arduino AG (http://www.arduino.cc/)
 
   This library is free software; you can redistribute it and/or
@@ -17,8 +17,8 @@
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _GSM1400_H_INCLUDED
-#define _GSM1400_H_INCLUDED
+#ifndef _MKRGSM_H_INCLUDED
+#define _MKRGSM_H_INCLUDED
 
 #include "GSM.h"
 #include "GSMVoiceCall.h"

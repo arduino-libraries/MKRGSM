@@ -1,5 +1,5 @@
 /*
-  This file is part of the GSM1400 library.
+  This file is part of the MKR GSM library.
   Copyright (C) 2017  Arduino AG (http://www.arduino.cc/)
 
   This library is free software; you can redistribute it and/or
