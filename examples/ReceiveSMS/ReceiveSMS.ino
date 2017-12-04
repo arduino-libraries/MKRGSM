@@ -16,8 +16,10 @@
 // include the GSM library
 #include <MKRGSM.h>
 
-// PIN Number for the SIM
-const char PINNUMBER[] = "";
+#include "arduino_secrets.h" 
+// Please enter your sensitive data in the Secret tab or arduino_secrets.h
+// PIN Number
+const char PINNUMBER[] = SECRET_PINNUMBER;
 
 // initialize the library instances
 GSM gsmAccess;
