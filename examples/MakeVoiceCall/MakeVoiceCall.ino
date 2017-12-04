@@ -20,8 +20,10 @@
 // libraries
 #include <MKRGSM.h>
 
+#include "arduino_secrets.h" 
+// Please enter your sensitive data in the Secret tab or arduino_secrets.h
 // PIN Number
-const char PINNUMBER[] = "";
+const char PINNUMBER[] = SECRET_PINNUMBER;
 
 // initialize the library instance
 GSM gsmAccess; // include a 'true' parameter for debug enabled
