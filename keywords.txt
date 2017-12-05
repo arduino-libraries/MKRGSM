@@ -60,7 +60,7 @@ peekDTMF	KEYWORD2
 readDTMF	KEYWORD2
 writeDTMF	KEYWORD2
 enableI2SInput	KEYWORD2
-disableI2SInputdisableI2SInput
+disableI2SInput	KEYWORD2
 
 #######################################
 # Constants
