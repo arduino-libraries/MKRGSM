@@ -24,6 +24,9 @@ script:
   - buildExampleSketch ReceiveSMS
   - buildExampleSketch ReceiveVoiceCall
   - buildExampleSketch SendSMS
+  - buildExampleSketch GPRSPing
+  - buildExampleSketch GSMSSLWebClient
+  - buildExampleSketch GPRSUdpNtpClient
   - buildExampleToolsSketch BandManagement
   - buildExampleToolsSketch GsmScanNetworks
   - buildExampleToolsSketch PinManagement
