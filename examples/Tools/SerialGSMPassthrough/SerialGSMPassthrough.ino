@@ -13,11 +13,14 @@
    - 1500 mAh or higher lipo battery connected
    - SIM card
 
-   Make sure the Serial Monitor's line ending is set to "Both NL & CR" 
+   Make sure the Serial Monitor's line ending is set to "Both NL & CR"
 
    create 11 December 2017
    Sandeep Mistry
 */
+
+// baud rate used for both Serial ports
+unsigned long baud = 115200;
 
 void setup() {
   // reset the ublox module
@@ -26,8 +29,8 @@ void setup() {
   delay(100);
   digitalWrite(GSM_RESETN, LOW);
 
-  Serial.begin(115200);
-  SerialGSM.begin(115200);
+  Serial.begin(baud);
+  SerialGSM.begin(baud);
 }
 
 void loop() {
