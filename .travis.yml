@@ -33,3 +33,4 @@ script:
   - buildExampleToolsSketch TestGPRS
   - buildExampleToolsSketch TestModem
   - buildExampleToolsSketch TestWebServer
+  - buildExampleToolsSketch SerialGSMPassthrough
