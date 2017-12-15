@@ -17,6 +17,7 @@ GSMPIN	KEYWORD1
 GSMBand	KEYWORD1
 GSMSSLClient	KEYWORD1
 GSMUdp	KEYWORD1
+GSMLocation	KEYWORD1
 
 #######################################
 # Methods and Functions 
@@ -61,6 +62,10 @@ readDTMF	KEYWORD2
 writeDTMF	KEYWORD2
 enableI2SInput	KEYWORD2
 disableI2SInput	KEYWORD2
+latitude	KEYWORD2
+longitude	KEYWORD2
+altitude	KEYWORD2
+accuracy	KEYWORD2
 
 #######################################
 # Constants
