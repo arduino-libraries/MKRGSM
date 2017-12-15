@@ -27,6 +27,7 @@ script:
   - buildExampleSketch GPRSPing
   - buildExampleSketch GsmSSLWebClient
   - buildExampleSketch GPRSUdpNtpClient
+  - buildExampleSketch GsmLocation
   - buildExampleToolsSketch BandManagement
   - buildExampleToolsSketch GsmScanNetworks
   - buildExampleToolsSketch PinManagement

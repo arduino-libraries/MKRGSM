@@ -17,22 +17,39 @@
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _MKRGSM_H_INCLUDED
-#define _MKRGSM_H_INCLUDED
+#ifndef _GSM_LOCATION_H_INCLUDED
+#define _GSM_LOCATION_H_INCLUDED
 
-#include "GSM.h"
-#include "GSMVoiceCall.h"
-#include "GSM_SMS.h"
-#include "GPRS.h"
-#include "GSMClient.h"
-#include "GSMServer.h"
-#include "GSMModem.h"
-#include "GSMScanner.h"
-#include "GSMPIN.h"
-#include "GSMBand.h"
+#include <Arduino.h>
 
-#include "GSMSSLClient.h"
-#include "GSMUdp.h"
-#include "GSMLocation.h"
+#include "Modem.h"
+
+class GSMLocation : public ModemUrcHandler {
+
+public:
+  GSMLocation();
+  virtual ~GSMLocation();
+
+  int begin();
+
+  float latitude();
+  float longitude();
+  long altitude();
+  long accuracy();
+
+  void handleUrc(const String& urc);
+
+private:
+  void updateIfNeeded();
+
+private:
+  bool _locationUpdated;
+  unsigned long _lastRequestTime;
+
+  float _latitude;
+  float _longitude;
+  long _altitude;
+  long _uncertainty;
+};
 
 #endif
