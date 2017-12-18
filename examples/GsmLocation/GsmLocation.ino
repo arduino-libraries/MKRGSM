@@ -2,7 +2,7 @@
   Location
 
   This sketch uses the celluar network to determine the location of a MKR GSM 1400 board
-  and prints it to the Serial monitor. The location is  based on the cellular towers in 
+  and prints it to the Serial monitor. The location is  based on the cellular towers in
   range, and requires a GPRS data connection to be enabled.
 
   Circuit:
@@ -31,11 +31,6 @@ GSMLocation location;
 GPRS gprs;
 GSM gsmAccess;
 
-float latitude;
-float longitude;
-long altitude;
-long accuracy;
-
 void setup() {
   // initialize serial communications and wait for port to open:
   Serial.begin(9600);
@@ -63,27 +58,21 @@ void setup() {
 }
 
 void loop() {
-  // update the location variables
-  latitude = location.latitude();
-  longitude = location.longitude();
-  altitude = location.altitude();
-  accuracy = location.accuracy();
+  if (location.available()) {
+    Serial.print("Location: ");
+    Serial.print(location.latitude(), 7);
+    Serial.print(", ");
+    Serial.println(location.longitude(), 7);
 
-  Serial.print("Location: ");
-  Serial.print(latitude, 7);
-  Serial.print(", ");
-  Serial.println(longitude, 7);
+    Serial.print("Altitude: ");
+    Serial.print(location.altitude());
+    Serial.println("m");
 
-  Serial.print("Altitude: ");
-  Serial.print(altitude);
-  Serial.println("m");
+    Serial.print("Accuracy: +/- ");
+    Serial.print(location.accuracy());
+    Serial.println("m");
 
-  Serial.print("Accuracy: +/- ");
-  Serial.print(accuracy);
-  Serial.println("m");
-
-  Serial.println();
-
-  delay(1000);
+    Serial.println();
+  }
 }
 

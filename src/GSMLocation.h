@@ -32,6 +32,8 @@ public:
 
   int begin();
 
+  int available();
+
   float latitude();
   float longitude();
   long altitude();
@@ -40,11 +42,8 @@ public:
   void handleUrc(const String& urc);
 
 private:
-  void updateIfNeeded();
-
-private:
-  bool _locationUpdated;
-  unsigned long _lastRequestTime;
+  bool _commandSent;
+  bool _locationAvailable;
 
   float _latitude;
   float _longitude;

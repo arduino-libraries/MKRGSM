@@ -22,8 +22,8 @@
 #define GSM_LOCATION_UPDATE_INTERVAL 1100
 
 GSMLocation::GSMLocation() :
-  _locationUpdated(false),
-  _lastRequestTime(0),
+  _commandSent(false),
+  _locationAvailable(false),
   _latitude(0),
   _longitude(0),
   _altitude(0),
@@ -45,40 +45,48 @@ int GSMLocation::begin()
     return 0;
   }
 
-  updateIfNeeded();
+  return 1;
+}
 
-  for (unsigned long start = millis(); !_locationUpdated && millis() < (start + 10000); ) {
-    MODEM.poll();
+int GSMLocation::available()
+{
+  MODEM.poll();
+
+  if (!_commandSent) {
+    _commandSent = true;
+    _locationAvailable = false;
+
+    MODEM.send("AT+ULOC=2,2,0,1,1");
+    MODEM.waitForResponse();
   }
 
-  return 1;
+  if (_locationAvailable) {
+    _commandSent = false;
+    _locationAvailable = false;
+
+    return 1;
+  }
+
+  return 0;
 }
 
 float GSMLocation::latitude()
 {
-  updateIfNeeded();
-
   return _latitude;
 }
 
 float GSMLocation::longitude()
 {
-  updateIfNeeded();
-
   return _longitude;
 }
 
 long GSMLocation::altitude()
 {
-  updateIfNeeded();
-
   return _altitude;
 }
 
 long GSMLocation::accuracy()
 {
-  updateIfNeeded();
-
   return _uncertainty;
 }
 
@@ -88,7 +96,7 @@ void GSMLocation::handleUrc(const String& urc)
     String temp = urc;
     int lastCommaIndex;
 
-    _locationUpdated = true;
+    _locationAvailable = true;
 
     lastCommaIndex = temp.lastIndexOf(',');
     _uncertainty = temp.substring(lastCommaIndex + 1).toInt();
@@ -105,21 +113,5 @@ void GSMLocation::handleUrc(const String& urc)
     lastCommaIndex = temp.lastIndexOf(',');
     _latitude = temp.substring(lastCommaIndex + 1).toFloat();
     temp.remove(lastCommaIndex);
-  }
-}
-
-void GSMLocation::updateIfNeeded()
-{
-  MODEM.poll();
-
-  if ((millis() - _lastRequestTime) < GSM_LOCATION_UPDATE_INTERVAL) {
-    return;
-  }
-
-  _lastRequestTime = millis();
-  MODEM.send("AT+ULOC=2,2,0,1,1");
-
-  if (MODEM.waitForResponse() != 1) {
-    return;
   }
 }
