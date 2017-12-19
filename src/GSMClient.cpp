@@ -246,39 +246,49 @@ size_t GSMClient::write(const uint8_t* buf, size_t size)
     return 0;
   }
 
-  if (size > 512) {
-    size = 512;
-  }
-
+  size_t written = 0;
   String command;
-  command.reserve(19 + size * 2);
 
-  command += "AT+USOWR=";
-  command += _socket;
-  command += ",";
-  command += size;
-  command += ",\"";
 
-  for (size_t i = 0; i < size; i++) {
-    byte b = buf[i];
+  while (size) {
+    size_t chunkSize = size;
 
-    byte n1 = (b >> 4) & 0x0f;
-    byte n2 = (b & 0x0f);
-
-    command += (char)(n1 > 9 ? 'A' + n1 - 10 : '0' + n1);
-    command += (char)(n2 > 9 ? 'A' + n2 - 10 : '0' + n2);
-  }
-
-  command += "\"";
-  
-  MODEM.send(command);
-  if (_writeSync) {
-    if (MODEM.waitForResponse(10000) != 1) {
-      return 0;
+    if (chunkSize > 256) {
+      chunkSize = 256;
     }
+
+    command.reserve(19 + chunkSize * 2);
+
+    command += "AT+USOWR=";
+    command += _socket;
+    command += ",";
+    command += chunkSize;
+    command += ",\"";
+
+    for (size_t i = 0; i < chunkSize; i++) {
+      byte b = buf[i + written];
+
+      byte n1 = (b >> 4) & 0x0f;
+      byte n2 = (b & 0x0f);
+
+      command += (char)(n1 > 9 ? 'A' + n1 - 10 : '0' + n1);
+      command += (char)(n2 > 9 ? 'A' + n2 - 10 : '0' + n2);
+    }
+
+    command += "\"";
+
+    MODEM.send(command);
+    if (_writeSync) {
+      if (MODEM.waitForResponse(10000) != 1) {
+        break;
+      }
+    }
+
+    written += chunkSize;
+    size -= chunkSize;
   }
 
-  return size;
+  return written;
 }
 
 void GSMClient::endWrite(bool /*sync*/)
