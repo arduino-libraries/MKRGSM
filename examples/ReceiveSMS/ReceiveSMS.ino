@@ -38,12 +38,12 @@ void setup() {
   Serial.println("SMS Messages Receiver");
 
   // connection state
-  boolean notConnected = true;
+  boolean connected = false;
 
   // Start GSM connection
-  while (notConnected) {
+  while (!connected) {
     if (gsmAccess.begin(PINNUMBER) == GSM_READY) {
-      notConnected = false;
+      connected = true;
     } else {
       Serial.println("Not connected");
       delay(1000);

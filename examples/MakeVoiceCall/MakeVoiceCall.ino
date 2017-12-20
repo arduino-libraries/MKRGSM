@@ -43,13 +43,13 @@ void setup() {
   Serial.println("Make Voice Call");
 
   // connection state
-  boolean notConnected = true;
+  boolean connected = false;
 
   // Start GSM shield
   // If your SIM has PIN, pass it as a parameter of begin() in quotes
-  while (notConnected) {
+  while (!connected) {
     if (gsmAccess.begin(PINNUMBER) == GSM_READY) {
-      notConnected = false;
+      connected = true;
     } else {
       Serial.println("Not connected");
       delay(1000);
