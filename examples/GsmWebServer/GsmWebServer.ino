@@ -42,14 +42,14 @@ void setup() {
   }
 
   // connection state
-  boolean notConnected = true;
+  boolean connected = false;
 
   // Start GSM shield
   // If your SIM has PIN, pass it as a parameter of begin() in quotes
-  while (notConnected) {
-    if ((gsmAccess.begin(PINNUMBER) == GSM_READY) &
+  while (!connected) {
+    if ((gsmAccess.begin(PINNUMBER) == GSM_READY) &&
         (gprs.attachGPRS(GPRS_APN, GPRS_LOGIN, GPRS_PASSWORD) == GPRS_READY)) {
-      notConnected = false;
+      connected = true;
     } else {
       Serial.println("Not connected");
       delay(1000);
