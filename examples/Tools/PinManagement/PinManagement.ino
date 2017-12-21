@@ -71,7 +71,7 @@ void setup() {
       }
     } else if (pin_query == -2) {
       // the worst case, PIN and PUK are locked
-      Serial.println("PIN & PUK locked. Use PIN2/PUK2 in a mobile phone.");
+      Serial.println("PIN and PUK locked. Use PIN2/PUK2 in a mobile phone.");
       while (true);
     } else {
       // SIM does not requires authetication
@@ -110,7 +110,7 @@ void loop() {
     user_input = readSerial();
     // activate/deactivate PIN lock
     PINManager.switchPIN(user_input);
-  } else if (user_op == "2" & PINManager.getPINUsed()) {
+  } else if (user_op == "2" && PINManager.getPINUsed()) {
     Serial.println("Enter your actual PIN code:");
     String oldPIN = readSerial();
     Serial.println("Now, enter your new PIN code:");

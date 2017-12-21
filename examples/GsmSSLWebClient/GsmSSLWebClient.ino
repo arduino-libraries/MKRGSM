@@ -31,7 +31,7 @@ GSMSSLClient client;
 GPRS gprs;
 GSM gsmAccess;
 
-// URL, path & port (for example: arduino.cc)
+// URL, path and port (for example: arduino.cc)
 char server[] = "arduino.cc";
 char path[] = "/asciilogo.txt";
 int port = 443; // port 443 is the default for HTTPS

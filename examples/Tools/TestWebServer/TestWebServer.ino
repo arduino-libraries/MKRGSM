@@ -47,7 +47,7 @@ void setup() {
   // Start GSM shield
   // If your SIM has PIN, pass it as a parameter of begin() in quotes
   while (!connected) {
-    if ((gsmAccess.begin(PINNUMBER) == GSM_READY) &
+    if ((gsmAccess.begin(PINNUMBER) == GSM_READY) &&
         (gprs.attachGPRS(GPRS_APN, GPRS_LOGIN, GPRS_PASSWORD) == GPRS_READY)) {
       connected = true;
     } else {

@@ -31,7 +31,7 @@ GSMClient client;
 GPRS gprs;
 GSM gsmAccess;
 
-// URL, path & port (for example: arduino.cc)
+// URL, path and port (for example: arduino.cc)
 char server[] = "arduino.cc";
 char path[] = "/asciilogo.txt";
 int port = 80; // port 80 is the default for HTTP

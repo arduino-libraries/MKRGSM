@@ -13,7 +13,7 @@
    - 1500 mAh or higher lipo battery connected
    - SIM card
 
-   Make sure the Serial Monitor's line ending is set to "Both NL & CR"
+   Make sure the Serial Monitor's line ending is set to "Both NL and CR"
 
    create 11 December 2017
    Sandeep Mistry
