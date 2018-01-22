@@ -155,6 +155,9 @@ GSMClient GSMServer::available(bool synch)
           if (client.available()) {
             socket = _childSockets[i].socket;
             break;
+          } else if (!client.connected()) {
+            _childSockets[i].socket = -1;
+            _childSockets[i].accepted = false;
           }
         }
       }
