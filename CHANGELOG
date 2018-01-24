@@ -1,5 +1,9 @@
 MKRGSM ?.?.? - ????.??.??
 
+MKRGSM 1.1.1 - 2018.01.24
+
+* Fixed GSMServer.available() behaviour when client.stop() is called on an accepted socket
+
 MKRGSM 1.1.0 - 2018.01.02
 
 * Added new GSMLocation API
