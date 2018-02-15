@@ -163,6 +163,7 @@ void ModemClass::send(const char* command)
 {
   if (_lowPowerMode) {
     digitalWrite(_dtrPin, LOW);
+    delay(5);
   }
 
   _uart->println(command);
