@@ -103,7 +103,7 @@ void ModemClass::debug()
 
 int ModemClass::autosense(int timeout)
 {
-  for (unsigned long start = millis(); millis() < (start + timeout);) {
+  for (unsigned long start = millis(); (millis() - start) < timeout;) {
     if (noop() == 1) {
       return 1;
     }
@@ -186,7 +186,7 @@ void ModemClass::sendf(const char *fmt, ...)
 int ModemClass::waitForResponse(unsigned long timeout, String* responseDataStorage)
 {
   _responseDataStorage = responseDataStorage;
-  for (unsigned long start = millis(); millis() < (start + timeout);) {
+  for (unsigned long start = millis(); (millis() - start) < timeout;) {
     int r = ready();
 
     if (r != 0) {

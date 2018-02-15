@@ -63,7 +63,7 @@ int GSMVoiceCall::voiceCall(const char* to, unsigned long timeout)
     }
 
     _callStatus = CALLING;
-    for (unsigned long start = millis(); (timeout == 0) || (millis() < (start + timeout));) {
+    for (unsigned long start = millis(); (timeout == 0) || ((millis() - start) < timeout);) {
       if (getvoiceCallStatus() != CALLING) {
         break;
       }

@@ -35,7 +35,7 @@ int GSMPIN::isPIN()
 {
   String response;
 
-  for (unsigned long start = millis(); millis() < (start + 1000);) {
+  for (unsigned long start = millis(); (millis() - start) < 1000;) {
     MODEM.send("AT+CPIN?");
 
     if (MODEM.waitForResponse(10000, &response) == 1) {
@@ -124,7 +124,7 @@ void GSMPIN::switchPIN(String pin)
 
 int GSMPIN::checkReg()
 {
-  for (unsigned long start = millis(); millis() < (start + 10000L);) {
+  for (unsigned long start = millis(); (millis() - start) < 10000L;) {
     MODEM.send("AT+CREG?");
 
     String response = "";
