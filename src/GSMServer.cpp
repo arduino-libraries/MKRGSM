@@ -29,7 +29,6 @@ enum {
   SERVER_STATE_WAIT_CLOSE_SOCKET
 };
 
-
 GSMServer::GSMServer(uint16_t port, bool synch) :
   _port(port),
   _synch(synch),
@@ -39,6 +38,7 @@ GSMServer::GSMServer(uint16_t port, bool synch) :
   for (int i = 0; i < MAX_CHILD_SOCKETS; i++) {
     _childSockets[i].socket = -1;
     _childSockets[i].accepted = false;
+    _childSockets[i].available = 0;
   }
 
   MODEM.addUrcHandler(this);
@@ -150,14 +150,21 @@ GSMClient GSMServer::available(bool synch)
       // no new accepted sockets, search for one with data to be read
       for (int i = 0; i < MAX_CHILD_SOCKETS; i++) {
         if (_childSockets[i].socket != -1) {
-          GSMClient client(_childSockets[i].socket, true);
-
-          if (client.available()) {
-            socket = _childSockets[i].socket;
-            break;
-          } else if (!client.connected()) {
+          // check if socket is still alive
+          MODEM.sendf("AT+USORD=%d,0", _childSockets[i].socket);
+          if (MODEM.waitForResponse(10000) != 1) {
+            // closed
             _childSockets[i].socket = -1;
             _childSockets[i].accepted = false;
+            _childSockets[i].available = 0;
+
+            continue;
+          }
+
+          if (_childSockets[i].available) {
+            _childSockets[i].available = 0;
+            socket = _childSockets[i].socket;
+            break;
           }
         }
       }
@@ -184,6 +191,8 @@ size_t GSMServer::write(const uint8_t *buf)
 size_t GSMServer::write(const uint8_t *buf, size_t sz)
 {
   size_t written = 0;
+
+  MODEM.poll();
 
   if (_socket != -1) {
     for (int i = 0; i < MAX_CHILD_SOCKETS; i++) {
@@ -223,6 +232,7 @@ void GSMServer::handleUrc(const String& urc)
       if (_childSockets[i].socket == -1) {
         _childSockets[i].socket = socket;
         _childSockets[i].accepted = true;
+        _childSockets[i].available = 0;
 
         break;
       }
@@ -234,6 +244,20 @@ void GSMServer::handleUrc(const String& urc)
       if (_childSockets[i].socket == socket) {
         _childSockets[i].socket = -1;
         _childSockets[i].accepted = false;
+        _childSockets[i].available = 0;
+
+        break;
+      }
+    }
+  } else if (urc.startsWith("+UUSORD: ")) {
+    int socket = urc.charAt(9) - '0';
+
+    for (int i = 0; i < MAX_CHILD_SOCKETS; i++) {
+      if (_childSockets[i].socket == socket) {
+        int commaIndex = urc.indexOf(',');
+        if (commaIndex != -1) {
+          _childSockets[i].available = urc.substring(commaIndex + 1).toInt();
+        }
 
         break;
       }
