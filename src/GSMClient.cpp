@@ -45,9 +45,10 @@ GSMClient::GSMClient(int socket, bool synch) :
   _port(0),
   _ssl(false),
   _writeSync(true),
-  _peek(-1)
+  _peek(-1),
+  _available(0)
 {
-   MODEM.addUrcHandler(this);
+  MODEM.addUrcHandler(this);
 }
 
 GSMClient::~GSMClient()
@@ -363,6 +364,9 @@ int GSMClient::read(uint8_t *buf, size_t size)
     buf[i] = (n1 << 4) | n2;
   }
 
+  _available = 0;
+  MODEM.poll();
+
   return size;
 }
 
@@ -395,24 +399,9 @@ int GSMClient::available()
     return 0;
   }
 
-  String response;
+  MODEM.poll();
 
-  MODEM.sendf("AT+USORD=%d,0", _socket, 0);
-  if (MODEM.waitForResponse(10000, &response) == 1) {
-    if (response.startsWith("+USORD: ")) {
-      int commaIndex = response.indexOf(',');
-
-      if (commaIndex != -1) {
-        response.remove(0, commaIndex + 1);
-
-        return response.toInt();
-      }
-    }
-  } else {
-    _socket = -1;
-  }
-
-  return 0;
+  return _available;
 }
 
 int GSMClient::peek()
@@ -448,14 +437,23 @@ void GSMClient::handleUrc(const String& urc)
     if (socket == _socket) {
       // this socket closed
       _socket = -1;
+      _available = 0;
     }
-  } else if (urc.startsWith("+UUSORD: ") && urc.endsWith(",4294967295")) {
-    // SSL disconnect
+  } else if (urc.startsWith("+UUSORD: ")) {
     int socket = urc.charAt(9) - '0';
 
     if (socket == _socket) {
-      // this socket closed
-      _socket = -1;
+      if (urc.endsWith(",4294967295")) {
+        // SSL disconnect
+        // this socket closed
+        _socket = -1;
+        _available = 0;
+      } else {
+        int commaIndex = urc.indexOf(',');
+        if (commaIndex != -1) {
+          _available = urc.substring(commaIndex + 1).toInt();
+        }
+      }
     }
   }
 }
