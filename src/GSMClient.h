@@ -24,7 +24,6 @@
 
 #include "Modem.h"
 
-
 class GSMClient : public Client, public ModemUrcHandler {
 
 public:
@@ -146,6 +145,7 @@ private:
   bool _writeSync;
   String _response;
   int _peek;
+  int _available;
 };
 
 #endif

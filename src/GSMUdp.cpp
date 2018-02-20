@@ -23,6 +23,7 @@
 
 GSMUDP::GSMUDP() :
   _socket(-1),
+  _packetReceived(false),
   _txIp((uint32_t)0),
   _txHost(NULL),
   _txPort(0),
@@ -32,6 +33,12 @@ GSMUDP::GSMUDP() :
   _rxSize(0),
   _rxIndex(0)
 {
+  MODEM.addUrcHandler(this);
+}
+
+GSMUDP::~GSMUDP()
+{
+  MODEM.removeUrcHandler(this);
 }
 
 uint8_t GSMUDP::begin(uint16_t port)
@@ -161,6 +168,13 @@ size_t GSMUDP::write(const uint8_t *buffer, size_t size)
 
 int GSMUDP::parsePacket()
 {
+  MODEM.poll();
+
+  if (!_packetReceived) {
+    return 0;
+  }
+  _packetReceived = false;
+
   String response;
 
   MODEM.sendf("AT+USORF=%d,%d", _socket, sizeof(_rxBuffer));
@@ -218,6 +232,8 @@ int GSMUDP::parsePacket()
     _rxBuffer[i] = (n1 << 4) | n2;
   }
 
+  MODEM.poll();
+
   return _rxSize;
 }
 
@@ -273,4 +289,15 @@ IPAddress GSMUDP::remoteIP()
 uint16_t GSMUDP::remotePort()
 {
   return _rxPort;
+}
+
+void GSMUDP::handleUrc(const String& urc)
+{
+  if (urc.startsWith("+UUSORF: ")) {
+    int socket = urc.charAt(9) - '0';
+
+    if (socket == _socket) {
+      _packetReceived = true;
+    }
+  }
 }

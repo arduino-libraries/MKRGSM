@@ -22,10 +22,14 @@
 
 #include <Udp.h>
 
-class GSMUDP : public UDP {
+#include "Modem.h"
+
+class GSMUDP : public UDP, public ModemUrcHandler {
 
 public:
   GSMUDP();  // Constructor
+  virtual ~GSMUDP();
+
   virtual uint8_t begin(uint16_t);  // initialize, start listening on specified port. Returns 1 if successful, 0 if there are no sockets available to use
   virtual void stop();  // Finish with the UDP socket
 
@@ -69,8 +73,11 @@ public:
   // Return the port of the host who sent the current incoming packet
   virtual uint16_t remotePort();
 
+  virtual void handleUrc(const String& urc);
+
 private:
   int _socket;
+  bool _packetReceived;
 
   IPAddress _txIp;
   const char* _txHost;

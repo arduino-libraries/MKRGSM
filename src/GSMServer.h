@@ -103,6 +103,7 @@ private:
   struct {
     int socket;
     bool accepted;
+    int available;
   } _childSockets[MAX_CHILD_SOCKETS];
 };
 
