@@ -1,5 +1,10 @@
 MKRGSM ?.?.? - ????.??.??
 
+MKRGSM 1.1.2 - 2018.02.20
+
+* Improved stability of low power mode
+* Improved stability and performance when using GSMClient and GSMUDP
+
 MKRGSM 1.1.1 - 2018.01.24
 
 * Fixed GSMServer.available() behaviour when client.stop() is called on an accepted socket
