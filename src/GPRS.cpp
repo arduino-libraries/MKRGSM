@@ -326,8 +326,12 @@ int GPRS::ping(const char* hostname, uint8_t ttl)
     return GPRS_PING_ERROR;
   };
 
-  while (_pingResult == 0) {
+  for (unsigned long start = millis(); (millis() - start) < 5000 && (_pingResult == 0);) {
     MODEM.poll();
+  }
+
+  if (_pingResult == 0) {
+    _pingResult = GPRS_PING_TIMEOUT;
   }
 
   return _pingResult;
