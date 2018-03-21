@@ -76,7 +76,18 @@ GSM3_NetworkStatus_t GSM::begin(const char* pin, bool restart, bool synchronous)
 
 int GSM::isAccessAlive()
 {
-  return (MODEM.noop() == 1 ? 1 : 0);
+  String response;
+
+  MODEM.send("AT+CREG?");
+  if (MODEM.waitForResponse(100, &response) == 1) {
+    int status = response.charAt(response.length() - 1) - '0';
+
+    if (status == 1 || status == 5 || status == 8) {
+      return 1;
+    }
+  }
+
+  return 0;
 }
 
 bool GSM::shutdown()
