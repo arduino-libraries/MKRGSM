@@ -38,6 +38,7 @@ public:
   void end();
 
   void debug();
+  void noDebug();
 
   int autosense(int timeout = 10000);
 
