@@ -99,7 +99,7 @@ public:
   operator bool();
 
   /** Read from response buffer and copy size specified to buffer
-      @param buf      Buffer    
+      @param buf      Buffer
       @param size     Buffer size
       @return bytes read
    */
@@ -128,6 +128,8 @@ public:
    */
   void stop();
 
+  void setSecurityProfile(int id);
+
   virtual void handleUrc(const String& urc);
 
 private:
@@ -141,6 +143,7 @@ private:
   const char* _host;
   uint16_t _port;
   bool _ssl;
+  int _sslProfile;
 
   bool _writeSync;
   String _response;

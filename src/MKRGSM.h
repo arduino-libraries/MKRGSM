@@ -31,6 +31,7 @@
 #include "GSMPIN.h"
 #include "GSMBand.h"
 
+#include "GSMSecurity.h"
 #include "GSMSSLClient.h"
 #include "GSMUdp.h"
 #include "GSMLocation.h"
