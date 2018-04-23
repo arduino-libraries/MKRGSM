@@ -369,23 +369,33 @@ int GSMClient::read(uint8_t *buf, size_t size)
 
   return size;
 }
-
+//RRR
 int GSMClient::read()
 {
-  byte b;
+  byte bt;
+  //byte b[10];
 
   if (_peek != -1) {
-    b = _peek;
+    bt = _peek;
     _peek = -1;
-    return b;
+    return bt;
   }
-
-  if (read(&b, 1) == 1) {
-    return b;
+  if(buffCount>=buffNelem){
+  	  buffCount=0;
+    }
+  if(buffCount==0){
+	  if ((buffNelem=read(buffer, bufferMaxSize )) == 0) {
+		  return -1;
+	    }
   }
-
+  if(buffCount<buffNelem){
+	  bt=buffer[buffCount];
+	  buffCount++;
+	  return bt;
+  }
   return -1;
 }
+
 
 int GSMClient::available()
 {
