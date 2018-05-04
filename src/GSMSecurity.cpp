@@ -100,6 +100,9 @@ int GSMSecurity::removeAllCertificates()
     return 0;
   }
 
+  for (int i = 0; i < MAX_CERTS; i++) {
+    _certs[i].type = -1;
+  }
   return 1;
 }
 
@@ -120,6 +123,7 @@ int GSMSecurity::setPrivateKey(const char* cert)
 
 int GSMSecurity::setCertificate(int type, const char* name, const char* cert)
 {
+  // TODO: this bugs if you try to add more than MAX_CERTS
   int i = 0;
   while (i <= MAX_CERTS) {
     if (_certs[i].type == -1) {
