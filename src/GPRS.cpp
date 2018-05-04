@@ -326,8 +326,12 @@ int GPRS::ping(const char* hostname, uint8_t ttl)
     return GPRS_PING_ERROR;
   };
 
-  while (_pingResult == 0) {
+  for (unsigned long start = millis(); (millis() - start) < 5000 && (_pingResult == 0);) {
     MODEM.poll();
+  }
+
+  if (_pingResult == 0) {
+    _pingResult = GPRS_PING_TIMEOUT;
   }
 
   return _pingResult;
@@ -354,6 +358,13 @@ int GPRS::ping(IPAddress ip, uint8_t ttl)
   return ping(host, ttl);
 }
 
+GSM3_NetworkStatus_t GPRS::status()
+{
+  MODEM.poll();
+
+  return _status;
+}
+
 void GPRS::handleUrc(const String& urc)
 {
   if (urc.startsWith("+UUPINGER: ")) {
@@ -375,6 +386,13 @@ void GPRS::handleUrc(const String& urc)
       } else if (_pingResult <= 0) {
         _pingResult = GPRS_PING_ERROR;
       }
+    }
+  } else if (urc.startsWith("+UUPSDD: ")) {
+    int profileId = urc.charAt(urc.length() - 1) - '0';
+
+    if (profileId == 0) {
+      // disconnected
+      _status = IDLE;
     }
   }
 }

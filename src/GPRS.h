@@ -88,6 +88,8 @@ public:
   int ping(const String& hostname, uint8_t ttl = 128);
   int ping(IPAddress ip, uint8_t ttl = 128);
 
+  GSM3_NetworkStatus_t status();
+
   void handleUrc(const String& urc);
 
 private:

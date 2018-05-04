@@ -240,13 +240,17 @@ void GSMServer::handleUrc(const String& urc)
   } else if (urc.startsWith("+UUSOCL: ")) {
     int socket = urc.charAt(urc.length() - 1) - '0';
 
-    for (int i = 0; i < MAX_CHILD_SOCKETS; i++) {
-      if (_childSockets[i].socket == socket) {
-        _childSockets[i].socket = -1;
-        _childSockets[i].accepted = false;
-        _childSockets[i].available = 0;
+    if (socket == _socket) {
+      _socket = -1;
+    } else {
+      for (int i = 0; i < MAX_CHILD_SOCKETS; i++) {
+        if (_childSockets[i].socket == socket) {
+          _childSockets[i].socket = -1;
+          _childSockets[i].accepted = false;
+          _childSockets[i].available = 0;
 
-        break;
+          break;
+        }
       }
     }
   } else if (urc.startsWith("+UUSORD: ")) {

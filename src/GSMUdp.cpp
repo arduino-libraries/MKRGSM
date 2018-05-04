@@ -76,6 +76,10 @@ void GSMUDP::stop()
 
 int GSMUDP::beginPacket(IPAddress ip, uint16_t port)
 {
+  if (_socket < 0) {
+    return 0;
+  }
+
   _txIp = ip;
   _txHost = NULL;
   _txPort = port;
@@ -86,6 +90,10 @@ int GSMUDP::beginPacket(IPAddress ip, uint16_t port)
 
 int GSMUDP::beginPacket(const char *host, uint16_t port)
 {
+  if (_socket < 0) {
+    return 0;
+  }
+  
   _txIp = (uint32_t)0;
   _txHost = host;
   _txPort = port;
@@ -154,6 +162,10 @@ size_t GSMUDP::write(uint8_t b)
 
 size_t GSMUDP::write(const uint8_t *buffer, size_t size)
 {
+  if (_socket < 0) {
+    return 0;
+  }
+
   size_t spaceAvailable = sizeof(_txBuffer) - _txSize;
 
   if (size > spaceAvailable) {
@@ -169,6 +181,10 @@ size_t GSMUDP::write(const uint8_t *buffer, size_t size)
 int GSMUDP::parsePacket()
 {
   MODEM.poll();
+
+  if (_socket < 0) {
+    return 0;
+  }
 
   if (!_packetReceived) {
     return 0;
@@ -239,6 +255,10 @@ int GSMUDP::parsePacket()
 
 int GSMUDP::available()
 {
+  if (_socket < 0) {
+    return 0;
+  }
+
   return (_rxIndex - _rxSize);
 }
 
@@ -298,6 +318,15 @@ void GSMUDP::handleUrc(const String& urc)
 
     if (socket == _socket) {
       _packetReceived = true;
+    }
+  } else if (urc.startsWith("+UUSOCL: ")) {
+    int socket = urc.charAt(urc.length() - 1) - '0';
+
+    if (socket == _socket) {
+      // this socket closed
+      _socket = -1;
+      _rxIndex = 0;
+      _rxSize = 0;
     }
   }
 }
