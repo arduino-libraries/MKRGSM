@@ -39,7 +39,7 @@ char path[] = "/";
 String response = "";
 
 // use a proxy
-boolean use_proxy = false;
+bool use_proxy = false;
 
 void setup() {
   // initialize serial communications and wait for port to open:
@@ -136,7 +136,7 @@ void loop() {
     }
     Serial.print("Receiving response...");
 
-    boolean test = true;
+    bool test = true;
     while (test) {
       // if there are incoming bytes available
       // from the server, read and check them

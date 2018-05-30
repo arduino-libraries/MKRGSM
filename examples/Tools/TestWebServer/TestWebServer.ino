@@ -42,7 +42,7 @@ void setup() {
 
   Serial.println("starting,..");
   // connection state
-  boolean connected = false;
+  bool connected = false;
 
   // Start GSM shield
   // If your SIM has PIN, pass it as a parameter of begin() in quotes
