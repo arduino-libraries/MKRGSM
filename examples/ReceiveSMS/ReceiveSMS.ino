@@ -38,7 +38,7 @@ void setup() {
   Serial.println("SMS Messages Receiver");
 
   // connection state
-  boolean connected = false;
+  bool connected = false;
 
   // Start GSM connection
   while (!connected) {

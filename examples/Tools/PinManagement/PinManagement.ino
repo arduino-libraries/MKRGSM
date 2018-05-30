@@ -22,7 +22,7 @@ GSMPIN PINManager;
 String user_input = "";
 
 // authenticated with PIN code
-boolean auth = false;
+bool auth = false;
 
 // serial monitor result messages
 String oktext = "OK";
