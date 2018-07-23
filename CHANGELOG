@@ -1,5 +1,13 @@
 MKRGSM ?.?.? - ????.??.??
 
+MKRGSM 1.2.0 - 2018.07.23
+
+* Added MODEM.noDebug() API to disable debug output
+* GSM::isAccessAlive() now checks if network is registered
+* Added timeout to ping operations
+* Added GPRS::status() API to retrieve the current GPRS status
+* Fixed GSMClient::write(uint8_t c)
+
 MKRGSM 1.1.2 - 2018.02.20
 
 * Improved stability of low power mode
