@@ -227,7 +227,7 @@ void GSMClient::beginWrite(bool sync)
 
 size_t GSMClient::write(uint8_t c)
 {
-  return write(&c,1);
+  return write(&c, 1);
 }
 
 size_t GSMClient::write(const uint8_t *buf)
