@@ -24,6 +24,8 @@
 
 #include "Modem.h"
 
+#define bufferMaxSize 10
+
 class GSMClient : public Client, public ModemUrcHandler {
 
 public:
@@ -132,7 +134,9 @@ public:
 
 private:
   int connect();
-
+  byte buffer[bufferMaxSize];
+  int buffNelem=0;
+  int buffCount=0;
   bool _synch;
   int _socket;
 
