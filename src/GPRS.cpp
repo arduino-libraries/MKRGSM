@@ -19,28 +19,6 @@
 
 #include "GPRS.h"
 
-enum {
-  GPRS_STATE_IDLE,
-  GPRS_STATE_ATTACH,
-  GPRS_STATE_WAIT_ATTACH_RESPONSE,
-  GPRS_STATE_SET_APN,
-  GPRS_STATE_WAIT_SET_APN_RESPONSE,
-  GPRS_STATE_SET_USERNAME,
-  GPRS_STATE_WAIT_SET_USERNAME_RESPONSE,
-  GPRS_STATE_SET_PASSWORD,
-  GPRS_STATE_WAIT_SET_PASSWORD_RESPONSE,
-  GPRS_STATE_SET_DYNAMIC_IP,
-  GPRS_STATE_WAIT_SET_DYNAMIC_IP_RESPONSE,
-  GPRS_STATE_ACTIVATE_IP,
-  GPRS_STATE_WAIT_ACTIVATE_IP_RESPONSE,
-  GPRS_STATE_CHECK_PROFILE_STATUS,
-  GPRS_STATE_WAIT_CHECK_PROFILE_STATUS_RESPONSE,
-
-  GPRS_STATE_DEACTIVATE_IP,
-  GPRS_STATE_WAIT_DEACTIVATE_IP_RESPONSE,
-  GPRS_STATE_DEATTACH,
-  GPRS_STATE_WAIT_DEATTACH_RESPONSE
-};
 
 GPRS::GPRS() :
   _apn(NULL),
@@ -219,7 +197,7 @@ int GPRS::ready()
       ready = 0;
       break;
     }
-    
+
     case GPRS_STATE_WAIT_CHECK_PROFILE_STATUS_RESPONSE: {
       if (ready > 1 || !_response.endsWith(",1")) {
         _state = GPRS_STATE_IDLE;
@@ -318,7 +296,7 @@ int GPRS::hostByName(const char* hostname, IPAddress& result)
 int GPRS::ping(const char* hostname, uint8_t ttl)
 {
   String response;
-  
+
   _pingResult = 0;
 
   MODEM.sendf("AT+UPING=\"%s\",1,32,5000,%d", hostname, ttl);
@@ -363,6 +341,11 @@ GSM3_NetworkStatus_t GPRS::status()
   MODEM.poll();
 
   return _status;
+}
+
+int GPRS::getReadyState()
+{
+  return _state;
 }
 
 void GPRS::handleUrc(const String& urc)

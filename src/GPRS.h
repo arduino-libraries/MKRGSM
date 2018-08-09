@@ -26,10 +26,33 @@
 #include "Modem.h"
 
 enum {
-  GPRS_PING_DEST_UNREACHABLE = -1, 
+  GPRS_PING_DEST_UNREACHABLE = -1,
   GPRS_PING_TIMEOUT = -2,
   GPRS_PING_UNKNOWN_HOST = -3,
   GPRS_PING_ERROR = -4
+};
+
+enum {
+  GPRS_STATE_IDLE,
+  GPRS_STATE_ATTACH,
+  GPRS_STATE_WAIT_ATTACH_RESPONSE,
+  GPRS_STATE_SET_APN,
+  GPRS_STATE_WAIT_SET_APN_RESPONSE,
+  GPRS_STATE_SET_USERNAME,
+  GPRS_STATE_WAIT_SET_USERNAME_RESPONSE,
+  GPRS_STATE_SET_PASSWORD,
+  GPRS_STATE_WAIT_SET_PASSWORD_RESPONSE,
+  GPRS_STATE_SET_DYNAMIC_IP,
+  GPRS_STATE_WAIT_SET_DYNAMIC_IP_RESPONSE,
+  GPRS_STATE_ACTIVATE_IP,
+  GPRS_STATE_WAIT_ACTIVATE_IP_RESPONSE,
+  GPRS_STATE_CHECK_PROFILE_STATUS,
+  GPRS_STATE_WAIT_CHECK_PROFILE_STATUS_RESPONSE,
+
+  GPRS_STATE_DEACTIVATE_IP,
+  GPRS_STATE_WAIT_DEACTIVATE_IP_RESPONSE,
+  GPRS_STATE_DEATTACH,
+  GPRS_STATE_WAIT_DEATTACH_RESPONSE
 };
 
 class GPRS : public ModemUrcHandler {
@@ -71,7 +94,7 @@ public:
   GSM3_NetworkStatus_t detachGPRS(bool synchronous = true);
 
   /** Returns 0 if last command is still executing
-      @return 1 if success, >1 if error 
+      @return 1 if success, >1 if error
    */
   int ready();
 
@@ -89,6 +112,7 @@ public:
   int ping(IPAddress ip, uint8_t ttl = 128);
 
   GSM3_NetworkStatus_t status();
+  int getReadyState();
 
   void handleUrc(const String& urc);
 

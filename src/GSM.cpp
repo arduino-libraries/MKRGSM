@@ -23,25 +23,6 @@
 
 #include "GSM.h"
 
-enum {
-  READY_STATE_CHECK_SIM,
-  READY_STATE_WAIT_CHECK_SIM_RESPONSE,
-  READY_STATE_UNLOCK_SIM,
-  READY_STATE_WAIT_UNLOCK_SIM_RESPONSE,
-  READY_STATE_SET_PREFERRED_MESSAGE_FORMAT,
-  READY_STATE_WAIT_SET_PREFERRED_MESSAGE_FORMAT_RESPONSE,
-  READY_STATE_SET_HEX_MODE,
-  READY_STATE_WAIT_SET_HEX_MODE,
-  READY_STATE_SET_AUTOMATIC_TIME_ZONE,
-  READY_STATE_WAIT_SET_AUTOMATIC_TIME_ZONE_RESPONSE,
-  READY_STATE_ENABLE_DTMF_DETECTION,
-  READY_STATE_WAIT_ENABLE_DTMF_DETECTION_RESPONSE,
-  READY_STATE_CHECK_REGISTRATION,
-  READY_STATE_WAIT_CHECK_REGISTRATION_RESPONSE,
-  READY_STATE_SET_REPORTING_CALL_STATUS,
-  READY_STATE_WAIT_SET_REPORTING_CALL_STATUS,
-  READY_STATE_DONE
-};
 
 GSM::GSM(bool debug) :
   _state(ERROR),
@@ -182,7 +163,7 @@ int GSM::ready()
       MODEM.send("AT+CMGF=1");
       _readyState = READY_STATE_WAIT_SET_PREFERRED_MESSAGE_FORMAT_RESPONSE;
       ready = 0;
-      break; 
+      break;
     }
 
     case READY_STATE_WAIT_SET_PREFERRED_MESSAGE_FORMAT_RESPONSE: {
@@ -201,7 +182,7 @@ int GSM::ready()
       MODEM.send("AT+UDCONF=1,1");
       _readyState = READY_STATE_WAIT_SET_HEX_MODE;
       ready = 0;
-      break; 
+      break;
     }
 
     case READY_STATE_WAIT_SET_HEX_MODE: {
@@ -220,9 +201,9 @@ int GSM::ready()
       MODEM.send("AT+CTZU=1");
       _readyState = READY_STATE_WAIT_SET_AUTOMATIC_TIME_ZONE_RESPONSE;
       ready = 0;
-      break; 
+      break;
     }
-  
+
     case READY_STATE_WAIT_SET_AUTOMATIC_TIME_ZONE_RESPONSE: {
       if (ready > 1) {
         _state = ERROR;
@@ -239,7 +220,7 @@ int GSM::ready()
       MODEM.send("AT+UDTMFD=1,2");
       _readyState = READY_STATE_WAIT_ENABLE_DTMF_DETECTION_RESPONSE;
       ready = 0;
-      break; 
+      break;
     }
 
     case READY_STATE_WAIT_ENABLE_DTMF_DETECTION_RESPONSE: {
@@ -259,7 +240,7 @@ int GSM::ready()
       MODEM.send("AT+CREG?");
       _readyState = READY_STATE_WAIT_CHECK_REGISTRATION_RESPONSE;
       ready = 0;
-      break; 
+      break;
     }
 
     case READY_STATE_WAIT_CHECK_REGISTRATION_RESPONSE: {
@@ -283,7 +264,7 @@ int GSM::ready()
         } else if (status == 3) {
           _state = ERROR;
           ready = 2;
-        } 
+        }
       }
 
       break;
@@ -352,4 +333,14 @@ int GSM::lowPowerMode()
 int GSM::noLowPowerMode()
 {
   return MODEM.noLowPowerMode();
+}
+
+GSM3_NetworkStatus_t GSM::status()
+{
+  return _state;
+}
+
+int GSM::getReadyState()
+{
+  return _readyState;
 }
