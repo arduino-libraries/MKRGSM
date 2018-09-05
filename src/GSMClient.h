@@ -148,6 +148,8 @@ private:
   String _response;
   int _peek;
   int _available;
+
+  uint8_t _buffer[256];
 };
 
 #endif
