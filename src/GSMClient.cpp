@@ -457,3 +457,53 @@ void GSMClient::handleUrc(const String& urc)
     }
   }
 }
+
+String GSMClient::downloadString(const char server[], const char path[], bool ssl, int port, int limit)
+{
+	String data = "";
+	int avail, received=0;
+	int timeOut = millis();
+
+	// Should check GSM and GPRS...
+	port= ssl && port==80 ? 443 : port;
+
+	if(ssl?connectSSL(server, port):connect(server, port)) {
+    	print("GET ");
+    	print(path);
+    	println(" HTTP/1.1");
+    	print("Host: ");
+    	println(server);
+    	println("Connection: close");
+    	println();
+
+		while(connected() || available()>0) {
+
+			if(millis()-timeOut>15000) {
+				//Serial.print("Timeout!!");
+				break;
+			}
+
+			// Read max buffer data Leaving last byte to convert the buffer to String NULLing last byte.
+			avail=read(&_buffer[0], 255);
+
+			// Limit received data to 1024 bytes this will avoid flooding and collapsing arduino.
+			// Enough for HTTP header and command or data but limited.
+			// It can be removed safely.
+			while(avail>0 && (received<limit || limit==0)) {
+				received+=avail;
+				_buffer[avail]=0; // Set last char to NULL to terminate String and concat.
+				data.concat(String((char *)_buffer));
+				avail=read(&_buffer[0], 255);
+			}
+		}
+
+		//Serial.print("Received: ");
+		//Serial.println(received);
+    	stop();
+  	} else {
+  		// Can't connect
+		data = "-1";
+	}
+
+	return data;
+}

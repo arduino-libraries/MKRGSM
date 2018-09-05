@@ -99,7 +99,7 @@ public:
   operator bool();
 
   /** Read from response buffer and copy size specified to buffer
-      @param buf      Buffer    
+      @param buf      Buffer
       @param size     Buffer size
       @return bytes read
    */
@@ -129,6 +129,8 @@ public:
   void stop();
 
   virtual void handleUrc(const String& urc);
+
+  String downloadString(const char server[], const char path[], bool ssl=false, int port=80, int limit=0);
 
 private:
   int connect();
