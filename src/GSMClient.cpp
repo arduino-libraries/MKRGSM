@@ -17,6 +17,8 @@
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include "utility/GSMSocketBuffer.h"
+
 #include "GSMClient.h"
 
 enum {
@@ -44,9 +46,7 @@ GSMClient::GSMClient(int socket, bool synch) :
   _host(NULL),
   _port(0),
   _ssl(false),
-  _writeSync(true),
-  _peek(-1),
-  _available(0)
+  _writeSync(true)
 {
   MODEM.addUrcHandler(this);
 }
@@ -199,6 +199,10 @@ int GSMClient::connectSSL(const char *host, uint16_t port)
 
 int GSMClient::connect()
 {
+  if (_socket != -1) {
+    stop();
+  }
+
   if (_synch) {
     while (ready() == 0);
   } else if (ready() == 0) {
@@ -323,62 +327,18 @@ int GSMClient::read(uint8_t *buf, size_t size)
     return 0;
   }
 
-  if (size > 512) {
-    size = 512;
-  }
+  int avail = available();
 
-  String response;
-
-  MODEM.sendf("AT+USORD=%d,%d", _socket, size);
-  if (MODEM.waitForResponse(10000, &response) != 1) {
+  if (avail == 0) {
     return 0;
   }
 
-  if (!response.startsWith("+USORD: ")) {
-    return 0;
-  }
-
-  int firstQuoteIndex = response.indexOf("\"");
-
-  response.remove(0, firstQuoteIndex + 1);
-  response.remove(response.length() - 1);
-
-  size = response.length() / 2;
-
-  for (size_t i = 0; i < size; i++) {
-    byte n1 = response[i * 2];
-    byte n2 = response[i * 2 + 1];
-
-    if (n1 > '9') {
-      n1 = (n1 - 'A') + 10;
-    } else {
-      n1 = (n1 - '0');
-    }
-
-    if (n2 > '9') {
-      n2 = (n2 - 'A') + 10;
-    } else {
-      n2 = (n2 - '0');
-    }
-
-    buf[i] = (n1 << 4) | n2;
-  }
-
-  _available = 0;
-  MODEM.poll();
-
-  return size;
+  return GSMSocketBuffer.read(_socket, buf, size);
 }
 
 int GSMClient::read()
 {
   byte b;
-
-  if (_peek != -1) {
-    b = _peek;
-    _peek = -1;
-    return b;
-  }
 
   if (read(&b, 1) == 1) {
     return b;
@@ -399,18 +359,24 @@ int GSMClient::available()
     return 0;
   }
 
-  MODEM.poll();
+  int avail = GSMSocketBuffer.available(_socket);
 
-  return _available;
+  if (avail < 0) {
+    stop();
+
+    return 0;
+  }
+
+  return avail;
 }
 
 int GSMClient::peek()
 {
-  if (_peek == -1) {
-    _peek = read();
+  if (available() > 0) {
+    return GSMSocketBuffer.peek(_socket);
   }
 
-  return _peek;
+  return -1;
 }
 
 void GSMClient::flush()
@@ -426,6 +392,7 @@ void GSMClient::stop()
   MODEM.sendf("AT+USOCL=%d", _socket);
   MODEM.waitForResponse(10000);
 
+  GSMSocketBuffer.close(_socket);
   _socket = -1;
 }
 
@@ -436,8 +403,8 @@ void GSMClient::handleUrc(const String& urc)
 
     if (socket == _socket) {
       // this socket closed
+      GSMSocketBuffer.close(_socket);
       _socket = -1;
-      _available = 0;
     }
   } else if (urc.startsWith("+UUSORD: ")) {
     int socket = urc.charAt(9) - '0';
@@ -446,13 +413,8 @@ void GSMClient::handleUrc(const String& urc)
       if (urc.endsWith(",4294967295")) {
         // SSL disconnect
         // this socket closed
+        GSMSocketBuffer.close(_socket);
         _socket = -1;
-        _available = 0;
-      } else {
-        int commaIndex = urc.indexOf(',');
-        if (commaIndex != -1) {
-          _available = urc.substring(commaIndex + 1).toInt();
-        }
       }
     }
   }
