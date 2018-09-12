@@ -106,7 +106,7 @@ void ModemClass::noDebug()
   _debug = false;
 }
 
-int ModemClass::autosense(int timeout)
+int ModemClass::autosense(unsigned int timeout)
 {
   for (unsigned long start = millis(); (millis() - start) < timeout;) {
     if (noop() == 1) {

@@ -40,7 +40,7 @@ public:
   void debug();
   void noDebug();
 
-  int autosense(int timeout = 10000);
+  int autosense(unsigned int timeout = 10000);
 
   int noop();
   int reset();
