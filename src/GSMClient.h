@@ -144,8 +144,6 @@ private:
 
   bool _writeSync;
   String _response;
-  int _peek;
-  int _available;
 };
 
 #endif
