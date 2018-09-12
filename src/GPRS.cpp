@@ -25,6 +25,8 @@ enum {
   GPRS_STATE_WAIT_ATTACH_RESPONSE,
   GPRS_STATE_SET_APN,
   GPRS_STATE_WAIT_SET_APN_RESPONSE,
+  GPRS_STATE_SET_AUTH_MODE,
+  GPRS_STATE_WAIT_SET_AUTH_MODE_RESPONSE,
   GPRS_STATE_SET_USERNAME,
   GPRS_STATE_WAIT_SET_USERNAME_RESPONSE,
   GPRS_STATE_SET_PASSWORD,
@@ -130,6 +132,24 @@ int GPRS::ready()
     }
 
     case GPRS_STATE_WAIT_SET_APN_RESPONSE: {
+      if (ready > 1) {
+        _state = GPRS_STATE_IDLE;
+        _status = ERROR;
+      } else {
+        _state = GPRS_STATE_SET_AUTH_MODE;
+        ready = 0;
+      }
+      break;
+    }
+
+    case GPRS_STATE_SET_AUTH_MODE: {
+       MODEM.sendf("AT+UPSD=0,6,3");
+      _state = GPRS_STATE_WAIT_SET_AUTH_MODE_RESPONSE;
+      ready = 0;
+      break;
+    }
+
+    case GPRS_STATE_WAIT_SET_AUTH_MODE_RESPONSE: {
       if (ready > 1) {
         _state = GPRS_STATE_IDLE;
         _status = ERROR;
