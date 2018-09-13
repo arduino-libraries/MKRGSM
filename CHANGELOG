@@ -1,5 +1,9 @@
 MKRGSM ?.?.? - ????.??.??
 
+MKRGSM 1.2.1 - 2018.09.13
+
+* Fixed GPRS credentials (username and password) not being used by the modem. Now auth type is set to automatic.
+
 MKRGSM 1.2.0 - 2018.07.23
 
 * Added MODEM.noDebug() API to disable debug output
