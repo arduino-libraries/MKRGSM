@@ -53,7 +53,7 @@ void loop() {
     modem.begin();
     // get and check IMEI one more time
     if (modem.getIMEI() != NULL) {
-      Serial.println("Modem is functoning properly");
+      Serial.println("Modem is functioning properly");
     } else {
       Serial.println("Error: getIMEI() failed after modem.begin()");
     }

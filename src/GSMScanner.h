@@ -26,7 +26,7 @@ class GSMScanner {
 
 public:
   /** Constructor
-      @param trace    if true, dumps all AT dialogue to Serial
+      @param trace    if true, dumps all AT dialog to Serial
       @return - 
   */
   GSMScanner(bool trace = false);
