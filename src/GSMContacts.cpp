@@ -43,60 +43,78 @@ int GSMContacts::ready() {
   if( MODEM.ready() == 2) {
     return 0;
   }
-  Serial.println("ready"); 
   return MODEM.ready();
 }
 int GSMContacts::del(char id) {
-	
+  MODEM.sendf("AT+CPBW=%i",id);
+  MODEM.waitForResponse();
+  if( MODEM.ready() == 2) {
+    return 0;
+  }
+  return 1;
 }
 int GSMContacts::update(Contact & c) {
-	
+  if( (c.Id >= MAX_MKRGSM_CONTACTS)) {
+    return 0; 
+  }
+  if(c.Id == 0) {
+    return add(c);
+  }
+  MODEM.sendf("AT+CPBW=%i,\"%s\",%i,\"%s\"",c.Id, c.Number.c_str(), c.Type, c.Name.c_str());
+  MODEM.waitForResponse();
+  if( MODEM.ready() == 2) {
+    return 0;
+  }
+  return 1;
 }
-int GSMContacts::put(Contact & c) {
-	
+int GSMContacts::add(Contact & c) {
+  
+  MODEM.sendf("AT+CPBW=,\"%s\",%i,\"%s\"", c.Number.c_str(), c.Type, c.Name.c_str());
+  MODEM.waitForResponse(180000);
+  if( MODEM.ready() == 2) {
+    return 0;
+  }
+  return 1;
 }
 int GSMContacts::get(Contact & c, char id){
-	String response;
-	MODEM.sendf("AT+CPBR=%i",id);
-	MODEM.waitForResponse(1800000, &response);
-	if( MODEM.ready() == 2) {
-		return 0;
-	}
-	int index = response.indexOf("+CPBF: ");
-	response.remove(0, index + strlen("+CPBF: ") -1);
-	response.trim();
-	
-	//get number
-	int start = response.indexOf("\"")+1; 
-	int stop = response.indexOf("\"",response.indexOf("\"")+1);
-	c.Number = response.substring(start,stop);
-	response.remove(0,stop);
-	
-	//get type 
-	start = response.indexOf("\"");
-	stop = response.indexOf("\"",start+1);
-	c.Type = response.substring(start+2,stop-1).toInt();
-	response.remove(0,stop);
-	
-	//get name
-	start = response.indexOf("\"",stop+2);
-	stop = response.indexOf("\"",start+2);
-	c.Name = response.substring(start+2,stop);
-	//c.Name.trim();
-	//c.Name.remove(c.Name.indexOf("\""));
-	response.remove(stop);
-	c.Id = (int)id;
-	return 1;
+  String response;
+  MODEM.sendf("AT+CPBR=%i",id);
+  MODEM.waitForResponse(180000, &response);
+  if( MODEM.ready() == 2) {
+    return 0;
+  }
+  int index = response.indexOf("+CPBF: ");
+  response.remove(0, index + strlen("+CPBF: ") -1);
+  response.trim();
+  
+  //get number
+  int start = response.indexOf("\"")+1; 
+  int stop = response.indexOf("\"",response.indexOf("\"")+1);
+  c.Number = response.substring(start,stop);
+  response.remove(0,stop);
+  
+  //get type 
+  start = response.indexOf("\"");
+  stop = response.indexOf("\"",start+1);
+  c.Type = response.substring(start+2,stop-1).toInt();
+  response.remove(0,stop);
+  
+  //get name
+  start = response.indexOf("\"",stop+2);
+  stop = response.indexOf("\"",start+2);
+  c.Name = response.substring(start+2,stop);
+  
+  //get id
+  c.Id = (int)id;
+  return 1;
 }
 char * GSMContacts::search(const char * q)
 {
   String contacts;
-  Serial.println("getcontacts"); 
   contacts.reserve(15);
   
   MODEM.sendf("AT+CPBF=\"%s\"",q);
-  MODEM.waitForResponse(1800000, &contacts);
-  
+  MODEM.waitForResponse(180000, &contacts);
   
   if( MODEM.ready() == 2) {
     return NULL;
@@ -105,18 +123,14 @@ char * GSMContacts::search(const char * q)
   int index = contacts.indexOf("+CPBF: ");
   int id_index = 0;   
   while((index != -1) && (j < MAX_MKRGSM_CONTACTS)) {
-	contacts.remove(0, index + strlen("+CPBF: ") -1);
-	
-    id_index = contacts.substring(1, contacts.indexOf(",")).toInt();
-	//Serial.println(contacts.substring(0, contacts.indexOf("\n")));
-	//Serial.println(id_index);
-	//Serial.print("s:"); 
-	_contactList[j] = (char)id_index;
-	index = contacts.indexOf("+CPBF: ");
+  contacts.remove(0, index + strlen("+CPBF: ") -1);
+  
+  id_index = contacts.substring(1, contacts.indexOf(",")).toInt();
+  _contactList[j] = (char)id_index;
+  index = contacts.indexOf("+CPBF: ");
     j++;
   }
   _contactList[j] = '\0';
-  //Serial.println(contacts);
   char * returnptr = _contactList;
   return returnptr;
 }
