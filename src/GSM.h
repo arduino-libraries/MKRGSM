@@ -67,7 +67,7 @@ public:
   int ready();
 
   unsigned long getTime();
-  unsigned long GSM::getLocalTime();
+  unsigned long getLocalTime();
 
   int lowPowerMode();
   int noLowPowerMode();
