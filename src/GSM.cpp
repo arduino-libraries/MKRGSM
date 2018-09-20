@@ -344,6 +344,25 @@ unsigned long GSM::getTime()
   return 0;
 }
 
+unsigned long GSM::getLocalTime()
+{
+  String response;
+
+  MODEM.send("AT+CCLK?");
+  if (MODEM.waitForResponse(100, &response) != 1) {
+    return 0;
+  }
+
+  struct tm now;
+
+  if (strptime(response.c_str(), "+CCLK: \"%y/%m/%d,%H:%M:%S", &now) != NULL) {
+    time_t result = mktime(&now);
+    return result;
+  }
+
+  return 0;
+}
+
 int GSM::lowPowerMode()
 {
   return MODEM.lowPowerMode();
