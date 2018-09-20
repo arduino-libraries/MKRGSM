@@ -55,6 +55,7 @@ getvoiceCallStatus	KEYWORD2
 hostByName	KEYWORD2
 ping	KEYWORD2
 getTime	KEYWORD2
+getLocalTime	KEYWORD2
 lowPowerMode	KEYWORD2
 noLowPowerMode	KEYWORD2
 peekDTMF	KEYWORD2
