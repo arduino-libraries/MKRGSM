@@ -58,7 +58,7 @@ public:
   int ready();
   void poll();
   void setResponseDataStorage(String* responseDataStorage);
-  
+
   void addUrcHandler(ModemUrcHandler* handler);
   void removeUrcHandler(ModemUrcHandler* handler);
 
@@ -68,6 +68,7 @@ private:
   int _resetPin;
   int _dtrPin;
   bool _lowPowerMode;
+  unsigned long _uartMillis;
 
   enum {
     AT_COMMAND_IDLE,

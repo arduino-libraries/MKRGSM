@@ -43,7 +43,7 @@ int ModemClass::begin(bool restart)
     pinMode(_resetPin, OUTPUT);
     digitalWrite(_resetPin, HIGH);
     delay(100);
-    digitalWrite(_resetPin, LOW);       
+    digitalWrite(_resetPin, LOW);
   } else {
     if (!autosense()) {
       return 0;
@@ -63,7 +63,7 @@ int ModemClass::begin(bool restart)
     if (waitForResponse() != 1) {
       return 0;
     }
-    
+
     _uart->end();
     delay(100);
     _uart->begin(_baud);
@@ -171,6 +171,9 @@ void ModemClass::send(const char* command)
     delay(5);
   }
 
+  unsigned long dif=millis()-_uartMillis;
+  if(dif<20) delay(20-dif);
+
   _uart->println(command);
   _uart->flush();
   _atCommandState = AT_COMMAND_IDLE;
@@ -182,7 +185,7 @@ void ModemClass::sendf(const char *fmt, ...)
   char buf[BUFSIZ];
 
   va_list ap;
-  va_start((ap), (fmt));     
+  va_start((ap), (fmt));
   vsnprintf(buf, sizeof(buf) - 1, fmt, ap);
   va_end(ap);
 
@@ -217,6 +220,7 @@ void ModemClass::poll()
 {
   while (_uart->available()) {
     char c = _uart->read();
+    _uartMillis=millis();
 
     if (_debug) {
       Serial.write(c);
@@ -227,7 +231,7 @@ void ModemClass::poll()
     switch (_atCommandState) {
       case AT_COMMAND_IDLE:
       default: {
-        
+
         if (_buffer.startsWith("AT") && _buffer.endsWith("\r\n")) {
           _atCommandState = AT_RECEIVING_RESPONSE;
           _buffer = "";
@@ -240,7 +244,7 @@ void ModemClass::poll()
                 _urcHandlers[i]->handleUrc(_buffer);
               }
             }
-          }          
+          }
 
           _buffer = "";
         }
@@ -252,7 +256,7 @@ void ModemClass::poll()
         if (c == '\n') {
           int responseResultIndex = _buffer.lastIndexOf("OK\r\n");
           if (responseResultIndex != -1) {
-            _ready = 1;         
+            _ready = 1;
           } else {
             responseResultIndex = _buffer.lastIndexOf("ERROR\r\n");
             if (responseResultIndex != -1) {
