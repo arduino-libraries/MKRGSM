@@ -19,6 +19,8 @@
 
 #include "Modem.h"
 
+#define MODEM_MIN_RESPONSE_OR_URC_WAIT_TIME_MS 20
+
 bool ModemClass::_debug = false;
 ModemUrcHandler* ModemClass::_urcHandlers[MAX_URC_HANDLERS] = { NULL };
 
@@ -28,6 +30,7 @@ ModemClass::ModemClass(Uart& uart, unsigned long baud, int resetPin, int dtrPin)
   _resetPin(resetPin),
   _dtrPin(dtrPin),
   _lowPowerMode(false),
+  _lastResponseOrUrcMillis(0),
   _atCommandState(AT_COMMAND_IDLE),
   _ready(1),
   _responseDataStorage(NULL)
@@ -171,8 +174,12 @@ void ModemClass::send(const char* command)
     delay(5);
   }
 
-  unsigned long dif=millis()-_uartMillis;
-  if(dif<20) delay(20-dif);
+  // compare the time of the last response or URC and ensure 
+  // at least 20ms have passed before sending a new command
+  unsigned long delta = millis() - _lastResponseOrUrcMillis;
+  if(delta < MODEM_MIN_RESPONSE_OR_URC_WAIT_TIME_MS) {
+    delay(MODEM_MIN_RESPONSE_OR_URC_WAIT_TIME_MS - delta);
+  }
 
   _uart->println(command);
   _uart->flush();
@@ -220,7 +227,6 @@ void ModemClass::poll()
 {
   while (_uart->available()) {
     char c = _uart->read();
-    _uartMillis=millis();
 
     if (_debug) {
       Serial.write(c);
@@ -239,6 +245,8 @@ void ModemClass::poll()
           _buffer.trim();
 
           if (_buffer.length()) {
+            _lastResponseOrUrcMillis = millis();
+
             for (int i = 0; i < MAX_URC_HANDLERS; i++) {
               if (_urcHandlers[i] != NULL) {
                 _urcHandlers[i]->handleUrc(_buffer);
@@ -254,6 +262,8 @@ void ModemClass::poll()
 
       case AT_RECEIVING_RESPONSE: {
         if (c == '\n') {
+          _lastResponseOrUrcMillis = millis();
+
           int responseResultIndex = _buffer.lastIndexOf("OK\r\n");
           if (responseResultIndex != -1) {
             _ready = 1;

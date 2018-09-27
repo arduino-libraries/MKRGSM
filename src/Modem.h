@@ -68,7 +68,7 @@ private:
   int _resetPin;
   int _dtrPin;
   bool _lowPowerMode;
-  unsigned long _uartMillis;
+  unsigned long _lastResponseOrUrcMillis;
 
   enum {
     AT_COMMAND_IDLE,
