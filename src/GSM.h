@@ -66,6 +66,8 @@ public:
     */
   int ready();
 
+  void setTimeout(unsigned long timeout);
+
   unsigned long getTime();
   unsigned long getLocalTime();
 
@@ -77,6 +79,7 @@ private:
   int _readyState;
   const char* _pin;
   String _response;
+  unsigned long _timeout;
 };
 
 #endif
