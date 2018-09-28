@@ -385,3 +385,8 @@ int GSM::noLowPowerMode()
 {
   return MODEM.noLowPowerMode();
 }
+
+GSM3_NetworkStatus_t GSM::status()
+{
+  return _state;
+}
