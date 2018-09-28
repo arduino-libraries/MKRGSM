@@ -48,7 +48,8 @@ GPRS::GPRS() :
   _apn(NULL),
   _username(NULL),
   _password(NULL),
-  _status(IDLE)
+  _status(IDLE),
+  _timeout(0)
 {
   MODEM.addUrcHandler(this);
 }
@@ -68,7 +69,14 @@ GSM3_NetworkStatus_t GPRS::attachGPRS(const char* apn, const char* user_name, co
   _status = CONNECTING;
 
   if (synchronous) {
+    unsigned long start = millis();
+
     while (ready() == 0) {
+      if (_timeout && !((millis() - start) < _timeout)) {
+        _state = ERROR;
+        break;
+      }
+
       delay(100);
     }
   } else {
@@ -310,6 +318,11 @@ IPAddress GPRS::getIPAddress()
   }
 
   return IPAddress(0, 0, 0, 0);
+}
+
+void GPRS::setTimeout(unsigned long timeout)
+{
+  _timeout = timeout;
 }
 
 int GPRS::hostByName(const char* hostname, IPAddress& result)
