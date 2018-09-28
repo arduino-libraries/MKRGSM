@@ -74,6 +74,8 @@ public:
   int lowPowerMode();
   int noLowPowerMode();
 
+  GSM3_NetworkStatus_t status();
+
 private:
   GSM3_NetworkStatus_t _state;
   int _readyState;
