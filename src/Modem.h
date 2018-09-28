@@ -68,6 +68,8 @@ private:
   int _resetPin;
   int _dtrPin;
   bool _lowPowerMode;
+  unsigned int _lastCommandLength;
+  unsigned long _lastCommandSentMillis;
   unsigned long _lastResponseOrUrcMillis;
 
   enum {

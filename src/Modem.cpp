@@ -19,6 +19,7 @@
 
 #include "Modem.h"
 
+#define MODEM_COMMAND_ECHO_TIMEOUT_MS 500
 #define MODEM_MIN_RESPONSE_OR_URC_WAIT_TIME_MS 20
 
 bool ModemClass::_debug = false;
@@ -30,6 +31,7 @@ ModemClass::ModemClass(Uart& uart, unsigned long baud, int resetPin, int dtrPin)
   _resetPin(resetPin),
   _dtrPin(dtrPin),
   _lowPowerMode(false),
+  _lastCommandSentMillis(0),
   _lastResponseOrUrcMillis(0),
   _atCommandState(AT_COMMAND_IDLE),
   _ready(1),
@@ -181,10 +183,12 @@ void ModemClass::send(const char* command)
     delay(MODEM_MIN_RESPONSE_OR_URC_WAIT_TIME_MS - delta);
   }
 
+  _lastCommandLength = strlen(command);
   _uart->println(command);
   _uart->flush();
   _atCommandState = AT_COMMAND_IDLE;
   _ready = 0;
+  _lastCommandSentMillis = millis();
 }
 
 void ModemClass::sendf(const char *fmt, ...)
@@ -238,7 +242,7 @@ void ModemClass::poll()
       case AT_COMMAND_IDLE:
       default: {
 
-        if (_buffer.startsWith("AT") && _buffer.endsWith("\r\n")) {
+        if (_buffer.startsWith("AT") && (_buffer.length() == _lastCommandLength)) {
           _atCommandState = AT_RECEIVING_RESPONSE;
           _buffer = "";
         }  else if (_buffer.endsWith("\r\n")) {
@@ -301,6 +305,13 @@ void ModemClass::poll()
         break;
       }
     }
+  }
+
+  if ((_atCommandState == AT_COMMAND_IDLE) &&
+      (_ready == 0) &
+      !((millis() - _lastCommandSentMillis) < MODEM_COMMAND_ECHO_TIMEOUT_MS)) {    
+    // timeout on echoing the current command
+    _ready = 255;
   }
 }
 
