@@ -22,9 +22,7 @@
 
 #include <Client.h>
 
-#include "Modem.h"
-
-class GSMClient : public Client, public ModemUrcHandler {
+class GSMClient : public Client {
 
 public:
 
@@ -127,8 +125,6 @@ public:
   /** Stop client
    */
   void stop();
-
-  virtual void handleUrc(const String& urc);
 
 private:
   int connect();
