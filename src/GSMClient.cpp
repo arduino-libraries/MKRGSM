@@ -17,6 +17,8 @@
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include "Modem.h"
+
 #include "utility/GSMSocketBuffer.h"
 
 #include "GSMClient.h"
@@ -48,12 +50,10 @@ GSMClient::GSMClient(int socket, bool synch) :
   _ssl(false),
   _writeSync(true)
 {
-  MODEM.addUrcHandler(this);
 }
 
 GSMClient::~GSMClient()
 {
-  MODEM.removeUrcHandler(this);
 }
 
 int GSMClient::ready()
@@ -309,6 +309,13 @@ uint8_t GSMClient::connected()
     return 0;
   }
 
+  // call available to update socket state
+  if (GSMSocketBuffer.available(_socket) < 0) {
+    stop();
+
+    return 0;
+  }
+
   return 1;
 }
 
@@ -394,28 +401,4 @@ void GSMClient::stop()
 
   GSMSocketBuffer.close(_socket);
   _socket = -1;
-}
-
-void GSMClient::handleUrc(const String& urc)
-{
-  if (urc.startsWith("+UUSOCL: ")) {
-    int socket = urc.charAt(urc.length() - 1) - '0';
-
-    if (socket == _socket) {
-      // this socket closed
-      GSMSocketBuffer.close(_socket);
-      _socket = -1;
-    }
-  } else if (urc.startsWith("+UUSORD: ")) {
-    int socket = urc.charAt(9) - '0';
-
-    if (socket == _socket) {
-      if (urc.endsWith(",4294967295")) {
-        // SSL disconnect
-        // this socket closed
-        GSMSocketBuffer.close(_socket);
-        _socket = -1;
-      }
-    }
-  }
 }
