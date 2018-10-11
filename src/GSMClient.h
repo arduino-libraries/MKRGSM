@@ -20,9 +20,11 @@
 #ifndef _GSM_CLIENT_H_INCLUDED
 #define _GSM_CLIENT_H_INCLUDED
 
+#include "Modem.h"
+
 #include <Client.h>
 
-class GSMClient : public Client {
+class GSMClient : public Client, public ModemUrcHandler {
 
 public:
 
@@ -126,11 +128,14 @@ public:
    */
   void stop();
 
+  virtual void handleUrc(const String& urc);
+
 private:
   int connect();
 
   bool _synch;
   int _socket;
+  int _connected;
 
   int _state;
   IPAddress _ip;
