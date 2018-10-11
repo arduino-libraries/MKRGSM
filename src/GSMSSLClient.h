@@ -28,8 +28,15 @@ public:
   GSMSSLClient(bool synch = true);
   virtual ~GSMSSLClient();
 
+  virtual int ready();
+
   virtual int connect(IPAddress ip, uint16_t port);
   virtual int connect(const char* host, uint16_t port);
+
+private:
+  static bool _rootCertsLoaded;
+  int _certIndex;
+  int _state;
 };
 
 #endif

@@ -17,7 +17,18 @@
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include "utility/GSMRootCerts.h"
+
+#include "Modem.h"
+
 #include "GSMSSLClient.h"
+
+enum {
+  SSL_CLIENT_STATE_LOAD_ROOT_CERT,
+  SSL_CLIENT_STATE_WAIT_LOAD_ROOT_CERT_RESPONSE
+};
+
+bool GSMSSLClient::_rootCertsLoaded = false;
 
 GSMSSLClient::GSMSSLClient(bool synch) :
   GSMClient(synch)
@@ -28,12 +39,72 @@ GSMSSLClient::~GSMSSLClient()
 {
 }
 
+int GSMSSLClient::ready()
+{
+  if (_rootCertsLoaded) {
+    // root certs loaded already, continue to regular GSMClient
+    return GSMClient::ready();
+  }
+
+  int ready = MODEM.ready();
+
+  if (ready == 0) {
+    // a command is still running
+    return 0;
+  }
+
+  switch (_state) {
+    case SSL_CLIENT_STATE_LOAD_ROOT_CERT: {
+      // load the next root cert
+      MODEM.sendf("AT+USECMNG=0,0,\"%s\",%d", GSM_ROOT_CERTS[_certIndex].name, GSM_ROOT_CERTS[_certIndex].size);
+      if (MODEM.waitForPrompt() != 1) {
+        // failure
+        ready = -1;
+      } else {
+        // send the cert contents
+        MODEM.write(GSM_ROOT_CERTS[_certIndex].data, GSM_ROOT_CERTS[_certIndex].size);
+
+        _state = SSL_CLIENT_STATE_WAIT_LOAD_ROOT_CERT_RESPONSE;
+        ready = 0;
+      } 
+      break;
+    }
+
+    case SSL_CLIENT_STATE_WAIT_LOAD_ROOT_CERT_RESPONSE: {
+      if (ready > 1) {
+        // error
+      } else {
+        _certIndex++;
+
+        if (_certIndex == GSM_NUM_ROOT_CERTS) {
+          // all certs loaded
+          _rootCertsLoaded = true;
+        } else {
+          // load next
+          _state = SSL_CLIENT_STATE_LOAD_ROOT_CERT;
+        }
+
+        ready = 0;
+      }
+      break;
+    }
+  }
+
+  return ready;
+}
+
 int GSMSSLClient::connect(IPAddress ip, uint16_t port)
 {
+  _certIndex = 0;
+  _state = SSL_CLIENT_STATE_LOAD_ROOT_CERT;
+
   return connectSSL(ip, port);
 }
 
 int GSMSSLClient::connect(const char* host, uint16_t port)
 {
+  _certIndex = 0;
+  _state = SSL_CLIENT_STATE_LOAD_ROOT_CERT;
+
   return connectSSL(host, port);
 }

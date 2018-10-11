@@ -167,6 +167,11 @@ size_t ModemClass::write(uint8_t c)
   return _uart->write(c);
 }
 
+size_t ModemClass::write(const uint8_t* buf, size_t size)
+{
+  return _uart->write(buf, size);
+}
+
 void ModemClass::send(const char* command)
 {
   if (_lowPowerMode) {
@@ -213,6 +218,19 @@ int ModemClass::waitForResponse(unsigned long timeout, String* responseDataStora
 
   _responseDataStorage = NULL;
   _buffer = "";
+  return -1;
+}
+
+int ModemClass::waitForPrompt(unsigned long timeout)
+{
+  for (unsigned long start = millis(); (millis() - start) < timeout;) {
+    ready();
+
+    if (_buffer.endsWith(">")) {
+      return 1;
+    }
+  }
+
   return -1;
 }
 

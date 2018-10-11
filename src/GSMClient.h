@@ -42,7 +42,7 @@ public:
   /** Get last command status
       @return returns 0 if last command is still executing, 1 success, >1 error
   */
-  int ready();
+  virtual int ready();
 
   /** Connect to server by IP address
       @param (IPAddress)
