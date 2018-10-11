@@ -29,6 +29,8 @@ enum {
   CLIENT_STATE_WAIT_CREATE_SOCKET_RESPONSE,
   CLIENT_STATE_ENABLE_SSL,
   CLIENT_STATE_WAIT_ENABLE_SSL_RESPONSE,
+  CLIENT_STATE_MANAGE_SSL_PROFILE,
+  CLIENT_STATE_WAIT_MANAGE_SSL_PROFILE_RESPONSE,
   CLIENT_STATE_CONNECT,
   CLIENT_STATE_WAIT_CONNECT_RESPONSE,
   CLIENT_STATE_CLOSE_SOCKET,
@@ -97,7 +99,7 @@ int GSMClient::ready()
     }
 
     case CLIENT_STATE_ENABLE_SSL: {
-      MODEM.sendf("AT+USOSEC=%d,1", _socket);
+      MODEM.sendf("AT+USOSEC=%d,1,0", _socket);
 
       _state = CLIENT_STATE_WAIT_ENABLE_SSL_RESPONSE;
       ready = 0;
@@ -108,12 +110,35 @@ int GSMClient::ready()
       if (ready > 1) {
         _state = CLIENT_STATE_CLOSE_SOCKET;
       } else {
-        _state = CLIENT_STATE_CONNECT;
+        _state = CLIENT_STATE_MANAGE_SSL_PROFILE;
       }
 
       ready = 0;
       break;
     }
+
+    case CLIENT_STATE_MANAGE_SSL_PROFILE: {
+      if (_host != NULL) {
+        MODEM.sendf("AT+USECPRF=0,0,1,4,\"%s\"", _host);
+      } else {
+        MODEM.send("AT+USECPRF=0,0,1");
+      }
+
+      _state = CLIENT_STATE_WAIT_MANAGE_SSL_PROFILE_RESPONSE;
+      ready = 0;
+      break;
+    }
+  
+    case CLIENT_STATE_WAIT_MANAGE_SSL_PROFILE_RESPONSE: {
+      if (ready > 1) {
+        _state = CLIENT_STATE_CLOSE_SOCKET;
+      } else {
+        _state = CLIENT_STATE_CONNECT;
+      }
+
+      ready = 0;
+      break;
+    } 
 
     case CLIENT_STATE_CONNECT: {
       if (_host != NULL) {
