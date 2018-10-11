@@ -45,6 +45,7 @@ GSMClient::GSMClient(bool synch) :
 GSMClient::GSMClient(int socket, bool synch) :
   _synch(synch),
   _socket(socket),
+  _connected(false),
   _state(CLIENT_STATE_IDLE),
   _ip((uint32_t)0),
   _host(NULL),
@@ -52,10 +53,12 @@ GSMClient::GSMClient(int socket, bool synch) :
   _ssl(false),
   _writeSync(true)
 {
+  MODEM.addUrcHandler(this);
 }
 
 GSMClient::~GSMClient()
 {
+  MODEM.removeUrcHandler(this);
 }
 
 int GSMClient::ready()
@@ -158,6 +161,7 @@ int GSMClient::ready()
 
         ready = 0;
       } else {
+        _connected = true;
         _state = CLIENT_STATE_IDLE;
       }
       break;
@@ -335,7 +339,7 @@ uint8_t GSMClient::connected()
   }
 
   // call available to update socket state
-  if (GSMSocketBuffer.available(_socket) < 0) {
+  if ((GSMSocketBuffer.available(_socket) < 0) || (_ssl && !_connected)) {
     stop();
 
     return 0;
@@ -426,4 +430,18 @@ void GSMClient::stop()
 
   GSMSocketBuffer.close(_socket);
   _socket = -1;
+  _connected = false;
+}
+
+void GSMClient::handleUrc(const String& urc)
+{
+  if (urc.startsWith("+UUSORD: ")) {
+    int socket = urc.charAt(9) - '0';
+
+    if (socket == _socket) {
+      if (urc.endsWith(",4294967295")) {
+        _connected = false;
+      }
+    }
+  }
 }
