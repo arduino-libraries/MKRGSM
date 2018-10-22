@@ -1,5 +1,16 @@
 MKRGSM ?.?.? - ????.??.??
 
+MKRGSM 1.3.0 - 2018.10.22
+
+* Changed GSM to GSM_OFF. Thanks @FrancMunoz
+* Added GSM::getLocalTime() API. Thanks @FrancMunoz
+* Added socket buffer to improve TCP socket read performance
+* Replaced boolean type with bool in examples. Thanks @per1234
+* Changed AT command handling to wait at least 20 ms for URC's, after receiving an AT command response before sending a new command. Thanks @FrancMunoz
+* Added root SSL certs and enabled SSL cert validation
+* Added GSM::setTimeout(...) and GPRS::setTimeout(...) API's
+* Added GSM::status() API
+
 MKRGSM 1.2.1 - 2018.09.13
 
 * Fixed GPRS credentials (username and password) not being used by the modem. Now auth type is set to automatic.
