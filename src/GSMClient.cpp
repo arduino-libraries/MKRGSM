@@ -429,6 +429,7 @@ void GSMClient::stop()
   MODEM.waitForResponse(10000);
 
   GSMSocketBuffer.close(_socket);
+  _state = CLIENT_STATE_IDLE;
   _socket = -1;
   _connected = false;
 }
