@@ -1,5 +1,11 @@
 MKRGSM ?.?.? - ????.??.??
 
+MKRGSM 1.3.1 - 2018.11.12
+
+* Changed where required, in MKRGSM's examples, the server's URL arduino.cc\80 in example.org\80, because http://arduino.cc will be no longer available
+* Updated src/GSMClient.cpp in order to support asynchronous use of MKRGSM's library, moved the state assignement in the first line of stop() API. Thanks @Nels52
+* Added GSM status check in GSM::shutdown() to fix socket close errors generation by consecutive shutdown API's calling
+
 MKRGSM 1.3.0 - 2018.10.22
 
 * Changed GSM to GSM_OFF. Thanks @FrancMunoz
