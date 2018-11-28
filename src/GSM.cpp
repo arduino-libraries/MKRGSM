@@ -100,7 +100,7 @@ int GSM::isAccessAlive()
 
 bool GSM::shutdown()
 {
-  if (_state == READY_STATE_DONE) {
+  if (_state == GSM_READY) {
     MODEM.send("AT+CPWROFF");
     MODEM.waitForResponse(40000);
   }
