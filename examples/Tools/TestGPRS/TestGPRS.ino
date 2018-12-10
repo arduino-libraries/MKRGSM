@@ -92,7 +92,7 @@ void loop() {
     readSerial(proxy);
     Serial.println(proxy);
 
-    // if user introduced a proxy, asks him for proxy port
+    // if user introduced a proxy, asks them for proxy port
     int pport;
     if (proxy[0] != '\0') {
       // read proxy port introduced by user
