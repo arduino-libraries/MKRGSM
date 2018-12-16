@@ -86,6 +86,8 @@ public:
    */
   size_t write(const uint8_t*, size_t);
 
+  size_t send(const void*, size_t, uint32_t timeout);
+
   /** Finish write request
       @param sync     Sync mode
    */
@@ -145,6 +147,7 @@ private:
 
   bool _writeSync;
   String _response;
+  uint32_t _bytesWritten;
 };
 
 #endif

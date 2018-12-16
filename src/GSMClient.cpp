@@ -51,7 +51,8 @@ GSMClient::GSMClient(int socket, bool synch) :
   _host(NULL),
   _port(0),
   _ssl(false),
-  _writeSync(true)
+  _writeSync(true),
+  _bytesWritten(0)
 {
   MODEM.addUrcHandler(this);
 }
@@ -325,6 +326,45 @@ size_t GSMClient::write(const uint8_t* buf, size_t size)
   return written;
 }
 
+size_t GSMClient::send(const void* buf, size_t size, uint32_t timeout)
+{
+	uint32_t start = millis();
+	if (_writeSync) {
+		while (ready() == 0);
+	}
+	else if (ready() == 0) {
+		return 0;
+	}
+
+	if (_socket == -1) {
+		return 0;
+	}
+	String command;
+
+	command += "AT+USOWR=";
+	command += _socket;
+	command += ",";
+	command += size;
+
+	MODEM.send(command);
+
+	String response;
+	if ((MODEM.waitForResponse(10000, &response) == 1) &&
+		(response == "@")){
+		MODEM.send((uint8_t*)buf, size);
+	}else{
+		return 0;
+	}
+
+	_bytesWritten = 0;
+
+	while (((millis() - start) < timeout) && (_bytesWritten < size)) {
+		MODEM.ready();
+	}
+
+	return _bytesWritten;
+}
+
 void GSMClient::endWrite(bool /*sync*/)
 {
   _writeSync = true;
@@ -437,6 +477,12 @@ void GSMClient::stop()
 
 void GSMClient::handleUrc(const String& urc)
 {
+  if (urc.startsWith("+USOWR: ")){
+	 int i = urc.indexOf(',');
+	 if (i > 0){
+			_bytesWritten = urc.substring(i + 1).toInt();
+     }
+  }
   if (urc.startsWith("+UUSORD: ")) {
     int socket = urc.charAt(9) - '0';
 

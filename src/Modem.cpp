@@ -172,6 +172,26 @@ size_t ModemClass::write(const uint8_t* buf, size_t size)
   return _uart->write(buf, size);
 }
 
+void ModemClass::send(const uint8_t* buf, size_t size)
+{
+	if (_lowPowerMode) {
+		digitalWrite(_dtrPin, LOW);
+		delay(5);
+	}
+
+	// compare the time of the last response or URC and ensure 
+	// at least 20ms have passed before sending a new command
+	unsigned long delta = millis() - _lastResponseOrUrcMillis;
+	if (delta < MODEM_MIN_RESPONSE_OR_URC_WAIT_TIME_MS) {
+		delay(MODEM_MIN_RESPONSE_OR_URC_WAIT_TIME_MS - delta);
+	}
+
+	_uart->write(buf, size);
+	_uart->flush();
+	_atCommandState = AT_COMMAND_IDLE;
+	_ready = 0;
+}
+
 void ModemClass::send(const char* command)
 {
   if (_lowPowerMode) {
@@ -279,7 +299,17 @@ void ModemClass::poll()
       }
 
       case AT_RECEIVING_RESPONSE: {
-        if (c == '\n') {
+		if (c == '@'){
+			_lastResponseOrUrcMillis = millis();
+			_ready = 1;
+			if (_responseDataStorage != NULL){
+				*_responseDataStorage = _buffer;
+				_responseDataStorage = NULL;
+			}
+			_atCommandState = AT_COMMAND_IDLE;
+			_buffer = "";
+			return;
+		} else if (c == '\n') {
           _lastResponseOrUrcMillis = millis();
 
           int responseResultIndex = _buffer.lastIndexOf("OK\r\n");
