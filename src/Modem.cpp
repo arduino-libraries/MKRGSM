@@ -279,7 +279,27 @@ void ModemClass::poll()
       }
 
       case AT_RECEIVING_RESPONSE: {
-        if (c == '\n') {
+				if (_buffer.startsWith("+URDFILE: ")){
+					int i = _buffer.indexOf(',') + 1;
+					if (i < 0) {
+						return;
+					}
+					int j = _buffer.indexOf(',', i);
+					if (j < 0) {
+						return;
+					}
+					int size = _buffer.substring(i, j).toInt();
+					if (size == (_buffer.length() - j - 2)) {
+						_buffer = _buffer.substring(j + 2);
+						*_responseDataStorage = _buffer;
+						_responseDataStorage = nullptr;
+						_atCommandState = AT_COMMAND_IDLE;
+						_buffer = "";
+						_ready = 1;
+						return;
+					}
+				}
+        else if (c == '\n') {
           _lastResponseOrUrcMillis = millis();
 
           int responseResultIndex = _buffer.lastIndexOf("OK\r\n");
