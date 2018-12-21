@@ -329,6 +329,7 @@ size_t GSMClient::write(const uint8_t* buf, size_t size)
 size_t GSMClient::send(const void* buf, size_t size, uint32_t timeout)
 {
 	uint32_t start = millis();
+
 	if (_writeSync) {
 		while (ready() == 0);
 	}
@@ -350,9 +351,12 @@ size_t GSMClient::send(const void* buf, size_t size, uint32_t timeout)
 
 	String response;
 	if ((MODEM.waitForResponse(10000, &response) == 1) &&
-		(response == "@")){
-		MODEM.send((uint8_t*)buf, size);
-	}else{
+		(response == "@")) {
+		//After the @ prompt reception, wait for a minimum of 50ms before sending data.
+		delay(50);
+		MODEM.write((uint8_t*)buf, size);
+	}
+	else {
 		return 0;
 	}
 
@@ -363,6 +367,30 @@ size_t GSMClient::send(const void* buf, size_t size, uint32_t timeout)
 	}
 
 	return _bytesWritten;
+}
+
+size_t GSMClient::unacknoledgedBytes(uint32_t timeout)
+{
+	uint32_t start = millis();
+	uint32_t unacknoledgedBytes = 0;
+
+	do {
+		String response;
+		MODEM.send("AT+USOCTL=0,11");
+		if (MODEM.waitForResponse(100, &response) == 1) {
+			if (response.startsWith("+USOCTL: ")) {
+				int i = response.lastIndexOf(',');
+				if (i > 0) {
+					unacknoledgedBytes = response.substring(i + 1).toInt();
+					if (unacknoledgedBytes == 0) {
+						break;
+					}
+				}
+			}
+		}
+	} while ((millis() - start) < timeout);
+
+	return unacknoledgedBytes;
 }
 
 void GSMClient::endWrite(bool /*sync*/)
