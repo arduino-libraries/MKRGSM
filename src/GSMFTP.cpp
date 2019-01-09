@@ -34,7 +34,7 @@ GSMFTP::~GSMFTP()
 	_file.clear();
 }
 
-bool GSMFTP::connect(String hostname, String user, String password)
+bool GSMFTP::connect(String hostname, String user, String password, uint16_t port, bool passiveMode)
 {
 	uint32_t start = millis();
 	String command;
@@ -57,7 +57,14 @@ bool GSMFTP::connect(String hostname, String user, String password)
 		return false;
 	}
 
-	MODEM.send("AT+UFTP=6,0");
+	command = (passiveMode == true) ? "AT+UFTP=6,1" : "AT+UFTP=6,0";
+	MODEM.send(command);
+	if (MODEM.waitForResponse(100) != 1) {
+		return false;
+	}
+
+	command = "AT+UFTP=7," + String(port);
+	MODEM.send(command);
 	if (MODEM.waitForResponse(100) != 1) {
 		return false;
 	}
@@ -163,7 +170,7 @@ bool GSMFTP::mkdir(const String& name, uint32_t timeout)
 	return false;
 }
 
-bool GSMFTP::remove(const String& name, uint32_t timeout)
+bool GSMFTP::removeFile(const String& name, uint32_t timeout)
 {
 	uint32_t start = millis();
 	if (_connected == false) {
@@ -186,6 +193,36 @@ bool GSMFTP::remove(const String& name, uint32_t timeout)
 			_fileRemoved = -2;
 			MODEM.send(command);
 		}else if (_fileRemoved == 1) {
+			return true;
+		}
+	}
+	return false;
+}
+
+bool GSMFTP::removeDirectory(const String& name, uint32_t timeout)
+{
+	uint32_t start = millis();
+	if (_connected == false) {
+		return false;
+	}
+
+	_dirRemoved = -2;
+	String command = "AT+UFTPC=11,\"" + name + "\"";
+
+	while ((millis() - start) < timeout) {
+		if (_dirRemoved == -2) {
+			_dirRemoved = -1;
+			MODEM.send(command);
+			if (MODEM.waitForResponse(100) != 1) {
+				return false;
+			}
+		}
+		MODEM.poll();
+		if (_dirRemoved == 0) {
+			_dirRemoved = -2;
+			MODEM.send(command);
+		}
+		else if (_dirRemoved == 1) {
 			return true;
 		}
 	}
@@ -241,7 +278,6 @@ bool GSMFTP::download(const String& remoteFileName, const String& localFileName,
 		MODEM.poll();
 		if (_fileDownloaded == 0) {
 			_fileDownloaded = -2;
-			MODEM.send(command);
 		}
 		else if (_fileDownloaded == 1) {
 			return true;
@@ -270,7 +306,6 @@ bool GSMFTP::upload(const String& localFileName, const String& remoteFileName, u
 		MODEM.poll();
 		if (_fileUploaded == 0) {
 			_fileUploaded = -2;
-			MODEM.send(command);
 		}
 		else if (_fileUploaded == 1) {
 			return true;
@@ -306,6 +341,22 @@ bool GSMFTP::cd(const String& name, uint32_t timeout)
 		}
 	}
 	return false;
+}
+
+void GSMFTP::printError()
+{
+	String res = "FTP last error : ";
+	String response;
+
+	MODEM.send("AT+UFTPER");
+
+	if ((MODEM.waitForResponse(1000, &response) == 1) && 
+		(response.startsWith("+UFTPER:"))) {
+		res += response.substring(8);
+	}else {
+		res += "no response";
+	}
+	Serial.println(res);
 }
 
 GSMFTP::FTPFileElem GSMFTP::file(uint16_t i)
@@ -451,6 +502,9 @@ void GSMFTP::handleUrc(const String& urc)
 	}
 	else if (urc.startsWith("+UUFTPCR: 2,")) {
 		_fileRemoved = (urc.charAt(urc.lastIndexOf(",") + 1) == '1') ? 1 : 0;
+	}
+	else if (urc.startsWith("+UUFTPCR: 11,")) {
+		_dirRemoved = (urc.charAt(urc.lastIndexOf(",") + 1) == '1') ? 1 : 0;
 	}
 	else if (urc.startsWith("+UUFTPCR: 3,")) {
 		_fileRenamed = (urc.charAt(urc.lastIndexOf(",") + 1) == '1') ? 1 : 0;

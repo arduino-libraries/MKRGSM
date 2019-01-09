@@ -59,7 +59,7 @@ void setup() {
 void loop() {
 
 	Serial.println("Connect to FTP server.");
-	if (ftp.connect(SECRET_FTP_HOST, SECRET_FTP_USER, SECRET_FTP_PASSWORD) == false) {
+	if (ftp.connect(SECRET_FTP_HOST, SECRET_FTP_USER, SECRET_FTP_PASSWORD, SECRET_FTP_PORT) == false) {
 		Serial.println("Failed to Connect to FTP server.");
 	}
 
@@ -71,14 +71,14 @@ void loop() {
 	Serial.print("Free space ");
 	Serial.println(fileSystem.freeSpace());
 
-	Serial.println("Create remote file : test");
+	Serial.println("Create remote directory : test");
 	if (ftp.mkdir("test") == false) {
-		Serial.println("Failed to create the file.");
+		Serial.println("Failed to create the directory.");
 	}
 
-	Serial.println("Rename remote file : test to test2");
+	Serial.println("Rename remote directory : test to test2");
 	if (ftp.rename("test", "test2") == false) {
-		Serial.println("Failed to rename the file.");
+		Serial.println("Failed to rename the directory.");
 	}
 
 	Serial.println("Write a binary file in local memory");
@@ -87,15 +87,17 @@ void loop() {
 	if (fileSystem.write("myFile", &valueWR, sizeof(valueWR)) == false) {
 		Serial.println("Failed to write file");
 	}
-
+	
 	Serial.println("Send the file to the server");
 	if (ftp.upload("myFile", "myFileToServer") == false) {
 		Serial.println("Failed to upload the file.");
+		ftp.printError();
 	}
-
+	
 	Serial.println("Retreive the file from the server to local memory");
 	if (ftp.download("myFileToServer", "myFileToLocalMemory") == false) {
 		Serial.println("Failed to download the file.");
+		ftp.printError();
 	}
 
 	Serial.println("Check that the original file is identical to the one that was received");
@@ -129,11 +131,11 @@ void loop() {
 		Serial.println("Failed to display files.");
 	}
 
-	Serial.println("Delete the created files");
-	if (ftp.remove("test2") == false) {
+	Serial.println("Delete the created file and directory");
+	if (ftp.removeDirectory("test2") == false) {
 		Serial.println("Failed to remove files : test2.");
 	}
-	if (ftp.remove("myFileToServer") == false) {
+	if (ftp.removeFile("myFileToServer") == false) {
 		Serial.println("Failed to remove files : myFileToServer.");
 	}
 

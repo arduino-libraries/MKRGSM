@@ -46,9 +46,11 @@ public:
 		@param hostname				FTP server hostname 
 		@param user						FTP user name
 		@param password				FTP password
+		@param port						FTP server port
+		@param passiveMode		true if passive mode is active
 		@return								true if no error
 	*/
-	bool connect(String hostname, String user, String password);
+	bool connect(String hostname, String user, String password, uint16_t port, bool passiveMode=true);
 	/** Disconnect to the FTP server
 		@return								true if no error
 	*/
@@ -74,12 +76,18 @@ public:
 		@return									true if no error
 	*/
 	bool mkdir(const String& name, uint32_t timeout=10000);
-	/** Delete file on the FTP server
-		@param name							name of the file to delete
-		@param timeout					maximum time allow to execute the function
-		@return									true if no error
+	/** Delete directory on the FTP server
+	@param name							name of the directory to delete
+	@param timeout					maximum time allow to execute the function
+	@return									true if no error
 	*/
-	bool remove(const String&, uint32_t timeout = 10000);
+	bool removeDirectory(const String&, uint32_t timeout = 10000);
+	/** Delete file on the FTP server
+	@param name							name of the file to delete
+	@param timeout					maximum time allow to execute the function
+	@return									true if no error
+	*/
+	bool removeFile(const String&, uint32_t timeout = 10000);
 	/** Rename file on the FTP server
 		@param oldName					name of the file to rename
 		@param name							new name of the file to rename
@@ -108,6 +116,14 @@ public:
 	*/
 	bool upload(const String& localFileName, const String&remoteFileName, uint32_t timeout = 10000);
 
+	/** Print the error class and code of the last FTP operation
+		@brief 
+		0,0 mean no error otherwise {error class},{error code}.
+		For the description refer to the documention : 
+		https://www.u-blox.com/sites/default/files/u-blox-CEL_ATCommands_%28UBX-13002752%29.pdf
+	*/
+	void printError();
+
 private:
 	static const uint32_t c_connectionTimeout = 10000;
 
@@ -132,6 +148,7 @@ private:
 	int _dirCreated;
 	int _dirChanged;
 	int _fileRemoved;
+	int _dirRemoved;
 	int _fileRenamed;
 	int _fileDownloaded;
 	int _fileUploaded;
