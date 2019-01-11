@@ -22,44 +22,38 @@
 
 #include <Arduino.h>
 
-class GSMFileSytem {
+class GSMFileSystemElem;
+
+class GSMFileSystem {
 
 public:
-	struct FileElem
-	{
-		String name;
-		uint32_t size;
 
-		FileElem() :size(0)
-		{}
-	};
-
-  GSMFileSytem();
-  virtual ~GSMFileSytem();
 	/** Get name and size of all the file system files 
 		@param show				if true, display name and size of the files
 		@param timeout		maximum time allow to execute the function
+    @param file		    class that contains the information of all the files found
 		@return						true if no error
  */
-	bool ls(bool show = false, uint32_t timeout = 10000);
+  bool ls(GSMFileSystemElem& file, bool show = false, uint32_t timeout = 10000);
 	/** Delete a file of the file system
 		@param name				name of the file to delete
 		@return						true if no error
 	*/
 	bool remove(const String& name);
-	/** Get file number of the file system
-		@return						number of file read after the call of @ref ls function
+	/** Delete files of the file system
+		@param files			set of files to delete
+		@return						true if no error
 	*/
-	uint32_t fileCount() { return _file.count; }
-	/** Get a file element
-		@param i					index of the file element array to retreive
-		@return						file element 
-	*/
-	FileElem file(uint16_t i);
+	bool remove(GSMFileSystemElem& files);
 	/** Get a free space of the file system in bytes
 		@return						free space
 	*/
 	uint32_t freeSpace();
+  /** Create a file with data in the filesystem
+    @param name				name of the file 
+    @return						size of the file, -1 if error
+  */
+  int32_t size(const String& name);
 	/** Create a file with data in the filesystem
 		@param name				name of the file to create
 		@param data				address of the data to write
@@ -75,22 +69,57 @@ public:
 	*/
 	bool read(const String& name, void* data, size_t size);
 
-private:
-	struct File
-	{
-		FileElem* e;
-		uint32_t count;
-
-		void clear();
-		void append(const FileElem&);
-		void show(int);
-		void parse(const String&);
-
-		File() :e(nullptr), count(0)
-		{}
-	};
-
-	File _file;
 };
+
+class GSMFileSystemElem {
+
+public:
+  struct Elem
+  {
+    String name;
+    uint32_t size;
+
+    Elem() :size(0)
+    {}
+  };
+
+  GSMFileSystemElem() :_elem(nullptr), _count(0){}
+  ~GSMFileSystemElem() { clear(); }
+  /** Get file number of the file system
+  @return						number of file read after the call of @ref ls function
+*/
+  inline uint32_t count() { return _count; }
+  /** Get a file element
+    @param i					file index to get the element
+    @return						file element
+  */
+  Elem elem(uint16_t i);
+	/** Get file size
+		@param i					file index to get the size
+		@return						file size
+	*/
+  void setSize(uint16_t i, uint32_t size);
+	/** Clear the file array
+	*/
+  void clear();
+	/** Append a new element in the file array
+	@param elem					elem to append in the array
+	*/
+  void append(const Elem elem);
+	/** Show file information of the corresponding index
+	@param i						index of the element to show
+	*/
+  void show(int i);
+	/** Parse string containing file information
+	@param str					string containing file information to parse
+	*/
+  void parse(const String& str);
+
+private:
+  Elem* _elem;
+  uint32_t _count;
+};
+
+extern GSMFileSystem FILESYSTEM;
 
 #endif

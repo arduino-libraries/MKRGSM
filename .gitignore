@@ -1,0 +1,11 @@
+#exclude everything except some directory
+*.suo
+*.d
+*.o
+**/Release/**
+**/__vm/**
+project/**/Debug/**
+project/**/Release/**
+project/**/__vm/**
+packages/arduino/tools
+staging

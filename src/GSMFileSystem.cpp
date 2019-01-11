@@ -20,52 +20,49 @@
 #include <GSMFileSystem.h>
 #include <Modem.h>
 
-GSMFileSytem::GSMFileSytem()
-{
-}
-
-GSMFileSytem::~GSMFileSytem()
-{
-	_file.clear();
-}
-
-bool GSMFileSytem::ls(bool show, uint32_t timeout)
+bool GSMFileSystem::ls(GSMFileSystemElem& file, bool show, uint32_t timeout)
 {
 	uint32_t start = millis();
-	_file.clear();
 	String response;
+  file.clear();
 	MODEM.send("AT+ULSTFILE=");
 
 	if (MODEM.waitForResponse(timeout, &response) == 1) {
-		_file.parse(response);
+		file.parse(response);
 	}else {
 		return false;
 	}
 
-	for (int i = 0; i < _file.count; ++i){
+	for (int i = 0; i < file.count(); ++i){
 		if ((millis() - start) > timeout) {
-			return false;
+      return false;
 		}
-		String command = "AT+ULSTFILE=2,\"" + _file.e[i].name + "\"";
-		MODEM.send(command);
+    file.setSize(i, size(file.elem(i).name));
 		
-		if (MODEM.waitForResponse(1000, &response) == 1) {
-			if (response.startsWith("+ULSTFILE: ")) {
-				_file.e[i].size = response.substring(11).toInt();
-			}
-		}
 		if (show == true) {
-			_file.show(i);
+			file.show(i);
 		}
 	}
-		
 	return true;
 }
 
-bool GSMFileSytem::remove(const String& name)
+int32_t GSMFileSystem::size(const String& name) 
 {
-	String command = "AT+UDELFILE=\"" + name + "\"";
-	MODEM.send(command);
+  String response;
+
+  MODEM.send("AT+ULSTFILE=2,\"" + name + "\"");
+
+  if (MODEM.waitForResponse(1000, &response) == 1) {
+    if (response.startsWith("+ULSTFILE: ")) {
+      return response.substring(11).toInt();
+    }
+  }
+  return -1;
+}
+
+bool GSMFileSystem::remove(const String& name)
+{
+	MODEM.send("AT+UDELFILE=\"" + name + "\"");
 	if (MODEM.waitForResponse(10000) == 1) {	
 		return true;
 	}else {
@@ -73,7 +70,16 @@ bool GSMFileSytem::remove(const String& name)
 	}
 }
 
-uint32_t GSMFileSytem::freeSpace()
+bool GSMFileSystem::remove(GSMFileSystemElem& file)
+{
+	bool ok = true;
+	for (int i = 0; i < file.count(); ++i) {
+		ok &= remove(file.elem(i).name);
+	}
+	return ok;
+}
+
+uint32_t GSMFileSystem::freeSpace()
 {
 	uint32_t res = 0;
 	String response;
@@ -87,10 +93,9 @@ uint32_t GSMFileSytem::freeSpace()
 	return res;
 }
 
-bool GSMFileSytem::write(const String& fileName, void* data, size_t size)
+bool GSMFileSystem::write(const String& fileName, void* data, size_t size)
 {
-	String command = "AT+UDWNFILE=\"" + fileName + "\"," + size;
-	MODEM.send(command);
+	MODEM.send("AT+UDWNFILE=\"" + fileName + "\"," + size);
 
 	if (MODEM.waitForPrompt() == 1) {
 		MODEM.write((const uint8_t*)data, size);
@@ -101,11 +106,10 @@ bool GSMFileSytem::write(const String& fileName, void* data, size_t size)
 	return false;
 }
 
-bool GSMFileSytem::read(const String& fileName, void* data, size_t size)
+bool GSMFileSystem::read(const String& fileName, void* data, size_t size)
 {
 	String response;
-	String command = "AT+URDFILE=\"" + fileName + "\"";
-	MODEM.send(command);
+	MODEM.send("AT+URDFILE=\"" + fileName + "\"");
 
 	if (MODEM.waitForResponse(10000, &response) == 1) {
 		memcpy(data, response.c_str(), size);
@@ -114,55 +118,65 @@ bool GSMFileSytem::read(const String& fileName, void* data, size_t size)
 	return false;
 }
 
-GSMFileSytem::FileElem GSMFileSytem::file(uint16_t i)
+//--- GSMFileSystemElem ---
+
+GSMFileSystemElem::Elem GSMFileSystemElem::elem(uint16_t i)
 {
-	if (i < _file.count) {
-		return _file.e[i];
-	}else {
-		return FileElem();
-	}
+  if (i < _count) {
+    return _elem[i];
+  }
+  else {
+    return Elem();
+  }
 }
 
-void GSMFileSytem::File::append(const FileElem& elem)
+void GSMFileSystemElem::setSize(uint16_t i, uint32_t size)
 {
-	FileElem* tmp = new FileElem[count + 1];
-	for (int i = 0; i < count; ++i) {
-		tmp[i] = e[i];
-	}
-	tmp[count] = elem;
-	if (e != nullptr) {
-		delete[] e;
-	}
-	e = tmp;
-	count++;
+  if (i < _count) {
+    _elem[i].size = size;
+  }
 }
 
-void GSMFileSytem::File::clear() {
-	if (e != nullptr) {
-		delete[] e;
-		e = nullptr;
+void GSMFileSystemElem::append(const Elem elem)
+{
+	Elem* tmp = new Elem[_count + 1];
+	for (int i = 0; i < _count; ++i) {
+		tmp[i] = _elem[i];
 	}
-	count = 0;
+	tmp[_count] = elem;
+	if (_elem != nullptr) {
+		delete[] _elem;
+	}
+	_elem = tmp;
+	_count++;
 }
 
-void GSMFileSytem::File::show(int i)
+void GSMFileSystemElem::clear() {
+	if (_elem != nullptr) {
+		delete[] _elem;
+    _elem = nullptr;
+	}
+	_count = 0;
+}
+
+void GSMFileSystemElem::show(int i)
 {
-	if (i >= count) {
+	if (i >= _count) {
 		return;
 	}
-	Serial.print(e[i].name);
+	Serial.print(_elem[i].name);
 	Serial.print(" ");
-	Serial.println(e[i].size);
+	Serial.println(_elem[i].size);
 }
 
-void GSMFileSytem::File::parse(const String& str)
+void GSMFileSystemElem::parse(const String& str)
 {
 	String res = str;
 	int i = res.indexOf('"')+1;
 	int j = res.indexOf('"', i);
 
 	while ((i > 0) && (j > 0)){
-		FileElem elem;
+		Elem elem;
 		elem.name = res.substring(i, j);
 		res = res.substring(j + 1);
 		append(elem);
@@ -170,3 +184,5 @@ void GSMFileSytem::File::parse(const String& str)
 		j = res.indexOf('"', i);
 	}
 }
+
+GSMFileSystem FILESYSTEM;

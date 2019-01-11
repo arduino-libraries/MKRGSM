@@ -22,23 +22,11 @@
 
 #include <Modem.h>
 
+class GSMFTPElem;
+
 class GSMFTP : public ModemUrcHandler {
 
 public:
-	struct FTPFileElem
-	{
-		String permissions;
-		uint32_t size;
-		uint32_t number;
-		String user;
-		String group;
-		String lastModified;
-		String name;
-
-		FTPFileElem() :size(0), number(0)
-		{}
-	};
-
   GSMFTP();
   virtual ~GSMFTP();
 
@@ -56,20 +44,21 @@ public:
 	*/
 	bool disconnect();
 	/** Get informations of remote directory
+		@param file		    class that contains the information of all the files found
 		@param show							if true, display information of files
 		@param timeout					maximum time allow to execute the function
 		@return						true if no error
  */
-	bool ls(bool show=false, uint32_t timeout=10000);
-	/** Get file number of remote directory
-		@return									number of file read after the call of @ref ls function
-	*/
-	uint32_t fileCount() { return _file.count; }
-	/** Get a file element
-		@param i								index of the file element array to retreive
-		@return									file element
-	*/
-	FTPFileElem file(uint16_t i);
+	bool ls(GSMFTPElem& file, bool show=false, uint32_t timeout=10000);
+  /** Get informations of remote directory/file
+		@param file							class that contains the information of all the files found
+    @param name							name of file or directory where to search information
+		@param file							name of file or directory where to search information
+		@param show							if true, display information of files
+    @param timeout					maximum time allow to execute the function
+    @return						true if no error
+ */
+  bool ls(GSMFTPElem& file, const String name, bool show = false, uint32_t timeout = 10000);
 	/** Create directory on the FTP server
 		@param name							name of the directory to create
 		@param timeout					maximum time allow to execute the function
@@ -102,45 +91,62 @@ public:
 	*/
 	bool cd(const String& path, uint32_t timeout = 10000);
 	/** Download a file from the FTP server
-		@param remoteFileName		name of file on FTP server to retreive on filesystem
 		@param localFileName		name of the file on filesystem sent from FTP server
+		@param remoteFileName		name of file on FTP server to retreive on filesystem
 		@param timeout					maximum time allow to execute the function
 		@return									true if no error
-	*/
-	bool download(const String& remoteFileName, const String& localFileName, uint32_t timeout = 10000);
-	/** Upload a file to the FTP server
-		@param localFileName		name of the file on filesystem to send to FTP server
-		@param remoteFileName		name of the file on FTP server sent from filesystem
-		@param timeout					maximum time allow to execute the function
-		@return									true if no error
-	*/
-	bool upload(const String& localFileName, const String&remoteFileName, uint32_t timeout = 10000);
 
-	/** Print the error class and code of the last FTP operation
-		@brief 
-		0,0 mean no error otherwise {error class},{error code}.
-		For the description refer to the documention : 
-		https://www.u-blox.com/sites/default/files/u-blox-CEL_ATCommands_%28UBX-13002752%29.pdf
+    Download a file in blocking mode until the timeout elapsed.
 	*/
+	bool download(const String& localFileName, const String& remoteFileName, uint32_t timeout = 10000);
+  /** Start file download from the FTP server
+    @param localFileName		name of the file on filesystem sent from FTP server
+		@param remoteFileName		name of file on FTP server to retreive on filesystem
+    @return									true if no error
+
+    Initialize the file download in non blocking mode.
+  */
+  bool downloadStart(const String& localFileName, const String& remoteFileName);
+  /** Update download state 
+    @param remoteFileName		name of file on FTP server to retreive on filesystem
+    @param localFileName		name of the file on filesystem sent from FTP server
+    @param showProgression	if true show the downloading progression [%]
+    @return									1 : download finished, 0 downloading, -1 an error occured
+
+    Update the download in non blocking mode.
+  */
+  int downloadReady(const String& localFileName, bool showProgression);
+  /** Upload a file to the FTP server
+    @param localFileName		name of the file on filesystem to send to FTP server
+    @param timeout					maximum time allow to execute the function
+    @return									true if no error
+  */
+	bool upload(const String& localFileName, const String& remoteFileName, uint32_t timeout = 10000);
+  /** Start  file upload to the FTP server
+  @param localFileName		name of the file on filesystem to send to FTP server
+  @param remoteFileName		name of the file on FTP server sent from filesystem
+  @return									true if no error
+
+    Initialize the file upload in non blocking mode.
+  */
+  bool uploadStart(const String& localFileName, const String& remoteFileName);
+  /** Update download state
+  @return									1 : upload finished, 0 downloading, -1 an error occured
+
+  Update the upload in non blocking mode.
+	When uploading no other request can be send to the server, so we can not display the progress
+  */
+  int uploadReady();
+  /** Print the error class and code of the last FTP operation
+  @brief
+  0,0 mean no error otherwise {error class},{error code}.
+  For the description refer to the documention :
+  https://www.u-blox.com/sites/default/files/u-blox-CEL_ATCommands_%28UBX-13002752%29.pdf
+  */
 	void printError();
 
 private:
 	static const uint32_t c_connectionTimeout = 10000;
-
-	struct FTPFile
-	{
-		FTPFileElem* e;
-		uint32_t count;
-		bool ready;
-
-		void clear();
-		void append(const FTPFileElem&);
-		void show(int);
-		void parse(const String&);
-
-		FTPFile() :e(nullptr), count(0), ready(true)
-		{}
-	};
 
 	void handleUrc(const String&);
 
@@ -152,7 +158,59 @@ private:
 	int _fileRenamed;
 	int _fileDownloaded;
 	int _fileUploaded;
-	FTPFile _file;
+	GSMFTPElem* _fileInfo;
+	uint32_t _downloadDisplayTimeRef;
+	uint32_t _downloadRemoteFileSize;
+};
+
+class GSMFTPElem
+{
+public:
+	struct Elem
+	{
+		String permissions;
+		uint32_t size;
+		uint32_t number;
+		String user;
+		String group;
+		String lastModified;
+		String name;
+
+		Elem() :size(0), number(0)
+		{}
+	};
+
+	GSMFTPElem() :_elem(nullptr), _count(0){}
+	~GSMFTPElem() {clear();}
+
+	/** Append a new element in the file array
+	@param elem					elem to append in the array
+	*/
+	void append(const Elem elem);
+	/** Show file information of the corresponding index
+	@param i						index of the element to show
+	*/
+	void show(int i);
+	/** Clear the file array
+	*/
+	void clear();
+	/** Get a file element
+	@param i						file index to get the element
+	@return							array element relative to the index, empty element if the index is out of range
+	*/
+	Elem elem(uint16_t i);
+	/** Get number of file found
+	@return							number of element in the array
+	*/
+	uint32_t count() {return _count;}
+	/** Parse string containing file information
+	@param str					string containing file information to parse
+	*/
+	void parse(const String& str);
+
+private:
+	Elem* _elem;
+	uint32_t _count;
 };
 
 #endif
