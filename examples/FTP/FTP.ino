@@ -1,7 +1,7 @@
 /*
   FTP client
 
- This sketch connects to a FTP server through a MKR GSM 1400 board. 
+ This sketch connects to a FTP server through a MKR GSM 1400 board.
 
  Circuit:
  * MKR GSM 1400 board
@@ -20,14 +20,14 @@
 
 // Please enter your sensitive data in the Secret tab or arduino_secrets.h
 // PIN Number
-const char PINNUMBER[]     = SECRET_PINNUMBER;
+const char PINNUMBER[] = SECRET_PINNUMBER;
 // APN data
-const char GPRS_APN[]      = SECRET_GPRS_APN;
-const char GPRS_LOGIN[]    = SECRET_GPRS_LOGIN;
+const char GPRS_APN[] = SECRET_GPRS_APN;
+const char GPRS_LOGIN[] = SECRET_GPRS_LOGIN;
 const char GPRS_PASSWORD[] = SECRET_GPRS_PASSWORD;
 
 //this file must be present in the remote directory SECRET_FTP_REMOTE_DIR
-const String c_downloadFileName = "downloadFile"; 
+const String c_downloadFileName = "downloadFile";
 
 // initialize the library instance
 GSMFTP ftp;
@@ -49,9 +49,10 @@ void setup() {
   // attach the shield to the GPRS network with the APN, login and password
   while (!connected) {
     if ((gsmAccess.begin(PINNUMBER) == GSM_READY) &&
-        (gprs.attachGPRS(GPRS_APN, GPRS_LOGIN, GPRS_PASSWORD) == GPRS_READY)) {
+      (gprs.attachGPRS(GPRS_APN, GPRS_LOGIN, GPRS_PASSWORD) == GPRS_READY)) {
       connected = true;
-    } else {
+    }
+    else {
       Serial.println("Not connected");
       delay(1000);
     }
@@ -60,167 +61,156 @@ void setup() {
 
 void loop() {
   GSMFileSystemElem localFile;
-	GSMFTPElem remoteFile;
+  GSMFTPElem remoteFile;
 
-	Serial.println("Connect to FTP server.");
-	if (ftp.connect(SECRET_FTP_HOST, SECRET_FTP_USER, SECRET_FTP_PASSWORD, SECRET_FTP_PORT) == false) {
-		Serial.println("Failed to Connect to FTP server.");
-    ftp.printError();
-	}
-  
-	Serial.println("Change of directory");
-	if (ftp.cd(SECRET_FTP_REMOTE_DIR) == false) {
-		Serial.println("Failed to change of directory.");
-	}
-	
-	Serial.print("Free space ");
-	Serial.println(FILESYSTEM.freeSpace());
+  test("Connect to FTP server",
+    ftp.connect(SECRET_FTP_HOST, SECRET_FTP_USER, SECRET_FTP_PASSWORD, SECRET_FTP_PORT));
 
-	Serial.println("Create remote directory : test");
-	if (ftp.mkdir("test") == false) {
-		Serial.println("Failed to create the directory.");
-	}
+  test("Change current remote directory",
+    ftp.cd(SECRET_FTP_REMOTE_DIR));
 
-	Serial.println("Rename remote directory : test to test2");
-	if (ftp.rename("test", "test2") == false) {
-		Serial.println("Failed to rename the directory.");
-	}
+  test("Create remote directory",
+    ftp.mkdir("test"));
 
-	Serial.println("Write a binary file in local memory");
-	double valueWR = -12.5789876;
-	double valueRD = 0;
-	if (FILESYSTEM.write("myFile", &valueWR, sizeof(valueWR)) == false) {
-		Serial.println("Failed to write file");
-	}
-	
-	Serial.println("Send the file to the server");
-	if (ftp.upload("myFile", "myFileToServer") == false) {
-		Serial.println("Failed to upload the file.");
-		ftp.printError();
-	}
-	
-	Serial.println("Retreive the file from the server to local memory");
-	if (ftp.download("myFileToLocalMemory", "myFileToServer") == false) {
-		Serial.println("Failed to download the file.");
-		ftp.printError();
-	}
+  test("Rename remote directory",
+    ftp.rename("test", "test2"));
 
-	Serial.println("Check that the original file is identical to the one that was received");
-	if (FILESYSTEM.read("myFileToLocalMemory", &valueRD, sizeof(valueRD)) == false) {
-		Serial.println("Failed to read file");
-	}
-	else if (valueWR != valueRD) {
-		Serial.println("Failed to read file, value is corrupted");
-	}
+  double valueWR = -12.5789876;
+  double valueRD = 0;
 
-	Serial.print("Free space ");
-	Serial.println(FILESYSTEM.freeSpace());
+  test("Local file system write",
+    FILESYSTEM.write("myFile", &valueWR, sizeof(valueWR)));
 
-	Serial.println("Display local files");
-	if (FILESYSTEM.ls(localFile, true) == false) {
-		Serial.println("Failed to display local files");
-	}
+  test("Local file system free space",
+    (FILESYSTEM.freeSpace() > 0));
 
-	Serial.println("Remove local files");
-	if (FILESYSTEM.remove(localFile) == false) {
-		Serial.println("Failed to remove file");
-	}
-	
-	Serial.println("Display local files");
-	if (FILESYSTEM.ls(localFile, true) == false) {
-		Serial.println("Failed to display local files");
-	}
+  test("Upload from local file system to FTP server",
+    ftp.upload("myFile", "myFileToServer", 10000));
 
-	Serial.println("Display remote files");
-	if (ftp.ls(remoteFile, true) == false) {
-		Serial.println("Failed to display files.");
-	}
+  test("Download from FTP server to local file system",
+    ftp.download("myFileToLocalMemory", "myFileToServer", 10000));
 
-	Serial.println("Delete the created file and directory");
-	if (ftp.removeDirectory("test2") == false) {
-		Serial.println("Failed to remove files : test2.");
-	}
-	if (ftp.removeFile("myFileToServer") == false) {
-		Serial.println("Failed to remove files : myFileToServer.");
-	}
+  test("Local file system read",
+    FILESYSTEM.read("myFileToLocalMemory", &valueRD, sizeof(valueRD)));
 
-	Serial.println("Display remote files");
-	if (ftp.ls(remoteFile, true) == false) {
-		Serial.println("Failed to display files.");
-	}
-	
-	//--- Test download/upload a large file with non blocking function ---
+  test("Check local file consistency after upload, download then read local file system",
+    (valueRD == valueWR));
 
-	Serial.println();
-	Serial.println("Download a file with non blocking function");
-	downloadFileNonBlocking("downloadedFile", c_downloadFileName);
+  test("Display local files",
+    FILESYSTEM.ls(localFile, true));
 
-	Serial.println("Display local files");
-	if (FILESYSTEM.ls(localFile, true) == false) {
-		Serial.println("Failed to display local files");
-	}
+  test("Remove local files",
+    FILESYSTEM.remove(localFile));
 
-	Serial.println("Upload a file with non blocking function");
-	uploadFileNonBlocking("downloadedFile", "uploadFile");
+  test("Display local files",
+    FILESYSTEM.ls(localFile, true));
 
-	Serial.println("Display remote files");
-	if (ftp.ls(remoteFile, true) == false) {
-		Serial.println("Failed to display files.");
-	}
+  test("Display remote files",
+    ftp.ls(remoteFile, true));
 
-	Serial.println("Remove local and remote files");
-	if (FILESYSTEM.remove("downloadedFile") == false) {
-		Serial.println("Failed to remove file");
-	}
-	if (ftp.removeFile("uploadFile") == false) {
-		Serial.println("Failed to remove files : myFileToServer.");
-	}
+  test("Delete remote directory",
+    ftp.removeDirectory("test2"));
 
-	Serial.println("Disconnect to FTP server");
-	if (ftp.disconnect() == false) {
-		Serial.println("Failed to disconnect.");
-	}
-  
-	for (;;)
-		;
+  test("Delete remote file",
+    ftp.removeFile("myFileToServer"));
+
+  test("Display remote files",
+    ftp.ls(remoteFile, true));
+
+  //--- Test download/upload a large file with non blocking function ---
+
+  test("Non blocking download from FTP server to local file system",
+    downloadFileNonBlocking("downloadedFile", c_downloadFileName));
+
+  test("Display local files",
+    FILESYSTEM.ls(localFile, true));
+
+  test("Non blocking upload from local file system to FTP server",
+    uploadFileNonBlocking("downloadedFile", "uploadFile"));
+
+  test("Display local files",
+    FILESYSTEM.remove("downloadedFile"));
+
+  test("Delete remote file",
+    ftp.removeFile("uploadFile"));
+
+  //--- Test direct upload/download ---
+  //direct transfer doesn't use local file system but volatile memory 
+  //upload volatile memory => FTP server
+  //download FTP server => volatile memory
+
+  String fileName = "myFile.txt";
+  char bufferWR[128];
+  char bufferRD[128];
+  for (int i = 0; i < 128; ++i) {
+    bufferWR[i] = 33 + i;
+    bufferRD[i] = 0;
+  }
+
+  test("Direct upload from volatile memory to FTP server",
+    ftp.write(&bufferWR[0], sizeof(bufferWR), fileName, 10000));
+
+  test("Direct download from FTP server to volatile memory",
+    ftp.read(&bufferRD[0], sizeof(bufferRD), fileName, 10000));
+
+  test("Direct upload/download tranferred data consistency",
+    (memcmp(bufferRD, bufferWR, 128) == 0));
+
+  test("Delete remote file",
+    ftp.removeFile(fileName));
+
+  test("Disconnect to FTP server",
+    ftp.disconnect());
+
+  for (;;)
+    ;
 }
 
 //Example of non blocking download functions
-void downloadFileNonBlocking(const String localFileName, const String remoteFileName) {
+bool downloadFileNonBlocking(const String localFileName, const String remoteFileName)
+{
+  int res = 0;
 
-	Serial.println("Retreive the file from the server to local memory");
-	//Start download
-	if (ftp.downloadStart(localFileName, remoteFileName) == false) {
-		Serial.println("Failed to start download.");
-		ftp.printError();
-	}
-	
-	//update download
-	while (ftp.downloadReady(localFileName, true) == 0)
-	{
-		//do some job
-	}
+  //Start download
+  if (ftp.downloadStart(localFileName, remoteFileName) == false) {
+    return false;
+  }
+
+  //update download
+  while (res == 0) {
+    res = ftp.downloadReady(localFileName, true);
+    //do some job
+  }
+
+  return (res == 1);
 }
 
 //Example of non blocking upload functions
-void uploadFileNonBlocking(const String localFileName, const String remoteFileName) {
+bool uploadFileNonBlocking(const String localFileName, const String remoteFileName)
+{
+  int res = 0;
 
-	Serial.println("Send the file to the server from local memory");
-	if (ftp.uploadStart(localFileName, remoteFileName) == false) {
-		Serial.println("Failed to start upload.");
-		ftp.printError();
-	}
+  if (ftp.uploadStart(localFileName, remoteFileName) == false) {
+    return false;
+  }
 
-	int res = 0;
-	while (res == 0){
-		res = ftp.uploadReady();
-		if (res == 1) {
-			Serial.println("Upload finished.");
-		}
-		else if (res < 0) {
-			Serial.println("Upload error.");
-			ftp.printError();
-		}
-		//do some job
-	}
+  while (res == 0) {
+    res = ftp.uploadReady();
+    //do some job
+  }
+
+  return (res == 1);
+}
+
+bool test(const String& msg, bool function)
+{
+  if (function == true) {
+    Serial.print("OK - ");
+  }
+  else {
+    Serial.print("ERROR - ");
+  }
+  Serial.println(msg);
+
+  return function;
 }

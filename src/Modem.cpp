@@ -172,6 +172,33 @@ size_t ModemClass::write(const uint8_t* buf, size_t size)
   return _uart->write(buf, size);
 }
 
+size_t ModemClass::read(uint8_t* buf, size_t size, int32_t timeout)
+{
+  size_t res = 0;
+  uint32_t start = millis();
+
+  while ((((millis() - start) < timeout) || (timeout < 0))
+    && (res < size)) {
+    if (_uart->available()) {
+      buf[res] = _uart->read();
+      res++;
+    }
+  }
+  return res;
+}
+
+void ModemClass::escapeSequence(uint32_t t1, uint32_t t2, bool waitResponse)
+{
+  delay(t1);
+  _uart->write('+');
+  _uart->write('+');
+  _uart->write('+');
+  delay(t2);
+  if (waitResponse == true) {
+    _atCommandState = AT_RECEIVING_RESPONSE;
+  }
+}
+
 void ModemClass::send(const char* command)
 {
   if (_lowPowerMode) {
@@ -305,7 +332,10 @@ void ModemClass::poll()
           int responseResultIndex = _buffer.lastIndexOf("OK\r\n");
           if (responseResultIndex != -1) {
             _ready = 1;
-          } else {
+          }
+          else if (_buffer.lastIndexOf("CONNECT\r\n") != -1) {
+            _ready = 1;
+          }else {
             responseResultIndex = _buffer.lastIndexOf("ERROR\r\n");
             if (responseResultIndex != -1) {
               _ready = 2;
