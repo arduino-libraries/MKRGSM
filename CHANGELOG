@@ -1,5 +1,9 @@
 MKRGSM ?.?.? - ????.??.??
 
+MKRGSM 1.3.3 - 2018.01.15
+
+* Fixed GSMClient::write for write lengths of > 256.
+
 MKRGSM 1.3.2 - 2018.12.17
 
 * Fixed one character SMS not being received correctly
