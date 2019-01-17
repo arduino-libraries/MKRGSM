@@ -62,6 +62,7 @@ void setup() {
 void loop() {
   GSMFileSystemElem localFile;
   GSMFTPElem remoteFile;
+  String fileName;
 
   test("Connect to FTP server",
     ftp.connect(SECRET_FTP_HOST, SECRET_FTP_USER, SECRET_FTP_PASSWORD, SECRET_FTP_PORT));
@@ -139,7 +140,7 @@ void loop() {
   //upload volatile memory => FTP server
   //download FTP server => volatile memory
 
-  String fileName = "myFile.txt";
+  fileName = "myFile.txt";
   char bufferWR[128];
   char bufferRD[128];
   for (int i = 0; i < 128; ++i) {
@@ -155,6 +156,18 @@ void loop() {
 
   test("Direct upload/download tranferred data consistency",
     (memcmp(bufferRD, bufferWR, 128) == 0));
+
+  test("Delete remote file",
+    ftp.removeFile(fileName));
+
+  //--- Test Stream data ---
+
+  fileName = "FileToStream";
+  test("Stream data to server",
+    StreamOut(fileName));
+
+  test("Stream data from server",
+    StreamIn(fileName));
 
   test("Delete remote file",
     ftp.removeFile(fileName));
@@ -179,7 +192,7 @@ bool downloadFileNonBlocking(const String localFileName, const String remoteFile
   //update download
   while (res == 0) {
     res = ftp.downloadReady(localFileName, true);
-    //do some job
+    //do something
   }
 
   return (res == 1);
@@ -196,10 +209,62 @@ bool uploadFileNonBlocking(const String localFileName, const String remoteFileNa
 
   while (res == 0) {
     res = ftp.uploadReady();
-    //do some job
+    //do something
   }
 
   return (res == 1);
+}
+
+bool StreamOut(const String& remoteFileName)
+{
+  int res = 0;
+
+  //Start upload
+  if (ftp.streamOutStart(remoteFileName) == false) {
+    return false;
+  }
+
+  //send data by packets
+  for (int i = 0; i < 1000; ++i) {
+    char buffer[128];
+    snprintf(buffer, 128, "Line number %d\n", i);
+    ftp.streamOut(buffer, 128);
+    //do something
+  }
+
+  while (res == 0) {
+    res = ftp.streamOutReady();
+    //do something
+  }
+
+  return (res == 1);
+}
+
+bool StreamIn(const String& remoteFileName)
+{
+  int res = 0;
+  bool dataConsistency = true;
+
+  //Start download
+  if (ftp.streamInStart(remoteFileName) == false) {
+    return false;
+  }
+
+  //receive data by packets
+  for (int i = 0; i < 1000; ++i) {
+    char buffer[128];
+    ftp.streamIn(buffer, 128);
+    String test = String(buffer);
+    dataConsistency &= (test.indexOf(String("Line number " + String(i) + "\n")) >= 0);
+    //do something
+  }
+
+  while (res == 0) {
+    res = ftp.streamInReady();
+    //do something
+  }
+
+  return ((res == 1) && (dataConsistency == true));
 }
 
 bool test(const String& msg, bool function)

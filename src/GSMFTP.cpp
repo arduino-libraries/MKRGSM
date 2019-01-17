@@ -31,7 +31,8 @@ GSMFTP::GSMFTP() :
   _fileDirectDownloaded(-1),
   _downloadDisplayTimeRef(0),
   _downloadRemoteFileSize(0),
-  _fileInfo(nullptr)
+  _fileInfo(nullptr),
+  _uploadRemainingBytes(0)
 {
   MODEM.addUrcHandler(this);
 }
@@ -426,7 +427,7 @@ bool GSMFTP::write(void* data, size_t size, const String& remoteFileName, int32_
   if (_connected != 1) {
     return false;
   }
-  _fileDirectUploaded = -2;
+  _fileDirectUploaded = -1;
 
   MODEM.send("AT+UFTPC=7,\"" + remoteFileName + "\"");
   String resp;
@@ -491,6 +492,114 @@ bool GSMFTP::read(void* data, size_t size, const String& remoteFileName, int32_t
   }
   return false;
 }
+
+bool GSMFTP::streamOutStart(const String& remoteFileName)
+{
+  if (_connected != 1) {
+    return false;
+  }
+  _fileDirectUploaded = -2;
+
+  MODEM.send("AT+UFTPC=7,\"" + remoteFileName + "\"");
+
+  if (MODEM.waitForResponse(10000) != 1) {
+    return false;
+  }
+  return true;
+}
+
+bool GSMFTP::streamOut(void* data, size_t size)
+{
+  if (_connected != 1) {
+    return false;
+  }
+  MODEM.write((const uint8_t*)data, size);
+  return true;
+}
+
+int GSMFTP::streamOutReady()
+{
+  if (_connected != 1) {
+    return -1;
+  }
+
+  if (_fileDirectUploaded == -2) {
+    MODEM.escapeSequence(1500, 0);
+    _fileDirectUploaded = -1;
+  }
+
+  MODEM.poll();
+
+  if (_fileDirectUploaded == 0) {
+    return -1;
+  }
+  else if (_fileDirectUploaded == 1) {
+    return 1;
+  }
+
+  return 0;
+}
+
+bool GSMFTP::streamInStart(const String& remoteFileName)
+{
+  _fileDirectDownloaded = -2;
+  uint32_t start = millis();
+  if (_connected != 1) {
+    return false;
+  }
+
+  GSMFTPElem remoteFile;
+  ls(remoteFile, remoteFileName);
+  _uploadRemainingBytes = remoteFile.elem(0).size;
+  if (_uploadRemainingBytes == 0) {
+    return false;
+  }
+
+  MODEM.send("AT+UFTPC=6,\"" + remoteFileName + "\"");
+
+  if (MODEM.waitForResponse(10000) != 1) {
+    return false;
+  }
+
+  return true;
+}
+
+int GSMFTP::streamIn(void* data, size_t size, int32_t timeout)
+{
+  if (_connected != 1) {
+    return -1;
+  }
+
+  if (size > _uploadRemainingBytes) {
+    size -= _uploadRemainingBytes;
+  }
+
+  uint32_t res = MODEM.read((uint8_t*)data, size, timeout);
+  _uploadRemainingBytes -= res;
+
+  return ((_uploadRemainingBytes == 0) ? 1 : 0);
+}
+
+int GSMFTP::streamInReady()
+{
+  if (_connected != 1) {
+    return -1;
+  }
+
+  if ((_fileDirectDownloaded == -2) && (_uploadRemainingBytes > 0)) {
+    MODEM.escapeSequence(1000, 1000, true);
+    _fileDirectDownloaded = -1;
+  }
+
+  MODEM.poll();
+
+  if ((_fileDirectDownloaded == 0) || (_fileDirectDownloaded == 1)) {
+    return 1;
+  }
+
+  return 0;
+}
+
 
 //--- GSMFTPElem
 

@@ -156,9 +156,56 @@ public:
   In this case the connection can be lost.
   */
   bool read(void* data, size_t size, const String& remoteFileName, int32_t timeout = -1);
+  /** Start upload in stream mode
+  @param remoteFileName		name of the file on FTP server
+  @return									true if no error
 
+  Set the module in direct link mode.
+  After that it will establish a transparent end to end communication
+  with the data connection TCP socket via the serial interface.
+  No command to the module can be executed until the end of the transfer.
+  */
+  bool streamOutStart(const String& remoteFileName);
+  /** Send data to FTP server
+  @param data		          data to send
+  @param size         		data size to send
+  @return									true if no error
 
+  Send a packet of data to the FTP server.
+  */
+  bool streamOut(void* data, size_t size);
+  /** Finished the data transfer to FTP server
+  @return									1 : transfer finished, 0 busy, -1 an error occured
 
+  Exit direct link mode then wait for the transmission to be completed.
+  */
+  int streamOutReady();
+  /** Start download in stream mode
+  @param remoteFileName		name of the file on FTP server
+  @return									true if no error
+
+  Set the module in direct link mode.
+  After that it will establish a transparent end to end communication
+  with the data connection TCP socket via the serial interface.
+  No command to the module can be executed until the end of the transfer.
+  */
+  bool streamInStart(const String& remoteFileName);
+  /** Send data to FTP server
+  @param data		          data to receive
+  @param size         		data size to receive
+  @param timeout		      maximum time before function return an error, -1 infinite
+  @return									1 : all data is received, 0 not all data is received, -1 an error occured
+
+  Send a packet of data to the FTP server.
+  If all data is received the module will automatically exit from direct link mode.
+  */
+  int streamIn(void* data, size_t size, int32_t timeout = -1);
+  /** Finished the data transfer to FTP server
+  @return									1 : transfer finished, 0 busy, -1 an error occured
+
+  Exit direct link mode then wait for the transmission to be completed.
+  */
+  int streamInReady();
   /** Print the error class and code of the last FTP operation
   @brief
   0,0 mean no error otherwise {error class},{error code}.
@@ -185,6 +232,7 @@ private:
   GSMFTPElem* _fileInfo;
   uint32_t _downloadDisplayTimeRef;
   uint32_t _downloadRemoteFileSize;
+  uint32_t _uploadRemainingBytes;
 };
 
 class GSMFTPElem
