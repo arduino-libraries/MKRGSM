@@ -21,6 +21,12 @@
 
 #include "GSMBand.h"
 
+/* Used in URAT for set the access technology, the first value indicate
+ the technology used (0 GSM/GPRS/eGSM (single mode) , 1 GSM/GPRS/eGSM and UMTS(dual mode))
+ the second parameter set, if more than one, which technology's bands should be preferred(0 GSM/GPRS/eGSM, 2 UTRAN)*/
+#define GSM_BANDS "1,0"
+#define UMTS_BANDS "1,2"
+
 GSMBand::GSMBand(bool trace)
 {
   if (trace) {
@@ -31,6 +37,15 @@ GSMBand::GSMBand(bool trace)
 GSM3_NetworkStatus_t GSMBand::begin()
 {
   return (GSM3_NetworkStatus_t)MODEM.begin();
+}
+
+bool GSMBand::setRAT(const char* act) {
+
+  MODEM.sendf("AT+URAT=%s", act);
+  if (MODEM.waitForResponse(10000) == 1) {
+    return true;
+  }
+  return false;
 }
 
 String GSMBand::getBand()
@@ -55,6 +70,10 @@ String GSMBand::getBand()
         return GSM_MODE_GSM850_PCS;
       } else if (response == "850,900,1800,1900") {
         return GSM_MODE_GSM850_EGSM_DCS_PCS;
+      } else if (response == "2100") {
+        return GSM_MODE_UMTS;
+      } else if (response == "850,900,1900,2100") {
+        return GSM_MODE_GSM850_EGSM_PCS_UMTS;
       }
     }
   }
@@ -66,6 +85,14 @@ bool GSMBand::setBand(String band)
 {
   const char* bands;
 
+  // Set the Radio Access Technology to support the 1800 MHz frequency
+  // in accord with the bands selected
+  if (band == "DCS_MODE" || band == "EGSM_DCS_MODE" || band == "GSM850_EGSM_DCS_PCS_MODE") {
+    setRAT(GSM_BANDS);
+  } else {
+    setRAT(UMTS_BANDS);
+  }
+
   if (band == GSM_MODE_EGSM) {
     bands = "900";
   } else if (band == GSM_MODE_DCS) {
@@ -73,11 +100,15 @@ bool GSMBand::setBand(String band)
   } else if (band == GSM_MODE_PCS) {
     bands = "1900";
   } else if (band == GSM_MODE_EGSM_DCS) {
-    bands = "900,1900";
+    bands = "900,1800";
   } else if (band == GSM_MODE_GSM850_PCS) {
     bands = "850,1900";
   } else if (band == GSM_MODE_GSM850_EGSM_DCS_PCS) {
-    bands = "800,850,900,1900";
+    bands = "850,900,1800,1900";
+  } else if (band == GSM_MODE_UMTS) {
+    bands = "2100";
+  } else if (band == GSM_MODE_GSM850_EGSM_PCS_UMTS) {
+    bands = "850,900,1900,2100";
   } else {
     return false;
   }
