@@ -80,7 +80,9 @@ String askUser() {
   Serial.println("3 : PCS(1900)");
   Serial.println("4 : E-GSM(900)+DCS(1800) ex: Europe");
   Serial.println("5 : GSM(850)+PCS(1900) Ex: USA, South Am.");
-  Serial.println("6 : GSM(850)+E-GSM(900)+DCS(1800)+PCS(1900)");
+  Serial.println("6 : GSM800(800)+GSM(850)+E-GSM(900)+PCS(1900)");
+  Serial.println("7 : UMTS(2100)");
+  Serial.println("8 : GSM(850)+E-GSM(900)+PCS(1900)+UMTS(2100)");
 
   // Empty the incoming buffer
   while (Serial.available()) {
@@ -102,12 +104,16 @@ String askUser() {
     newBand = GSM_MODE_GSM850_PCS;
   } else if (c == '6') {
     newBand = GSM_MODE_GSM850_EGSM_DCS_PCS;
+  } else if (c == '7') {
+    newBand = GSM_MODE_UMTS;
+  } else if (c == '8') {
+    newBand = GSM_MODE_GSM850_EGSM_PCS_UMTS;
   } else {
     newBand = "GSM_MODE_UNDEFINED";
   }
+
   return newBand;
 }
-
 
 
 

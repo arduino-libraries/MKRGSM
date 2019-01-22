@@ -22,7 +22,7 @@
 
 #include "GSM.h"
 
-#define NUMBEROFBANDS 7
+#define NUMBEROFBANDS 9
 #define GSM_MODE_UNDEFINED "UNDEFINED"
 #define GSM_MODE_EGSM "EGSM_MODE"
 #define GSM_MODE_DCS "DCS_MODE"
@@ -30,8 +30,11 @@
 #define GSM_MODE_EGSM_DCS "EGSM_DCS_MODE"
 #define GSM_MODE_GSM850_PCS "GSM850_PCS_MODE"
 #define GSM_MODE_GSM850_EGSM_DCS_PCS "GSM850_EGSM_DCS_PCS_MODE"
+#define GSM_MODE_UMTS "UMTS_MODE"
+#define GSM_MODE_GSM850_EGSM_PCS_UMTS "GSM850_EGSM_PCS_UMTS_MODE"
 
-enum GSM3GSMBand {UNDEFINED, EGSM_MODE, DCS_MODE, PCS_MODE, EGSM_DCS_MODE, GSM850_PCS_MODE, GSM850_EGSM_DCS_PCS_MODE};
+
+enum GSM3GSMBand {UNDEFINED, EGSM_MODE, DCS_MODE, PCS_MODE, EGSM_DCS_MODE, GSM850_PCS_MODE, GSM850_EGSM_DCS_PCS_MODE, GSM_UMTS_MODE, GSM_GSM850_EGSM_PCS_UMTS_MODE};
 
 class GSMBand {
 
@@ -49,14 +52,22 @@ public:
 
   /** Get current modem work band 
       @return current modem work band
-   */   
+   */
   String getBand();
 
   /** Changes the modem operating band 
       @param band     Desired new band
       @return true if success, false otherwise
-   */     
+   */
   bool setBand(String band);
+
+private:
+
+  /** Change the Radio access technology
+      @param act   desired access technology
+      @return true if success, false otherwise
+  */
+  bool setRAT(const char* act);
 };
 
 #endif
