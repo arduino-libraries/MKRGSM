@@ -64,6 +64,8 @@ public:
   void addUrcHandler(ModemUrcHandler* handler);
   void removeUrcHandler(ModemUrcHandler* handler);
 
+  void setBaudRate(unsigned long baud);
+
 private:
   Uart* _uart;
   unsigned long _baud;

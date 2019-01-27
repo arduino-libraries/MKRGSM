@@ -347,4 +347,9 @@ void ModemClass::removeUrcHandler(ModemUrcHandler* handler)
   }
 }
 
+void ModemClass::setBaudRate(unsigned long baud)
+{
+  _baud = baud;
+}
+
 ModemClass MODEM(SerialGSM, 921600, GSM_RESETN, GSM_DTR);
