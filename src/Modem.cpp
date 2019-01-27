@@ -33,7 +33,8 @@ ModemClass::ModemClass(Uart& uart, unsigned long baud, int resetPin, int dtrPin)
   _lastResponseOrUrcMillis(0),
   _atCommandState(AT_COMMAND_IDLE),
   _ready(1),
-  _responseDataStorage(NULL)
+  _responseDataStorage(NULL),
+  _debugStream(&Serial)
 {
   _buffer.reserve(64);
 }
@@ -246,8 +247,8 @@ void ModemClass::poll()
   while (_uart->available()) {
     char c = _uart->read();
 
-    if (_debug) {
-      Serial.write(c);
+    if (_debug && _debugStream) {
+      _debugStream->write(c);
     }
 
     _buffer += c;
@@ -350,6 +351,11 @@ void ModemClass::removeUrcHandler(ModemUrcHandler* handler)
 void ModemClass::setBaudRate(unsigned long baud)
 {
   _baud = baud;
+}
+
+void ModemClass::setDebugStream(Stream& stream)
+{
+  _debugStream = &stream;
 }
 
 ModemClass MODEM(SerialGSM, 921600, GSM_RESETN, GSM_DTR);

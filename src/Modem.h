@@ -65,6 +65,7 @@ public:
   void removeUrcHandler(ModemUrcHandler* handler);
 
   void setBaudRate(unsigned long baud);
+  void setDebugStream(Stream& debugStream);
 
 private:
   Uart* _uart;
@@ -85,6 +86,8 @@ private:
   #define MAX_URC_HANDLERS 10 // 7 sockets + GPRS + GSMLocation + GSMVoiceCall
   static bool _debug;
   static ModemUrcHandler* _urcHandlers[MAX_URC_HANDLERS];
+
+  Stream* _debugStream;
 };
 
 extern ModemClass MODEM;
