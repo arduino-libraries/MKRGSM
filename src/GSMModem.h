@@ -37,6 +37,7 @@ public:
       @return modem IMEI number
    */
   String getIMEI();
+  String getICCID();
 };
 
 #endif
