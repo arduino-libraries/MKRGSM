@@ -50,10 +50,16 @@ String GSMModem::getICCID()
 {
   String iccid;
 
-  iccid.reserve(20);
+  iccid.reserve(7 + 20);
 
   MODEM.send("AT+CCID");
-  MODEM.waitForResponse(120, &iccid);
+  MODEM.waitForResponse(1000, &iccid);
+
+  if (iccid.startsWith("+CCID: ")) {
+    iccid.remove(0, 7);
+  } else {
+    iccid = "";
+  }
 
   return iccid;
 }
