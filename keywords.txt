@@ -39,6 +39,7 @@ attachGPRS	KEYWORD2
 begnWrite	KEYWORD2
 endWrite	KEYWORD2
 getIMEI	KEYWORD2
+getICCID KEYWORD2
 getCurrentCarrier	KEYWORD2
 getSignalStrength	KEYWORD2
 readNetworks	KEYWORD2
