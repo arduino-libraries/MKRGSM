@@ -37,6 +37,10 @@ public:
       @return modem IMEI number
    */
   String getIMEI();
+
+  /** Obtain SIM card ICCID (command AT)
+      @return SIM ICCID number
+   */
   String getICCID();
 };
 
