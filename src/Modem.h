@@ -65,7 +65,7 @@ public:
   void removeUrcHandler(ModemUrcHandler* handler);
 
   void setBaudRate(unsigned long baud);
-  void setDebugStream(Stream& debugStream);
+  void setDebugPrint(Print& debugPrint);
 
 private:
   Uart* _uart;
@@ -87,7 +87,7 @@ private:
   static bool _debug;
   static ModemUrcHandler* _urcHandlers[MAX_URC_HANDLERS];
 
-  Stream* _debugStream;
+  static Print* _debugPrint;
 };
 
 extern ModemClass MODEM;
