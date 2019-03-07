@@ -23,6 +23,7 @@
 
 bool ModemClass::_debug = false;
 ModemUrcHandler* ModemClass::_urcHandlers[MAX_URC_HANDLERS] = { NULL };
+Print* ModemClass::_debugPrint = &Serial;
 
 ModemClass::ModemClass(Uart& uart, unsigned long baud, int resetPin, int dtrPin) :
   _uart(&uart),
@@ -33,8 +34,7 @@ ModemClass::ModemClass(Uart& uart, unsigned long baud, int resetPin, int dtrPin)
   _lastResponseOrUrcMillis(0),
   _atCommandState(AT_COMMAND_IDLE),
   _ready(1),
-  _responseDataStorage(NULL),
-  _debugStream(&Serial)
+  _responseDataStorage(NULL)
 {
   _buffer.reserve(64);
 }
@@ -247,8 +247,8 @@ void ModemClass::poll()
   while (_uart->available()) {
     char c = _uart->read();
 
-    if (_debug && _debugStream) {
-      _debugStream->write(c);
+    if (_debug && _debugPrint) {
+      _debugPrint->write(c);
     }
 
     _buffer += c;
@@ -353,9 +353,9 @@ void ModemClass::setBaudRate(unsigned long baud)
   _baud = baud;
 }
 
-void ModemClass::setDebugStream(Stream& stream)
+void ModemClass::setDebugPrint(Print& print)
 {
-  _debugStream = &stream;
+  _debugPrint = &print;
 }
 
 ModemClass MODEM(SerialGSM, 921600, GSM_RESETN, GSM_DTR);
