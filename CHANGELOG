@@ -1,6 +1,13 @@
 MKRGSM ?.?.? - ????.??.??
 
-MKRGSM 1.3.3 - 2018.01.15
+MKRGSM 1.4.0 - 2019.03.26
+
+* GSMBand, BandManagement example: Added support for 1800 MHz and UMTS 2100 MHz bands.
+* Added GSMModem::getICCID() API.
+* Added MODEM.setBaudRate(...) and MODEM.debug(print) API's. Thanks @dzindra.
+* Added Amazon Root CA 1.
+
+MKRGSM 1.3.3 - 2019.01.15
 
 * Fixed GSMClient::write for write lengths of > 256.
 
