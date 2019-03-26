@@ -82,10 +82,10 @@ private:
   int _ready;
   String _buffer;
   String* _responseDataStorage;
-  Print* _debugPrint;
 
   #define MAX_URC_HANDLERS 10 // 7 sockets + GPRS + GSMLocation + GSMVoiceCall
   static ModemUrcHandler* _urcHandlers[MAX_URC_HANDLERS];
+  static Print* _debugPrint;
 };
 
 extern ModemClass MODEM;

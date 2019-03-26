@@ -22,6 +22,7 @@
 #define MODEM_MIN_RESPONSE_OR_URC_WAIT_TIME_MS 20
 
 ModemUrcHandler* ModemClass::_urcHandlers[MAX_URC_HANDLERS] = { NULL };
+Print* ModemClass::_debugPrint = NULL;
 
 ModemClass::ModemClass(Uart& uart, unsigned long baud, int resetPin, int dtrPin) :
   _uart(&uart),
@@ -32,8 +33,7 @@ ModemClass::ModemClass(Uart& uart, unsigned long baud, int resetPin, int dtrPin)
   _lastResponseOrUrcMillis(0),
   _atCommandState(AT_COMMAND_IDLE),
   _ready(1),
-  _responseDataStorage(NULL),
-  _debugPrint(NULL)
+  _responseDataStorage(NULL)
 {
   _buffer.reserve(64);
 }
