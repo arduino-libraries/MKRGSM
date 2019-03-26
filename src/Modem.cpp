@@ -21,9 +21,7 @@
 
 #define MODEM_MIN_RESPONSE_OR_URC_WAIT_TIME_MS 20
 
-bool ModemClass::_debug = false;
 ModemUrcHandler* ModemClass::_urcHandlers[MAX_URC_HANDLERS] = { NULL };
-Print* ModemClass::_debugPrint = &Serial;
 
 ModemClass::ModemClass(Uart& uart, unsigned long baud, int resetPin, int dtrPin) :
   _uart(&uart),
@@ -34,7 +32,8 @@ ModemClass::ModemClass(Uart& uart, unsigned long baud, int resetPin, int dtrPin)
   _lastResponseOrUrcMillis(0),
   _atCommandState(AT_COMMAND_IDLE),
   _ready(1),
-  _responseDataStorage(NULL)
+  _responseDataStorage(NULL),
+  _debugPrint(NULL)
 {
   _buffer.reserve(64);
 }
@@ -102,12 +101,17 @@ void ModemClass::end()
 
 void ModemClass::debug()
 {
-  _debug = true;
+  debug(Serial);
+}
+
+void ModemClass::debug(Print& p)
+{
+  _debugPrint = &p;
 }
 
 void ModemClass::noDebug()
 {
-  _debug = false;
+  _debugPrint = NULL;
 }
 
 int ModemClass::autosense(unsigned int timeout)
@@ -247,7 +251,7 @@ void ModemClass::poll()
   while (_uart->available()) {
     char c = _uart->read();
 
-    if (_debug && _debugPrint) {
+    if (_debugPrint) {
       _debugPrint->write(c);
     }
 
@@ -351,11 +355,6 @@ void ModemClass::removeUrcHandler(ModemUrcHandler* handler)
 void ModemClass::setBaudRate(unsigned long baud)
 {
   _baud = baud;
-}
-
-void ModemClass::setDebugPrint(Print& print)
-{
-  _debugPrint = &print;
 }
 
 ModemClass MODEM(SerialGSM, 921600, GSM_RESETN, GSM_DTR);
