@@ -321,6 +321,10 @@ int GSM::ready()
   return ready;
 }
 
+unsigned long GSM::timeout() {
+  return _timeout;
+}
+
 void GSM::setTimeout(unsigned long timeout)
 {
   _timeout = timeout;
@@ -387,4 +391,14 @@ int GSM::noLowPowerMode()
 GSM3_NetworkStatus_t GSM::status()
 {
   return _state;
+}
+
+GSM3_NetworkStatus_t GSM::state()
+{
+  return _state;
+}
+
+void GSM::setState(GSM3_NetworkStatus_t state) 
+{
+  _state = state;
 }

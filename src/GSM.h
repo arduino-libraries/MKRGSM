@@ -66,6 +66,7 @@ public:
     */
   int ready();
 
+  unsigned long timeout();
   void setTimeout(unsigned long timeout);
 
   unsigned long getTime();
@@ -75,6 +76,8 @@ public:
   int noLowPowerMode();
 
   GSM3_NetworkStatus_t status();
+  GSM3_NetworkStatus_t state();
+  void setState(GSM3_NetworkStatus_t state);
 
 private:
   GSM3_NetworkStatus_t _state;

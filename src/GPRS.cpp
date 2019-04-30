@@ -320,6 +320,10 @@ IPAddress GPRS::getIPAddress()
   return IPAddress(0, 0, 0, 0);
 }
 
+unsigned long GPRS::timeout() {
+  return _timeout;
+}
+
 void GPRS::setTimeout(unsigned long timeout)
 {
   _timeout = timeout;
@@ -396,6 +400,16 @@ GSM3_NetworkStatus_t GPRS::status()
   MODEM.poll();
 
   return _status;
+}
+
+int GPRS::state()
+{
+  return _state;
+}
+
+void GPRS::setState(int state) 
+{
+  _state = state;
 }
 
 void GPRS::handleUrc(const String& urc)
