@@ -320,7 +320,8 @@ IPAddress GPRS::getIPAddress()
   return IPAddress(0, 0, 0, 0);
 }
 
-unsigned long GPRS::timeout() {
+unsigned long GPRS::timeout()
+{
   return _timeout;
 }
 
