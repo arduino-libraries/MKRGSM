@@ -433,18 +433,22 @@ void GSMClient::handleUrc(const String& urc)
   }
 }
 
-int GSMClient::state() {
-	return _state;
+int GSMClient::state()
+{
+  return _state;
 }
 
-void GSMClient::setState(int state) {
-	_state = state;
+void GSMClient::setState(int state)
+{
+  _state = state;
 }
 
-int GSMClient::socket() {
-	return _socket;
+int GSMClient::socket()
+{
+  return _socket;
 }
 
-const char* GSMClient::host() {
-	return _host;
+const char* GSMClient::host()
+{
+  return _host;
 }
