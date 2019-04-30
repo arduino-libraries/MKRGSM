@@ -321,7 +321,8 @@ int GSM::ready()
   return ready;
 }
 
-unsigned long GSM::timeout() {
+unsigned long GSM::timeout()
+{
   return _timeout;
 }
 
