@@ -246,7 +246,7 @@ int GSMClient::connect()
     }
 
     if (_socket == -1) {
-      return 2;
+      return 0;
     }
   }
 
