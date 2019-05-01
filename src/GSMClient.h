@@ -49,15 +49,16 @@ public:
   /** Connect to server by IP address
       @param (IPAddress)
       @param (uint16_t)
-      @return returns 0 if last command is still executing, 1 success, 2 if there are no resources
-   */
+      @return returns 0 on failure, 1 on success (sync mode)
+                      0 if last command is still executing, 1 success, 2 if there are no resources (async mode)   */
   int connect(IPAddress, uint16_t);
   int connectSSL(IPAddress, uint16_t);
 
   /** Connect to server by hostname
       @param host     Hostname
       @param port     Port
-      @return returns 0 if last command is still executing, 1 success, 2 if there are no resources
+      @return returns 0 on failure, 1 on success (sync mode)
+                      0 if last command is still executing, 1 success, 2 if there are no resources (async mode)
    */
   int connect(const char *host, uint16_t port);
   int connectSSL(const char *host, uint16_t port);
