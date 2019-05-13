@@ -121,11 +121,7 @@ int GSMClient::ready()
     }
 
     case CLIENT_STATE_MANAGE_SSL_PROFILE: {
-      if (_host != NULL) {
-        MODEM.sendf("AT+USECPRF=0,0,1,4,\"%s\"", _host);
-      } else {
-        MODEM.send("AT+USECPRF=0,0,1");
-      }
+      MODEM.send("AT+USECPRF=0,0,1");
 
       _state = CLIENT_STATE_WAIT_MANAGE_SSL_PROFILE_RESPONSE;
       ready = 0;
