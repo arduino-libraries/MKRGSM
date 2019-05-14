@@ -22,10 +22,10 @@
 #include "GSMBand.h"
 
 /* Used in URAT for set the access technology, the first value indicate
- the technology used (0 GSM/GPRS/eGSM (single mode) , 1 GSM/GPRS/eGSM and UMTS(dual mode))
+ the technology used (0 GSM/GPRS/eGSM (single mode) , 1 GSM/GPRS/eGSM and UMTS(dual mode)), 2 UTMS only,
  the second parameter set, if more than one, which technology's bands should be preferred(0 GSM/GPRS/eGSM, 2 UTRAN)*/
 #define GSM_BANDS "1,0"
-#define UMTS_BANDS "1,2"
+#define UMTS_BANDS "2"
 
 GSMBand::GSMBand(bool trace)
 {
