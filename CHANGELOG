@@ -1,5 +1,11 @@
 MKRGSM ?.?.? - ????.??.??
 
+MKRGSM 1.4.1 - 2019.04.15
+
+* Corrected GSMClient::connect(...) return code on failure
+* Corrected manage SSL profile AT command for GSMSSLClient
+* Replaced bundled "Amazon Root CA 1" root certificate with "Starfield Services Root Certificate Authority - G2 root CA"
+
 MKRGSM 1.4.0 - 2019.03.26
 
 * GSMBand, BandManagement example: Added support for 1800 MHz and UMTS 2100 MHz bands.
