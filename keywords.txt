@@ -39,7 +39,7 @@ attachGPRS	KEYWORD2
 begnWrite	KEYWORD2
 endWrite	KEYWORD2
 getIMEI	KEYWORD2
-getICCID KEYWORD2
+getICCID	KEYWORD2
 getCurrentCarrier	KEYWORD2
 getSignalStrength	KEYWORD2
 readNetworks	KEYWORD2
@@ -51,8 +51,8 @@ switchPIN	KEYWORD2
 checkReg	KEYWORD2
 getPINUsed	KEYWORD2
 setPINUsed	KEYWORD2
-getBand		KEYWORD2
-setBand		KEYWORD2
+getBand	KEYWORD2
+setBand	KEYWORD2
 getvoiceCallStatus	KEYWORD2
 hostByName	KEYWORD2
 ping	KEYWORD2
