@@ -1,5 +1,9 @@
 MKRGSM ?.?.? - ????.??.??
 
+MKRGSM 1.4.2 - 2019.06.18
+
+* fixed compilation under gcc 7.4.0 
+
 MKRGSM 1.4.1 - 2019.04.15
 
 * Corrected GSMClient::connect(...) return code on failure
