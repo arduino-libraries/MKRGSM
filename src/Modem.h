@@ -77,7 +77,8 @@ private:
 
   enum {
     AT_COMMAND_IDLE,
-    AT_RECEIVING_RESPONSE
+    AT_RECEIVING_RESPONSE,
+    AT_RECEIVING_END_RESPONSE
   } _atCommandState;
   int _ready;
   String _buffer;

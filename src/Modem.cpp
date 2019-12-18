@@ -248,6 +248,8 @@ int ModemClass::ready()
 
 void ModemClass::poll()
 {
+  int endOfResponse = 0;
+
   while (_uart->available()) {
     char c = _uart->read();
 
@@ -285,17 +287,40 @@ void ModemClass::poll()
 
       case AT_RECEIVING_RESPONSE: {
         if (c == '\n') {
+
+          // SMS responses can contain "OK\r\n"
+          endOfResponse = _buffer.lastIndexOf("+CMGL: ");
+          if (endOfResponse != -1) {
+            // First line is SMS info
+            endOfResponse = _buffer.indexOf("\r\n",endOfResponse);
+            // Second line is SMS content
+            endOfResponse = _buffer.indexOf("\r\n",endOfResponse);
+            if (endOfResponse == -1) {
+              // Not yet complete SMS
+              break;
+            }
+          } else {
+            // Not an SMS response
+            endOfResponse = 0;
+            _atCommandState = AT_RECEIVING_END_RESPONSE;
+          }
+        }
+        // No break here, continue into next case
+      }
+
+      case AT_RECEIVING_END_RESPONSE: {
+        if (c == '\n') {
           _lastResponseOrUrcMillis = millis();
 
-          int responseResultIndex = _buffer.lastIndexOf("OK\r\n");
+          int responseResultIndex = _buffer.lastIndexOf("OK\r\n",endOfResponse);
           if (responseResultIndex != -1) {
             _ready = 1;
           } else {
-            responseResultIndex = _buffer.lastIndexOf("ERROR\r\n");
+            responseResultIndex = _buffer.lastIndexOf("ERROR\r\n",endOfResponse);
             if (responseResultIndex != -1) {
               _ready = 2;
             } else {
-              responseResultIndex = _buffer.lastIndexOf("NO CARRIER\r\n");
+              responseResultIndex = _buffer.lastIndexOf("NO CARRIER\r\n",endOfResponse);
               if (responseResultIndex != -1) {
                 _ready = 3;
               }
