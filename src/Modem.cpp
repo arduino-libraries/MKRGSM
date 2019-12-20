@@ -285,9 +285,9 @@ void ModemClass::poll()
 
       case AT_RECEIVING_RESPONSE: {
         if (c == '\n') {
-          int endOfResponse = 0;
           _lastResponseOrUrcMillis = millis();
 
+          int endOfResponse = 0;
           if (_buffer.startsWith("+CMGL: ")) {
             // SMS responses can contain "OK\r\n"
             for(int nextSMS = 0; nextSMS != -1; nextSMS = _buffer.indexOf("+CMGL: ",endOfResponse)) {
