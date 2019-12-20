@@ -247,7 +247,7 @@ int ModemClass::ready()
 }
 
 void ModemClass::poll()
-{  
+{
   while (_uart->available()) {
     char c = _uart->read();
 
