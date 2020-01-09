@@ -302,10 +302,7 @@ void ModemClass::poll()
             }
           }
           
-          int responseResultIndex;
-
-          responseResultIndex = _buffer.lastIndexOf("OK\r\n");
-
+          int responseResultIndex = _buffer.lastIndexOf("OK\r\n");
           if (responseResultIndex >= endOfResponse) {
             _ready = 1;
           } else {
