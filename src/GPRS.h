@@ -80,6 +80,7 @@ public:
    */
   IPAddress getIPAddress();
 
+  unsigned long timeout();
   void setTimeout(unsigned long timeout);
 
   int hostByName(const char* hostname, IPAddress& result);
@@ -90,6 +91,8 @@ public:
   int ping(IPAddress ip, uint8_t ttl = 128);
 
   GSM3_NetworkStatus_t status();
+  int state();
+  void setState(int state);
 
   void handleUrc(const String& urc);
 

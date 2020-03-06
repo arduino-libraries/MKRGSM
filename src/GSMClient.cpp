@@ -23,20 +23,6 @@
 
 #include "GSMClient.h"
 
-enum {
-  CLIENT_STATE_IDLE,
-  CLIENT_STATE_CREATE_SOCKET,
-  CLIENT_STATE_WAIT_CREATE_SOCKET_RESPONSE,
-  CLIENT_STATE_ENABLE_SSL,
-  CLIENT_STATE_WAIT_ENABLE_SSL_RESPONSE,
-  CLIENT_STATE_MANAGE_SSL_PROFILE,
-  CLIENT_STATE_WAIT_MANAGE_SSL_PROFILE_RESPONSE,
-  CLIENT_STATE_CONNECT,
-  CLIENT_STATE_WAIT_CONNECT_RESPONSE,
-  CLIENT_STATE_CLOSE_SOCKET,
-  CLIENT_STATE_WAIT_CLOSE_SOCKET
-};
-
 GSMClient::GSMClient(bool synch) :
   GSMClient(-1, synch)
 {
@@ -441,4 +427,24 @@ void GSMClient::handleUrc(const String& urc)
       }
     }
   }
+}
+
+int GSMClient::state()
+{
+  return _state;
+}
+
+void GSMClient::setState(int state)
+{
+  _state = state;
+}
+
+int GSMClient::socket()
+{
+  return _socket;
+}
+
+const char* GSMClient::host()
+{
+  return _host;
 }

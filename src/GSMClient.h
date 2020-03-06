@@ -24,6 +24,20 @@
 
 #include <Client.h>
 
+enum {
+  CLIENT_STATE_IDLE,
+  CLIENT_STATE_CREATE_SOCKET,
+  CLIENT_STATE_WAIT_CREATE_SOCKET_RESPONSE,
+  CLIENT_STATE_ENABLE_SSL,
+  CLIENT_STATE_WAIT_ENABLE_SSL_RESPONSE,
+  CLIENT_STATE_MANAGE_SSL_PROFILE,
+  CLIENT_STATE_WAIT_MANAGE_SSL_PROFILE_RESPONSE,
+  CLIENT_STATE_CONNECT,
+  CLIENT_STATE_WAIT_CONNECT_RESPONSE,
+  CLIENT_STATE_CLOSE_SOCKET,
+  CLIENT_STATE_WAIT_CLOSE_SOCKET
+};
+
 class GSMClient : public Client, public ModemUrcHandler {
 
 public:
@@ -130,6 +144,11 @@ public:
   void stop();
 
   virtual void handleUrc(const String& urc);
+
+  int state();
+  void setState(int state);
+  int socket();
+  const char* host();
 
 private:
   int connect();
