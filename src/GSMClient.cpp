@@ -51,7 +51,9 @@ GSMClient::GSMClient(int socket, bool synch) :
   _host(NULL),
   _port(0),
   _ssl(false),
-  _writeSync(true)
+  _writeSync(true),
+  _connectTimeout(30000UL),
+  _socketTimeout(15000UL)
 {
   MODEM.addUrcHandler(this);
 }
@@ -229,7 +231,13 @@ int GSMClient::connect()
   }
 
   if (_synch) {
-    while (ready() == 0);
+    unsigned long start = millis();
+    while (ready() == 0) {
+      if (_connectTimeout && !((millis() - start) < _connectTimeout)) {
+        stop();
+        return 2;
+      }
+    }
   } else if (ready() == 0) {
     return 0;
   }
@@ -237,7 +245,13 @@ int GSMClient::connect()
   _state = CLIENT_STATE_CREATE_SOCKET;
 
   if (_synch) {
+    unsigned long start = millis();
     while (ready() == 0) {
+      if (_connectTimeout && !((millis() - start) < _connectTimeout)) {
+        stop();
+        return 2;
+      }
+
       delay(100);
     }
 
@@ -267,7 +281,13 @@ size_t GSMClient::write(const uint8_t *buf)
 size_t GSMClient::write(const uint8_t* buf, size_t size)
 {
   if (_writeSync) {
-    while (ready() == 0);
+    unsigned long start = millis();
+    while (ready() == 0) {
+      if (_socketTimeout && !((millis() - start) < _socketTimeout)) {
+        stop();
+        return 0;
+      }
+    }
   } else if (ready() == 0) {
     return 0;
   }
@@ -381,7 +401,13 @@ int GSMClient::read()
 int GSMClient::available()
 {
   if (_synch) {
-    while (ready() == 0);
+    unsigned long start = millis();
+    while (ready() == 0) {
+      if (_socketTimeout && !((millis() - start) < _socketTimeout)) {
+        stop();
+        return 0;
+      }
+    }
   } else if (ready() == 0) {
     return 0;
   }
@@ -428,6 +454,16 @@ void GSMClient::stop()
   GSMSocketBuffer.close(_socket);
   _socket = -1;
   _connected = false;
+}
+
+void GSMClient::setSocketTimeout(unsigned long timeout)
+{
+  _socketTimeout = timeout;
+}
+
+void GSMClient::setConnectTimeout(unsigned long timeout)
+{
+  _connectTimeout = timeout;
 }
 
 void GSMClient::handleUrc(const String& urc)
