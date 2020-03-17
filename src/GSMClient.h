@@ -87,6 +87,27 @@ public:
    */
   size_t write(const uint8_t*, size_t);
 
+  /** Write a buffer with size in request in binary mode
+    @param (uint8_t*) Buffer
+    @param (size_t)   Buffer size
+    @param (uint32_t) Timeout
+    @return data bytes sent to lower level of protocol stack.
+
+    @brief Write data bytes. 
+    The returned value is not a notification of an acknowledgment 
+    received from the remote host.
+ */
+  size_t send(const void*, size_t, uint32_t);
+
+  /** Waiting data acknowledgement
+  @param (uint32_t) Timeout
+  @return data bytes unacknoledged.
+
+  @brief This function ensures that all data sent 
+  are received from the remote host.
+*/
+  size_t unacknoledgedBytes(uint32_t timeout=5000);
+
   /** Finish write request
       @param sync     Sync mode
    */
@@ -146,6 +167,7 @@ private:
 
   bool _writeSync;
   String _response;
+  uint32_t _bytesWritten;
 };
 
 #endif

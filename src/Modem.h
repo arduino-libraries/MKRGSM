@@ -51,7 +51,6 @@ public:
 
   size_t write(uint8_t c);
   size_t write(const uint8_t*, size_t);
-
   void send(const char* command);
   void send(const String& command) { send(command.c_str()); }
   void sendf(const char *fmt, ...);

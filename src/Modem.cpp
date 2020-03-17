@@ -284,7 +284,17 @@ void ModemClass::poll()
       }
 
       case AT_RECEIVING_RESPONSE: {
-        if (c == '\n') {
+		if (c == '@'){
+			_lastResponseOrUrcMillis = millis();
+			_ready = 1;
+			if (_responseDataStorage != NULL){
+				*_responseDataStorage = _buffer;
+				_responseDataStorage = NULL;
+			}
+			_atCommandState = AT_COMMAND_IDLE;
+			_buffer = "";
+			return;
+		} else if (c == '\n') {
           _lastResponseOrUrcMillis = millis();
 
           int responseResultIndex = _buffer.lastIndexOf("OK\r\n");
