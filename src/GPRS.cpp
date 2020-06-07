@@ -25,6 +25,8 @@ enum {
   GPRS_STATE_WAIT_ATTACH_RESPONSE,
   GPRS_STATE_SET_APN,
   GPRS_STATE_WAIT_SET_APN_RESPONSE,
+  GPRS_STATE_SET_AUTH_MODE,
+  GPRS_STATE_WAIT_SET_AUTH_MODE_RESPONSE,
   GPRS_STATE_SET_USERNAME,
   GPRS_STATE_WAIT_SET_USERNAME_RESPONSE,
   GPRS_STATE_SET_PASSWORD,
@@ -46,7 +48,8 @@ GPRS::GPRS() :
   _apn(NULL),
   _username(NULL),
   _password(NULL),
-  _status(IDLE)
+  _status(IDLE),
+  _timeout(0)
 {
   MODEM.addUrcHandler(this);
 }
@@ -66,7 +69,14 @@ GSM3_NetworkStatus_t GPRS::attachGPRS(const char* apn, const char* user_name, co
   _status = CONNECTING;
 
   if (synchronous) {
+    unsigned long start = millis();
+
     while (ready() == 0) {
+      if (_timeout && !((millis() - start) < _timeout)) {
+        _state = ERROR;
+        break;
+      }
+
       delay(100);
     }
   } else {
@@ -130,6 +140,24 @@ int GPRS::ready()
     }
 
     case GPRS_STATE_WAIT_SET_APN_RESPONSE: {
+      if (ready > 1) {
+        _state = GPRS_STATE_IDLE;
+        _status = ERROR;
+      } else {
+        _state = GPRS_STATE_SET_AUTH_MODE;
+        ready = 0;
+      }
+      break;
+    }
+
+    case GPRS_STATE_SET_AUTH_MODE: {
+       MODEM.sendf("AT+UPSD=0,6,3");
+      _state = GPRS_STATE_WAIT_SET_AUTH_MODE_RESPONSE;
+      ready = 0;
+      break;
+    }
+
+    case GPRS_STATE_WAIT_SET_AUTH_MODE_RESPONSE: {
       if (ready > 1) {
         _state = GPRS_STATE_IDLE;
         _status = ERROR;
@@ -290,6 +318,11 @@ IPAddress GPRS::getIPAddress()
   }
 
   return IPAddress(0, 0, 0, 0);
+}
+
+void GPRS::setTimeout(unsigned long timeout)
+{
+  _timeout = timeout;
 }
 
 int GPRS::hostByName(const char* hostname, IPAddress& result)

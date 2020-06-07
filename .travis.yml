@@ -29,6 +29,7 @@ script:
   - buildExampleSketch GPRSUdpNtpClient
   - buildExampleSketch GsmLocation
   - buildExampleToolsSketch BandManagement
+  - buildExampleToolsSketch ChooseRadioAccessTechnology
   - buildExampleToolsSketch GsmScanNetworks
   - buildExampleToolsSketch PinManagement
   - buildExampleToolsSketch TestGPRS

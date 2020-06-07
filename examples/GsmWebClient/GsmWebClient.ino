@@ -2,7 +2,7 @@
   Web client
 
  This sketch connects to a website through a MKR GSM 1400 board. Specifically,
- this example downloads the URL "http://www.arduino.cc/asciilogo.txt" and
+ this example downloads the URL "http://www.example.org/" and
  prints it to the Serial monitor.
 
  Circuit:
@@ -31,9 +31,9 @@ GSMClient client;
 GPRS gprs;
 GSM gsmAccess;
 
-// URL, path and port (for example: arduino.cc)
-char server[] = "arduino.cc";
-char path[] = "/asciilogo.txt";
+// URL, path and port (for example: example.org)
+char server[] = "example.org";
+char path[] = "/";
 int port = 80; // port 80 is the default for HTTP
 
 void setup() {
@@ -45,7 +45,7 @@ void setup() {
 
   Serial.println("Starting Arduino web client.");
   // connection state
-  boolean connected = false;
+  bool connected = false;
 
   // After starting the modem with GSM.begin()
   // attach the shield to the GPRS network with the APN, login and password

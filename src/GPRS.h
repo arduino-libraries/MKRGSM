@@ -80,6 +80,7 @@ public:
    */
   IPAddress getIPAddress();
 
+  void setTimeout(unsigned long timeout);
 
   int hostByName(const char* hostname, IPAddress& result);
   int hostByName(const String &hostname, IPAddress& result) { return hostByName(hostname.c_str(), result); }
@@ -100,6 +101,7 @@ private:
   GSM3_NetworkStatus_t _status;
   String _response;
   int _pingResult;
+  unsigned long _timeout;
 };
 
 #endif

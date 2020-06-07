@@ -259,7 +259,7 @@ int GSMUDP::available()
     return 0;
   }
 
-  return (_rxIndex - _rxSize);
+  return (_rxSize - _rxIndex);
 }
 
 int GSMUDP::read()

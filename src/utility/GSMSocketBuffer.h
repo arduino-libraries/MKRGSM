@@ -1,6 +1,6 @@
 /*
   This file is part of the MKR GSM library.
-  Copyright (C) 2017  Arduino AG (http://www.arduino.cc/)
+  Copyright (C) 2018  Arduino AG (http://www.arduino.cc/)
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -17,49 +17,33 @@
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "Modem.h"
+#ifndef _GSMSOCKET_BUFFER_H_INCLUDED
+#define _GSMSOCKET_BUFFER_H_INCLUDED
 
-#include "GSMModem.h"
+#include <stddef.h>
+#include <stdint.h>
 
-GSMModem::GSMModem()
-{
-}
+class GSMSocketBufferClass {
 
-int GSMModem::begin()
-{
-  if (!MODEM.begin()) {
-    return 0;
-  }
+public:
+public:
+  GSMSocketBufferClass();
+  virtual ~GSMSocketBufferClass();
 
-  return 1;
-}
+  void close(int socket);
 
-String GSMModem::getIMEI()
-{
-  String imei;
+  int available(int socket);
+  int peek(int socket);
+  int read(int socket, uint8_t* data, size_t length);
 
-  imei.reserve(15);
+private:
+  struct {
+    uint8_t* data;
+    uint8_t* head;
+    int length;
+  } _buffers[7];
+};
 
-  MODEM.send("AT+CGSN");
-  MODEM.waitForResponse(100, &imei);
+extern GSMSocketBufferClass GSMSocketBuffer;
 
-  return imei;
-}
-
-String GSMModem::getICCID()
-{
-  String iccid;
-
-  iccid.reserve(7 + 20);
-
-  MODEM.send("AT+CCID");
-  MODEM.waitForResponse(1000, &iccid);
-
-  if (iccid.startsWith("+CCID: ")) {
-    iccid.remove(0, 7);
-  } else {
-    iccid = "";
-  }
-
-  return iccid;
-}
+#endif

@@ -20,9 +20,9 @@
 #ifndef _GSM_CLIENT_H_INCLUDED
 #define _GSM_CLIENT_H_INCLUDED
 
-#include <Client.h>
-
 #include "Modem.h"
+
+#include <Client.h>
 
 class GSMClient : public Client, public ModemUrcHandler {
 
@@ -44,20 +44,21 @@ public:
   /** Get last command status
       @return returns 0 if last command is still executing, 1 success, >1 error
   */
-  int ready();
+  virtual int ready();
 
   /** Connect to server by IP address
       @param (IPAddress)
       @param (uint16_t)
-      @return returns 0 if last command is still executing, 1 success, 2 if there are no resources
-   */
+      @return returns 0 on failure, 1 on success (sync mode)
+                      0 if last command is still executing, 1 success, 2 if there are no resources (async mode)   */
   int connect(IPAddress, uint16_t);
   int connectSSL(IPAddress, uint16_t);
 
   /** Connect to server by hostname
       @param host     Hostname
       @param port     Port
-      @return returns 0 if last command is still executing, 1 success, 2 if there are no resources
+      @return returns 0 on failure, 1 on success (sync mode)
+                      0 if last command is still executing, 1 success, 2 if there are no resources (async mode)
    */
   int connect(const char *host, uint16_t port);
   int connectSSL(const char *host, uint16_t port);
@@ -135,6 +136,7 @@ private:
 
   bool _synch;
   int _socket;
+  int _connected;
 
   int _state;
   IPAddress _ip;
@@ -144,8 +146,6 @@ private:
 
   bool _writeSync;
   String _response;
-  int _peek;
-  int _available;
 };
 
 #endif

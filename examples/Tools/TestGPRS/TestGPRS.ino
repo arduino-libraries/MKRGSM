@@ -2,7 +2,7 @@
 
  This sketch test the MKR GSM 1400 board's ability to connect to a
  GPRS network. It asks for APN information through the
- serial monitor and tries to connect to arduino.cc.
+ serial monitor and tries to connect to example.org.
 
  Circuit:
  * MKR GSM 1400 board
@@ -30,16 +30,16 @@ GSMClient client;  // Client service for TCP connection
 String oktext = "OK";
 String errortext = "ERROR";
 
-// URL and path (for example: arduino.cc)
-char url[] = "arduino.cc";
-char urlproxy[] = "http://www.arduino.cc";
+// URL and path (for example: example.org)
+char url[] = "example.org";
+char urlproxy[] = "http://www.example.org";
 char path[] = "/";
 
 // variable for save response obtained
 String response = "";
 
 // use a proxy
-boolean use_proxy = false;
+bool use_proxy = false;
 
 void setup() {
   // initialize serial communications and wait for port to open:
@@ -92,7 +92,7 @@ void loop() {
     readSerial(proxy);
     Serial.println(proxy);
 
-    // if user introduced a proxy, asks him for proxy port
+    // if user introduced a proxy, asks them for proxy port
     int pport;
     if (proxy[0] != '\0') {
       // read proxy port introduced by user
@@ -105,8 +105,8 @@ void loop() {
       Serial.println(proxyport);
     }
 
-    // connection with arduino.cc and realize HTTP request
-    Serial.print("Connecting and sending GET request to arduino.cc...");
+    // connection with example.org and realize HTTP request
+    Serial.print("Connecting and sending GET request to example.org...");
     int res_connect;
 
     // if use a proxy, connect with it
@@ -120,7 +120,7 @@ void loop() {
       // make a HTTP 1.0 GET request (client sends the request)
       client.print("GET ");
 
-      // if use a proxy, the path is arduino.cc URL
+      // if use a proxy, the path is example.org URL
       if (use_proxy) {
         client.print(urlproxy);
       } else {
@@ -136,7 +136,7 @@ void loop() {
     }
     Serial.print("Receiving response...");
 
-    boolean test = true;
+    bool test = true;
     while (test) {
       // if there are incoming bytes available
       // from the server, read and check them
