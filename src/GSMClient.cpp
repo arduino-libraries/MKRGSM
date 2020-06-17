@@ -51,6 +51,7 @@ GSMClient::GSMClient(int socket, bool synch) :
   _host(NULL),
   _port(0),
   _ssl(false),
+  _sslprofile(0),
   _writeSync(true)
 {
   MODEM.addUrcHandler(this);
@@ -121,7 +122,7 @@ int GSMClient::ready()
     }
 
     case CLIENT_STATE_MANAGE_SSL_PROFILE: {
-      MODEM.send("AT+USECPRF=0,0,1");
+      MODEM.sendf("AT+USECPRF=0,0,%d",_sslprofile);
 
       _state = CLIENT_STATE_WAIT_MANAGE_SSL_PROFILE_RESPONSE;
       ready = 0;
@@ -441,4 +442,8 @@ void GSMClient::handleUrc(const String& urc)
       }
     }
   }
+}
+
+void GSMClient::setProfileSSL(uint8_t ssl) {
+  _sslprofile = ssl;
 }

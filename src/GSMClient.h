@@ -129,6 +129,10 @@ public:
    */
   void stop();
 
+  /** Set ssl profile
+   */
+  void setProfileSSL(uint8_t ssl);
+
   virtual void handleUrc(const String& urc);
 
 private:
@@ -144,6 +148,7 @@ private:
   uint16_t _port;
   bool _ssl;
 
+  int _sslprofile;
   bool _writeSync;
   String _response;
 };
