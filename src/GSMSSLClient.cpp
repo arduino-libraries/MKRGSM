@@ -17,8 +17,6 @@
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "utility/GSMRootCerts.h"
-
 #include "Modem.h"
 
 #include "GSMSSLClient.h"
@@ -32,7 +30,9 @@ enum {
 bool GSMSSLClient::_rootCertsLoaded = false;
 
 GSMSSLClient::GSMSSLClient(bool synch) :
-  GSMClient(synch)
+  GSMClient(synch),
+  _gsmRoots(GSM_ROOT_CERTS),
+  _sizeRoot(GSM_NUM_ROOT_CERTS)
 {
 }
 
@@ -56,22 +56,22 @@ int GSMSSLClient::ready()
 
   switch (_state) {
     case SSL_CLIENT_STATE_LOAD_ROOT_CERT: {
-      if (GSM_ROOT_CERTS[_certIndex].size) {
+      if (_gsmRoots[_certIndex].size) {
         // load the next root cert
-        MODEM.sendf("AT+USECMNG=0,0,\"%s\",%d", GSM_ROOT_CERTS[_certIndex].name, GSM_ROOT_CERTS[_certIndex].size);
+        MODEM.sendf("AT+USECMNG=0,0,\"%s\",%d", _gsmRoots[_certIndex].name, _gsmRoots[_certIndex].size);
         if (MODEM.waitForPrompt() != 1) {
           // failure
           ready = -1;
         } else {
           // send the cert contents
-          MODEM.write(GSM_ROOT_CERTS[_certIndex].data, GSM_ROOT_CERTS[_certIndex].size);
+          MODEM.write(_gsmRoots[_certIndex].data, _gsmRoots[_certIndex].size);
 
           _state = SSL_CLIENT_STATE_WAIT_LOAD_ROOT_CERT_RESPONSE;
           ready = 0;
         }
       } else {
         // remove the next root cert name
-        MODEM.sendf("AT+USECMNG=2,0,\"%s\"", GSM_ROOT_CERTS[_certIndex].name);
+        MODEM.sendf("AT+USECMNG=2,0,\"%s\"", _gsmRoots[_certIndex].name);
 
         _state = SSL_CLIENT_STATE_WAIT_DELETE_ROOT_CERT_RESPONSE;
         ready = 0;
@@ -85,7 +85,7 @@ int GSMSSLClient::ready()
       } else {
         _certIndex++;
 
-        if (_certIndex == GSM_NUM_ROOT_CERTS) {
+        if (_certIndex == _sizeRoot) {
           // all certs loaded
           _rootCertsLoaded = true;
         } else {
@@ -132,4 +132,44 @@ int GSMSSLClient::connect(const char* host, uint16_t port)
   _state = SSL_CLIENT_STATE_LOAD_ROOT_CERT;
 
   return connectSSL(host, port);
+}
+
+void GSMSSLClient::setPrivateCertificate(const uint8_t* cert, const char* name, size_t size) {
+  MODEM.sendf("AT+USECMNG=0,1,\"%s\",%d", name, size);
+  MODEM.waitForResponse(1000);
+
+  MODEM.write(cert, size);
+  MODEM.waitForResponse(1000);
+}
+
+void GSMSSLClient::setPrivateKey(const uint8_t* key, const char*name, size_t size) {
+
+  MODEM.sendf("AT+USECMNG=0,2,\"%s\",%d", name, size);
+  MODEM.waitForResponse(1000);
+  MODEM.write(key, size);
+  MODEM.waitForResponse(1000);
+}
+
+void GSMSSLClient::setServerName(const char* name) {
+  MODEM.sendf("AT+USECPRF=0,3,\"%s\"", name);
+  MODEM.waitForResponse(100);
+}
+
+void GSMSSLClient::setClientName(const char* name) {
+  MODEM.sendf("AT+USECPRF=0,5,\"%s\"", name);
+  MODEM.waitForResponse(100);
+}
+
+void GSMSSLClient::setKeyName(const char* name) {
+  MODEM.sendf("AT+USECPRF=0,6,\"%s\"", name);
+  MODEM.waitForResponse(100);
+}
+
+void GSMSSLClient::setUserRoots(const GSMRootCert * userRoots, size_t size) {
+  for(int i=0; i<14; i++) {
+    MODEM.sendf("AT+USECPRF=2,0,\"%s\"", rootsName[i].c_str());
+      MODEM.waitForResponse(100);
+  }
+  _gsmRoots = userRoots;
+  _sizeRoot = size;
 }

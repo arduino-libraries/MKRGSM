@@ -1231,6 +1231,23 @@ static const GSMRootCert GSM_ROOT_CERTS[] = {
   }
 };
 
+const String rootsName[14] = {
+"Starfield_Services_Root_Certificate_Authority_G2",
+"AmazonRootCA1",
+"VeriSign_Class_3_Public_Primary_Certification_Authority_G5",
+"Go_Daddy_Root_Certificate_Authority_G2",
+"GlobalSign",
+"GeoTrust_Primary_Certification_Authority_G3",
+"GeoTrust_Global_CA",
+"Equifax_Secure_Certificate_Authority",
+"Entrust_Root_Certification_Authority",
+"DigiCert_High_Assurance_EV_Root_CA",
+"DST_Root_CA_X3",
+"COMODO_RSA_Certification_Authority",
+"Baltimore_CyberTrust_Root",
+"AddTrust_External_CA_Root"
+};
+
 #define GSM_NUM_ROOT_CERTS (sizeof(GSM_ROOT_CERTS) / sizeof(GSM_ROOT_CERTS[0]))
 
 #endif
