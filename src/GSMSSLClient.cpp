@@ -134,7 +134,7 @@ int GSMSSLClient::connect(const char* host, uint16_t port)
   return connectSSL(host, port);
 }
 
-void GSMSSLClient::setPrivateCertificate(const uint8_t* cert, const char* name, size_t size) {
+void GSMSSLClient::setSignedCertificate(const uint8_t* cert, const char* name, size_t size) {
   MODEM.sendf("AT+USECMNG=0,1,\"%s\",%d", name, size);
   MODEM.waitForResponse(1000);
 
@@ -150,26 +150,29 @@ void GSMSSLClient::setPrivateKey(const uint8_t* key, const char*name, size_t siz
   MODEM.waitForResponse(1000);
 }
 
-void GSMSSLClient::setServerName(const char* name) {
+void GSMSSLClient::setTrustedRoot(const char* name) {
   MODEM.sendf("AT+USECPRF=0,3,\"%s\"", name);
   MODEM.waitForResponse(100);
 }
 
-void GSMSSLClient::setClientName(const char* name) {
+void GSMSSLClient::useSignedCertificate(const char* name) {
   MODEM.sendf("AT+USECPRF=0,5,\"%s\"", name);
   MODEM.waitForResponse(100);
 }
 
-void GSMSSLClient::setKeyName(const char* name) {
+void GSMSSLClient::usePrivateKey(const char* name) {
   MODEM.sendf("AT+USECPRF=0,6,\"%s\"", name);
   MODEM.waitForResponse(100);
 }
 
-void GSMSSLClient::setUserRoots(const GSMRootCert * userRoots, size_t size) {
-  for(int i=0; i<14; i++) {
-    MODEM.sendf("AT+USECPRF=2,0,\"%s\"", rootsName[i].c_str());
-      MODEM.waitForResponse(100);
+void GSMSSLClient::eraseTrustedRoot() {
+   for(int i=0; i< _sizeRoot; i++) {
+    MODEM.sendf("AT+USECPRF=2,0,\"%s\"", _gsmRoots[i].name);
+    MODEM.waitForResponse(100);
   }
+}
+
+void GSMSSLClient::setUserRoots(const GSMRootCert * userRoots, size_t size) {
   _gsmRoots = userRoots;
   _sizeRoot = size;
 }
