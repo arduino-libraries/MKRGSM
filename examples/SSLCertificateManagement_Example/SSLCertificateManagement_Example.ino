@@ -62,9 +62,9 @@ void setup() {
   Serial.println("You're connected to the network");
   Serial.println();
 
-  // eraseTrustedRooterase from the module all the actual TrustedRoot
-  // pointed by the GSM object call this API after the set will try to erase
-  // if rpresent the certificate present in SECRET_GSM_ROOT_CERTS
+  // eraseTrustedRoot erase from the module all the actual Trusted Root
+  // pointed by the GSM object, call this API after the set will try to erase
+  // all the certificates present in SECRET_GSM_ROOT_CERTS
   client.eraseTrustedRoot();
   client.setUserRoots(SECRET_GSM_ROOT_CERTS, SECRET_GSM_ROOT_SIZE);
   
