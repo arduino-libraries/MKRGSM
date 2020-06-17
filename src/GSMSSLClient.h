@@ -32,12 +32,13 @@ public:
 
   virtual int connect(IPAddress ip, uint16_t port);
   virtual int connect(const char* host, uint16_t port);
-  virtual void setPrivateCertificate(const uint8_t* cert, const char* name, size_t size);
+  virtual void setSignedCertificate(const uint8_t* cert, const char* name, size_t size);
   virtual void setPrivateKey(const uint8_t* key, const char* name, size_t size);
-  virtual void setClientName(const char* name);
-  virtual void setKeyName(const char* name);
-  virtual void setServerName(const char* name);
+  virtual void useSignedCertificate(const char* name);
+  virtual void usePrivateKey(const char* name);
+  virtual void setTrustedRoot(const char* name);
   virtual void setUserRoots(const GSMRootCert * userRoots, size_t size);
+  virtual void eraseTrustedRoot();
 
 private:
   static bool _rootCertsLoaded;

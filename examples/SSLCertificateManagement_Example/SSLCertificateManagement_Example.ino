@@ -61,18 +61,18 @@ void setup() {
 
   Serial.println("You're connected to the network");
   Serial.println();
-  // uncomment this and fill the array in Arduino_secrets if you want tou 
-  // use your roots certificate pay attention this metod call an errase 
-  // for any of the certs stored on the module flash after the first time
-  // the erase funciotn no longer works after the first run because erase 
-  // only the standard cert used by arduino mrgsm+
+
+  // eraseTrustedRooterase from the module all the actual TrustedRoot
+  // pointed by the GSM object call this API after the set will try to erase
+  // if rpresent the certificate present in SECRET_GSM_ROOT_CERTS
+  client.eraseTrustedRoot();
+  client.setUserRoots(SECRET_GSM_ROOT_CERTS, SECRET_GSM_ROOT_SIZE);
   
-  //client.setUserRoots(SECRET_GSM_ROOT_CERTS, SECRET_GSM_ROOT_SIZE);
-  client.setPrivateCertificate(SECRET_CERT, "MKRGSM01", sizeof(SECRET_CERT));
+  client.setSignedCertificate(SECRET_CERT, "MKRGSM01", sizeof(SECRET_CERT));
   client.setPrivateKey(SECRET_KEY, "MKRGSMKEY01", sizeof(SECRET_KEY));
-  client.setClientName("MKRGSM01");
-  client.setKeyName("MKRGSMKEY01");
-  client.setServerName("Let_s_Encrypt_Authority_X3");
+  client.useSignedCertificate("MKRGSM01");
+  client.usePrivateKey("MKRGSMKEY01");
+  client.setTrustedRoot("Let_s_Encrypt_Authority_X3");
   client.setProfileSSL(1);
 
   
