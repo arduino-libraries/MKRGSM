@@ -35,4 +35,6 @@
 #include "GSMUdp.h"
 #include "GSMLocation.h"
 
+#include "GSMFileUtils.h"
+
 #endif
