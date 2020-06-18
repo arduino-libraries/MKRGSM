@@ -9,28 +9,30 @@ public:
 
     bool begin(const unsigned long timeout);
     bool begin() { return begin(10000); };
-    size_t fileCount() const { return _count; };
+    u_int32_t fileCount() const { return _count; };
     size_t listFiles(String list[]) const;
-    size_t listFile(const String filename) const;
+    u_int32_t listFile(const String filename) const;
 
-    void downloadFile(const String filename, const char buf[], const size_t size, const bool binary, const bool append);
-    void downloadFile(const String filename, const char buf[], const size_t size) { downloadFile(filename, buf, size, false, true); };
+    void downloadFile(const String filename, const char buf[], const uint32_t size, const bool binary, const bool append);
+    void downloadFile(const String filename, const char buf[], const uint32_t size) { downloadFile(filename, buf, size, false, true); };
     void downloadFile(const String filename, const String& buf, const bool binary = false, const bool append = false) { downloadFile(filename, buf.c_str(), buf.length(), binary, append); }
 
-    void appendFile(const String filename, const String& buf)                   { downloadFile(filename, buf.c_str(), buf.length(), false, true); }
-    void appendFile(const String filename, const char buf[], const size_t size) { downloadFile(filename, buf, size, false, true); }
+    void appendFile(const String filename, const String& buf)                     { downloadFile(filename, buf.c_str(), buf.length(), false, true); }
+    void appendFile(const String filename, const char buf[], const uint32_t size) { downloadFile(filename, buf, size, false, true); }
     
-    void downloadBinary(const String filename, const char buf[], const size_t size, const bool append = false) { downloadFile(filename, buf, size, true, append); }
+    void downloadBinary(const String filename, const char buf[], const uint32_t size, const bool append = false) { downloadFile(filename, buf, size, true, append); }
     void downloadBinary(const String filename, const String& buf, const bool append = false)                   { downloadFile(filename, buf.c_str(), buf.length(), true, append); }
 
     int deleteFile(const String filename);
     int deleteFiles();
 
-    size_t readFile(const String filename, String* content, const bool binary = false);
-    size_t readFile(const String filename, uint8_t* content, const bool binary = true);
-    size_t readBinary(const String filename, uint8_t* content);
+    uint32_t readFile(const String filename, String* content, const bool binary = false);
+    uint32_t readFile(const String filename, uint8_t* content, const bool binary = true);
+    uint32_t readBinary(const String filename, uint8_t* content);
+    // size_t readBlock(const String filename, String* content, const bool binary = false);
+    uint32_t readBlock(const String filename, const uint32_t offset, const uint32_t len, uint8_t* content, const bool binary = true);
 
-    size_t freeSpace();
+    uint32_t freeSpace();
 
 private:
     int _count;
