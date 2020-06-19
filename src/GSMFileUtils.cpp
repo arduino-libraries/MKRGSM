@@ -20,6 +20,8 @@ bool GSMFileUtils::begin(const unsigned long timeout)
         MODEM.send("AT+CMEE=2");
         MODEM.waitForResponse();
     }
+        MODEM.send("AT+CMEE=2");
+        MODEM.waitForResponse();
 
     for (unsigned long start = millis(); (millis() - start) < timeout;) {
         status = _getFileList();
@@ -111,7 +113,8 @@ void GSMFileUtils::downloadFile(const String filename, const char buf[], uint32_
 
     int status = MODEM.waitForResponse(1000, &response);
 
-    if (status) {
+    auto fileExists = _files.indexOf(filename) > 0;
+    if (status && !fileExists) {
         _getFileList();
         _countFiles();
     }
