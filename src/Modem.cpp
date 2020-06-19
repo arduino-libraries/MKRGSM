@@ -33,7 +33,6 @@ ModemClass::ModemClass(Uart& uart, unsigned long baud, int resetPin, int dtrPin)
   _lastResponseOrUrcMillis(0),
   _atCommandState(AT_COMMAND_IDLE),
   _ready(1),
-  _binary(false),
   _responseDataStorage(NULL)
 {
   _buffer.reserve(64);
@@ -185,7 +184,7 @@ void ModemClass::send(const char* command)
     delay(5);
   }
 
-  // compare the time of the last response or URC and ensure
+  // compare the time of the last response or URC and ensure 
   // at least 20ms have passed before sending a new command
   unsigned long delta = millis() - _lastResponseOrUrcMillis;
   if(delta < MODEM_MIN_RESPONSE_OR_URC_WAIT_TIME_MS) {
@@ -288,22 +287,7 @@ void ModemClass::poll()
         if (c == '\n') {
           _lastResponseOrUrcMillis = millis();
 
-          int responseResultIndex;
-
-          if (_binary) {
-            String lastFour = _buffer.substring(_buffer.length() - 4);
-            if (lastFour[0] == 0x4F && lastFour[1] == 0x4B && lastFour[2] == 0x0D && lastFour[3] == 0x0A) {
-            // if (lastFour.equals("OK\r\n")) {
-              responseResultIndex = _buffer.length() - 4;
-            } else {
-              responseResultIndex = -1;
-            }
-          } else {
-            String src;
-            src += 'O'; src += 'K'; src += '\r'; src += '\n';
-            responseResultIndex = _buffer.lastIndexOf(src);
-            // responseResultIndex = _buffer.lastIndexOf("OK\r\n");
-          }
+          int responseResultIndex = _buffer.lastIndexOf("OK\r\n");
           if (responseResultIndex != -1) {
             _ready = 1;
           } else {
@@ -327,14 +311,7 @@ void ModemClass::poll()
               _buffer.remove(responseResultIndex);
               _buffer.trim();
 
-              if (_binary) {
-                (*_responseDataStorage).reserve(_buffer.length());
-                *_responseDataStorage += "";
-                for (size_t i = 0; i < _buffer.length(); i++)
-                  *_responseDataStorage += _buffer[i];
-              } else {
-                *_responseDataStorage = _buffer;
-              }
+              *_responseDataStorage = _buffer;
 
               _responseDataStorage = NULL;
             }

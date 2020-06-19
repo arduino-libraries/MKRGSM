@@ -41,9 +41,6 @@ public:
   void debug(Print& p);
   void noDebug();
 
-  void binary() { _binary = true; };
-  void noBinary() { _binary = false; };
-
   int autosense(unsigned int timeout = 10000);
 
   int noop();
@@ -77,7 +74,6 @@ private:
   int _dtrPin;
   bool _lowPowerMode;
   unsigned long _lastResponseOrUrcMillis;
-  bool _binary;
 
   enum {
     AT_COMMAND_IDLE,
