@@ -85,61 +85,52 @@ size_t GSMFileUtils::listFiles(String files[]) const
     return n;
 }
 
-void GSMFileUtils::downloadFile(const String filename, const char buf[], uint32_t size, const bool binary, const bool append)
+void GSMFileUtils::downloadFile(const String filename, const char buf[], uint32_t size, const bool append)
 {
     String response;
-    bool fileExists = append ? append : listFile(filename) > 0;
 
-    if (fileExists && !append)
+    if (!append)
         deleteFile(filename);
 
-    // MODEM.send("AT+CGEREP?");
-    // MODEM.waitForResponse();
-
-    if (binary) {
-        MODEM.send("ATE0");
-        MODEM.waitForResponse();
-    }
-
-    MODEM.sendf("AT+UDWNFILE=\"%s\",%d", filename.c_str(), size);
+    MODEM.sendf("AT+UDWNFILE=\"%s\",%d", filename.c_str(), size * 2);
     MODEM.waitForPrompt(20000);
 
-    for (auto i = 0; i < size; i++)
-        MODEM.write(buf[i]);
+    char hex[size * 2] { 0 };
+
+    for (auto i = 0; i < size; i++) {
+        byte b = buf[i];
+
+        byte n1 = (b >> 4) & 0x0f;
+        byte n2 = (b & 0x0f);
+
+        hex[i * 2] = (char)(n1 > 9 ? 'A' + n1 - 10 : '0' + n1);
+        hex[i * 2 + 1] = (char)(n2 > 9 ? 'A' + n2 - 10 : '0' + n2);
+    }
+    for (auto h: hex)
+        MODEM.write(h);
 
     int status = MODEM.waitForResponse(1000, &response);
 
-    if (status && (!append || !fileExists)) {
-        if (_count == 0)
-            _files.concat("\"" + filename + "\"");
-        else
-            _files.concat(",\"" + filename + "\"");
-        _count++;
-    }
-
-    if (binary) {
-        MODEM.send("ATE1");
-        MODEM.waitForResponse();
+    if (status) {
+        _getFileList();
+        _countFiles();
     }
 }
 
-uint32_t GSMFileUtils::readFile(const String filename, String* content, const bool binary)
+uint32_t GSMFileUtils::readFile(const String filename, String* content)
 {
     String response;
 
     if (!listFile(filename)) {
-        Serial.println("File does not exist.");
         return 0;
     }
-
-    if (binary)
-        MODEM.binary();
 
     MODEM.sendf("AT+URDFILE=\"%s\"", filename.c_str());
     MODEM.waitForResponse(1000, &response);
 
     size_t skip = 10;
     String _content = response.substring(skip);
+
     int commaIndex = _content.indexOf(',');
     skip += commaIndex;
 
@@ -148,34 +139,41 @@ uint32_t GSMFileUtils::readFile(const String filename, String* content, const bo
     skip += commaIndex;
 
     String sizePart = _content.substring(0, commaIndex);
-    uint32_t size = sizePart.toInt();
+    uint32_t size = sizePart.toInt() / 2;
     skip += 3;
 
-    if (binary) {
-        (*content).reserve(size);
-        *content = "";
-        for (auto i = 0; i < size; i++) {
-            *content += response[skip + i];
+    String * _data = content;
+    (*_data).reserve(size);
+
+    for (auto i = 0; i < size; i++) {
+        byte n1 = response[skip + i * 2];
+        byte n2 = response[skip + i * 2 + 1];
+
+        if (n1 > '9') {
+            n1 = (n1 - 'A') + 10;
+        } else {
+            n1 = (n1 - '0');
         }
-    } else {
-        _content = _content.substring(commaIndex + 2);
-        *content = _content.substring(0, size);
+
+        if (n2 > '9') {
+            n2 = (n2 - 'A') + 10;
+        } else {
+            n2 = (n2 - '0');
+        }
+
+        (*_data) += (char)((n1 << 4) | n2);
     }
 
-    if (binary)
-        MODEM.noBinary();
-    return size;
+    return (*_data).length();
 }
 
-uint32_t GSMFileUtils::readBinary(const String filename, uint8_t* content)
+uint32_t GSMFileUtils::readFile(const String filename, uint8_t* content)
 {
     String response;
 
     if (listFile(filename) == 0) {
         return 0;
     }
-
-    MODEM.binary();
 
     MODEM.sendf("AT+URDFILE=\"%s\"", filename.c_str());
     MODEM.waitForResponse(1000, &response);
@@ -191,18 +189,32 @@ uint32_t GSMFileUtils::readBinary(const String filename, uint8_t* content)
     skip += commaIndex;
 
     String sizePart = _content.substring(0, commaIndex);
-    uint32_t size = sizePart.toInt();
+    uint32_t size = sizePart.toInt() / 2;
     skip += 3;
 
-    for (auto i = 0; i < size; i++)
-        content[i] = response[skip + i];
+    for (auto i = 0; i < size; i++) {
+        byte n1 = response[skip + i * 2];
+        byte n2 = response[skip + i * 2 + 1];
 
-    MODEM.noBinary();
+        if (n1 > '9') {
+            n1 = (n1 - 'A') + 10;
+        } else {
+            n1 = (n1 - '0');
+        }
+
+        if (n2 > '9') {
+            n2 = (n2 - 'A') + 10;
+        } else {
+            n2 = (n2 - '0');
+        }
+
+        content[i] = (n1 << 4) | n2;
+    }
 
     return size;
 }
 
-uint32_t GSMFileUtils::readBlock(const String filename, const uint32_t offset, const uint32_t len, uint8_t* content, const bool binary)
+uint32_t GSMFileUtils::readBlock(const String filename, const uint32_t offset, const uint32_t len, uint8_t* content)
 {
     String response;
 
@@ -210,13 +222,9 @@ uint32_t GSMFileUtils::readBlock(const String filename, const uint32_t offset, c
         return 0;
     }
 
-    // if (binary)
-        MODEM.binary();
-
-    MODEM.sendf("AT+URDBLOCK=\"%s\",%d,%d", filename.c_str(), offset, len);
+    MODEM.sendf("AT+URDBLOCK=\"%s\",%d,%d", filename.c_str(), offset * 2, len * 2);
     MODEM.waitForResponse(1000, &response);
 
-    // +URDBLOCK: "update.bin",512,"..."\r\n
     size_t skip = 10;
     String _content = response.substring(skip);
 
@@ -228,40 +236,48 @@ uint32_t GSMFileUtils::readBlock(const String filename, const uint32_t offset, c
     skip += commaIndex;
 
     String sizePart = _content.substring(0, commaIndex);
-    uint32_t size = sizePart.toInt();
+    uint32_t size = sizePart.toInt() / 2;
     skip += 3;
 
-    for (auto i = 0; i < size; i++)
-        content[i] = response[skip + i];
+    for (auto i = 0; i < size; i++) {
+        byte n1 = response[skip + i * 2];
+        byte n2 = response[skip + i * 2 + 1];
 
-    // if (binary)
-        MODEM.noBinary();
+        if (n1 > '9') {
+            n1 = (n1 - 'A') + 10;
+        } else {
+            n1 = (n1 - '0');
+        }
+
+        if (n2 > '9') {
+            n2 = (n2 - 'A') + 10;
+        } else {
+            n2 = (n2 - '0');
+        }
+
+        content[i] = (n1 << 4) | n2;
+    }
 
     return size;
 }
 
-int GSMFileUtils::deleteFile(const String filename)
+bool GSMFileUtils::deleteFile(const String filename)
 {
     String response;
 
-    int start = _files.indexOf(filename);
-    int count = filename.length();
-    if (start == 1) {
-        start = 0;
-        count += 3;
-    } else {
-        start -= 2;
-        count += 3;
-    }
+    if (listFile(filename) == 0)
+        return false;
 
     MODEM.sendf("AT+UDELFILE=\"%s\"", filename.c_str());
-    if (MODEM.waitForResponse(100, &response)) {
-        _files.remove(start, count);
-        if (_count > 0)
-            _count--;
-        return 1;
-    }
-    return 0;
+    auto status = MODEM.waitForResponse(100, &response);
+
+    if (status == 0)
+        return false;
+
+    _getFileList();
+    _countFiles();
+
+    return true;
 }
 
 int GSMFileUtils::deleteFiles()
@@ -291,7 +307,7 @@ uint32_t GSMFileUtils::listFile(const String filename) const
         size = content.toInt();
     }
 
-    return size;
+    return size / 2;
 }
 
 uint32_t GSMFileUtils::freeSpace()
