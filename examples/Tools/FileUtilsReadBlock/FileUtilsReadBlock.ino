@@ -1,8 +1,31 @@
+/*
+  Read large files block-by-block from the GSM module filesystem.
+
+  This sketch allows you to read large (max 2.5MB) files from the
+  module's internal filesystem using successive block-by-block reads.
+
+  The contents of the file is printed to Serial port as an
+  hexadecimal string which can be later converted to the original
+  content using an external tools, such as 'xxd', eg. 
+
+    'xxd -p -r sketck_output.txt data.bin'
+
+  Circuit:
+  - MKR GSM 1400 board
+
+  Created 19 June 2020
+  by Giampaolo Mancini
+
+*/
+
 #include <MKRGSM.h>
 
 GSMFileUtils fileUtils(false);
 
+// An existing file
 constexpr char* filename { "update.bin" };
+
+// Read bloack size
 constexpr unsigned int blockSize { 512 };
 
 void setup()
@@ -11,20 +34,18 @@ void setup()
     while (!Serial)
         ;
 
-    // Serial.println("Test readBlock.");
-
     fileUtils.begin();
 
     auto size = fileUtils.listFile(filename);
-    // Serial.println(size);
+    auto cycles = (size / blockSize) + 1;
 
-    auto cycles = size / blockSize;
-    auto spares = size % blockSize;
+    uint32_t totalRead { 0 };
 
     for (auto i = 0; i < cycles; i++) {
         uint8_t block[blockSize] { 0 };
-        fileUtils.readBlock(filename, i * blockSize, blockSize, block);
-        for (auto j = 0; j < blockSize; j++) {
+        auto read = fileUtils.readBlock(filename, i * blockSize, blockSize, block);
+        totalRead += read;
+        for (auto j = 0; j < read; j++) {
             if (block[j] < 16)
                 Serial.print(0);
             Serial.print(block[j], HEX);
@@ -32,14 +53,12 @@ void setup()
         Serial.println();
     }
 
-    uint8_t block[blockSize] { 0 };
-    fileUtils.readBlock(filename, cycles * blockSize, spares, block);
-    for (auto j = 0; j < spares; j++) {
-        if (block[j] < 16)
-            Serial.print(0);
-        Serial.print(block[j], HEX);
+    if (totalRead != size) {
+        Serial.print("ERROR - File size: ");
+        Serial.print(size);
+        Serial.print(" Bytes read: ");
+        Serial.println(totalRead);
     }
-    Serial.println();
 }
 
 void loop()
