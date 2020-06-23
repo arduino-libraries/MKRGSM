@@ -73,7 +73,6 @@ void setup() {
   client.useSignedCertificate("MKRGSM01");
   client.usePrivateKey("MKRGSMKEY01");
   client.setTrustedRoot("Let_s_Encrypt_Authority_X3");
-  client.setProfileSSL(1);
 
   
   Serial.print("Attempting to connect to the MQTT broker: ");

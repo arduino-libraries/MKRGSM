@@ -131,7 +131,7 @@ public:
 
   /** Set ssl profile
    */
-  void setProfileSSL(uint8_t ssl);
+  void setCertificateValidationLevel(uint8_t ssl);
 
   virtual void handleUrc(const String& urc);
 
