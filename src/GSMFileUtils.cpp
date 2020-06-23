@@ -14,7 +14,7 @@ bool GSMFileUtils::begin(const bool restart)
     int status;
 
     if (restart)
-    MODEM.begin();
+        MODEM.begin();
 
     if (_debug) {
         MODEM.debug();
@@ -86,10 +86,8 @@ size_t GSMFileUtils::listFiles(String files[]) const
     return n;
 }
 
-void GSMFileUtils::downloadFile(const String filename, const char buf[], uint32_t size, const bool append)
+uint32_t GSMFileUtils::downloadFile(const String filename, const char buf[], uint32_t size, const bool append)
 {
-    String response;
-
     if (!append)
         deleteFile(filename);
 
@@ -107,16 +105,20 @@ void GSMFileUtils::downloadFile(const String filename, const char buf[], uint32_
         hex[i * 2] = (char)(n1 > 9 ? 'A' + n1 - 10 : '0' + n1);
         hex[i * 2 + 1] = (char)(n2 > 9 ? 'A' + n2 - 10 : '0' + n2);
     }
-    for (auto h: hex)
+    for (auto h : hex)
         MODEM.write(h);
 
-    int status = MODEM.waitForResponse(1000, &response);
+    int status = MODEM.waitForResponse(1000);
+    if (status != 1)
+        return 0;
 
     auto fileExists = _files.indexOf(filename) > 0;
-    if (status && !fileExists) {
+    if (!fileExists) {
         _getFileList();
         _countFiles();
     }
+
+    return size;
 }
 
 uint32_t GSMFileUtils::readFile(const String filename, String* content)
@@ -144,7 +146,7 @@ uint32_t GSMFileUtils::readFile(const String filename, String* content)
     uint32_t size = sizePart.toInt() / 2;
     skip += 3;
 
-    String * _data = content;
+    String* _data = content;
     (*_data).reserve(size);
 
     for (auto i = 0; i < size; i++) {
