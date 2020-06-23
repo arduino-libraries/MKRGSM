@@ -167,7 +167,7 @@ void GSMSSLClient::usePrivateKey(const char* name) {
 
 void GSMSSLClient::eraseTrustedRoot() {
    for(int i=0; i< _sizeRoot; i++) {
-    MODEM.sendf("AT+USECPRF=2,0,\"%s\"", _gsmRoots[i].name);
+    MODEM.sendf("AT+USECMNG=2,0,\"%s\"", _gsmRoots[i].name);
     MODEM.waitForResponse(100);
   }
 }
