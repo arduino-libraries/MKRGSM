@@ -7,8 +7,9 @@ class GSMFileUtils {
 public:
     GSMFileUtils(bool debug = false);
 
-    bool begin(const unsigned long timeout);
-    bool begin() { return begin(10000); };
+    bool begin(const bool restart);
+    bool begin() { return begin(true); };
+
     uint32_t fileCount() const { return _count; };
     size_t listFiles(String list[]) const;
     uint32_t listFile(const String filename) const;

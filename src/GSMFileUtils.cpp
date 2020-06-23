@@ -9,10 +9,11 @@ GSMFileUtils::GSMFileUtils(bool debug)
 {
 }
 
-bool GSMFileUtils::begin(const unsigned long timeout)
+bool GSMFileUtils::begin(const bool restart)
 {
     int status;
 
+    if (restart)
     MODEM.begin();
 
     if (_debug) {
@@ -20,10 +21,8 @@ bool GSMFileUtils::begin(const unsigned long timeout)
         MODEM.send("AT+CMEE=2");
         MODEM.waitForResponse();
     }
-        MODEM.send("AT+CMEE=2");
-        MODEM.waitForResponse();
 
-    for (unsigned long start = millis(); (millis() - start) < timeout;) {
+    for (unsigned long start = millis(); (millis() - start) < 10000;) {
         status = _getFileList();
         if (status == 1) {
             _countFiles();
