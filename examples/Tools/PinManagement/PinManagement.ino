@@ -51,7 +51,7 @@ void setup() {
         PINManager.setPINUsed(true);
         Serial.println(oktext);
       } else {
-        // if PIN code was incorrected
+        // if PIN code was incorrect
         Serial.println("Incorrect PIN. Remember that you have 3 opportunities.");
       }
     } else if (pin_query == -1) {
@@ -74,7 +74,7 @@ void setup() {
       Serial.println("PIN and PUK locked. Use PIN2/PUK2 in a mobile phone.");
       while (true);
     } else {
-      // SIM does not requires authetication
+      // SIM does not requires authentication
       Serial.println("No pin necessary.");
       auth = true;
     }
