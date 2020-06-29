@@ -27,6 +27,10 @@ enum {
   SSL_CLIENT_STATE_WAIT_DELETE_ROOT_CERT_RESPONSE
 };
 
+#define TRUST_ROOT_TYPE "CA,\""
+#define CLIENT_CERT_TYPE "CC,\""
+#define CLIENT_KEY_TYPE "PK,\""
+
 bool GSMSSLClient::_rootCertsLoaded = false;
 
 GSMSSLClient::GSMSSLClient(bool synch) :
@@ -166,10 +170,63 @@ void GSMSSLClient::usePrivateKey(const char* name) {
 }
 
 void GSMSSLClient::eraseTrustedRoot() {
-   for(int i=0; i< _sizeRoot; i++) {
-    MODEM.sendf("AT+USECMNG=2,0,\"%s\"", _gsmRoots[i].name);
-    MODEM.waitForResponse(100);
+  for(int i=0; i< _sizeRoot; i++) {
+    eraseCert(_gsmRoots[i].name, 0);
   }
+}
+
+void GSMSSLClient::eraseAllCertificates() {
+  for (int cert_type = 0; cert_type < 3; cert_type++) {
+    String response = "";
+    MODEM.sendf("AT+USECMNG=3,%d", cert_type);
+    MODEM.waitForResponse(100, &response);
+    int index = 0;
+    bool done = true;
+    if(response != "") {
+      while(done) {
+        int index_tmp = response.indexOf("\r\n", index);
+        String certname = "";
+        if (index_tmp > 0) {
+            certname = response.substring(index, index_tmp);
+            index = index_tmp + 2;
+        } else {
+          certname = response.substring(index);
+          done = false;
+        }
+        if(certname != "") {
+          removeCertForType(certname, cert_type);
+        }
+      }
+    }
+  }
+}
+
+void GSMSSLClient::removeCertForType(String certname, int type) {
+int start_ind = -1;
+int last_ind = 0;
+  switch (type) {
+    case 0:
+      start_ind = certname.indexOf(TRUST_ROOT_TYPE) + sizeof(TRUST_ROOT_TYPE) - 1;
+      break;
+    case 1:
+      start_ind = certname.indexOf(CLIENT_CERT_TYPE) + sizeof(CLIENT_CERT_TYPE) - 1;
+      break;
+    case 2:
+      start_ind = certname.indexOf(CLIENT_KEY_TYPE) + sizeof(CLIENT_KEY_TYPE) - 1;
+      break;
+    default:
+      break;
+  }
+
+  if (start_ind >= 0) {
+    last_ind = certname.indexOf("\"",start_ind);
+    eraseCert(certname.substring(start_ind, last_ind).c_str(), type);
+  }
+}
+
+void GSMSSLClient::eraseCert(const char* name, int type) {
+  MODEM.sendf("AT+USECMNG=2,%d,\"%s\"", type, name);
+  MODEM.waitForResponse(100);
 }
 
 void GSMSSLClient::setUserRoots(const GSMRootCert * userRoots, size_t size) {

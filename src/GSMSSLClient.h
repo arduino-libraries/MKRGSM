@@ -39,6 +39,10 @@ public:
   virtual void setTrustedRoot(const char* name);
   virtual void setUserRoots(const GSMRootCert * userRoots, size_t size);
   virtual void eraseTrustedRoot();
+  virtual void eraseAllCertificates();
+  virtual void eraseCert(const char* name, int type);
+private:
+  void removeCertForType(String certname, int type);
 
 private:
   static bool _rootCertsLoaded;
