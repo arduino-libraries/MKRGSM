@@ -1,9 +1,9 @@
 /*
-  ArduinoMqttClient - SSLCertificateManagement_Example
+  ArduinoMqttClient - SSLCertificateManagement
 
-  This example shows how to upload a self signed certificate 
-  by GSMSSLClient's APIs and connects to a MQTT broker 
-  and publishes a message to a topic once a second  .
+  This example shows how to upload a self signed certificate
+  by GSMSSLClient's APIs and connects to a MQTT broker
+  and publishes a message to a topic once a second.
 
   The circuit:
   - Arduino MKRGSM1400
@@ -25,10 +25,10 @@ const char GPRS_PASSWORD[] = SECRET_GPRS_PASSWORD;
 // initialize the library instance
 GSMSSLClient client;
 GPRS gprs;
-GSM gsmAccess(true);
+GSM gsmAccess;
 MqttClient mqttClient(client);
 
-// replace with your brooker, port and topic 
+// replace with your brooker, port and topic
 const char broker[] = "";
 int        port     = 8883;
 const char topic[]  = "";
@@ -62,19 +62,19 @@ void setup() {
   Serial.println("You're connected to the network");
   Serial.println();
 
-  // eraseTrustedRoot erase from the module all the actual Trusted Root
-  // pointed by the GSM object, call this API after the set will try to erase
-  // all the certificates present in SECRET_GSM_ROOT_CERTS
-  client.eraseTrustedRoot();
+  // eraseAllCertificate erases all the certificates stored in the onboard
+  // GSM module
+  client.eraseAllCertificate();
+
   client.setUserRoots(SECRET_GSM_ROOT_CERTS, SECRET_GSM_ROOT_SIZE);
-  
   client.setSignedCertificate(SECRET_CERT, "MKRGSM01", sizeof(SECRET_CERT));
   client.setPrivateKey(SECRET_KEY, "MKRGSMKEY01", sizeof(SECRET_KEY));
+
   client.useSignedCertificate("MKRGSM01");
   client.usePrivateKey("MKRGSMKEY01");
   client.setTrustedRoot("Let_s_Encrypt_Authority_X3");
 
-  
+
   Serial.print("Attempting to connect to the MQTT broker: ");
   Serial.println(broker);
 
