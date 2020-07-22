@@ -214,7 +214,7 @@ int GPRS::ready()
     case GPRS_STATE_WAIT_SET_DYNAMIC_IP_RESPONSE: {
       if (ready > 1) {
         _state = GPRS_STATE_IDLE;
-        _state = ERROR;
+        _status = ERROR;
       } else {
         _state = GPRS_STATE_ACTIVATE_IP;
         ready = 0;
