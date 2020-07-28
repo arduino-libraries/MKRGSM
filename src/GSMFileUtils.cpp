@@ -147,6 +147,7 @@ uint32_t GSMFileUtils::readFile(const String filename, String* content)
     skip += 3;
 
     String* _data = content;
+    (*_data) = "";
     (*_data).reserve(size);
 
     for (auto i = 0; i < size; i++) {
@@ -195,6 +196,8 @@ uint32_t GSMFileUtils::readFile(const String filename, uint8_t* content)
     String sizePart = _content.substring(0, commaIndex);
     uint32_t size = sizePart.toInt() / 2;
     skip += 3;
+
+    memset(content, 0, size);
 
     for (auto i = 0; i < size; i++) {
         byte n1 = response[skip + i * 2];
