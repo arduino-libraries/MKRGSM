@@ -15,7 +15,9 @@ public:
     uint32_t listFile(const String filename) const;
 
     uint32_t downloadFile(const String filename, const char buf[], const uint32_t size, const bool append);
+    uint32_t downloadFile(const String filename, const uint8_t buf[], const uint32_t size, const bool append) {return downloadFile(filename, reinterpret_cast<const char *>(&buf), size, false); };
     uint32_t downloadFile(const String filename, const char buf[], const uint32_t size) { return downloadFile(filename, buf, size, false); };
+    uint32_t downloadFile(const String filename, const uint8_t buf[], const uint32_t size) { return downloadFile(filename, buf, size, false); };
     uint32_t downloadFile(const String filename, const String& buf) { return downloadFile(filename, buf.c_str(), buf.length(), false); }
 
     uint32_t appendFile(const String filename, const String& buf)                     { return downloadFile(filename, buf.c_str(), buf.length(), true); }
