@@ -36,5 +36,5 @@
 #include "GSMLocation.h"
 
 #include "GSMFileUtils.h"
-
+#include "GSMHttpUtils.h"
 #endif
