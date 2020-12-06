@@ -68,7 +68,7 @@ int ModemClass::begin(bool restart)
     }
 
     _uart->end();
-    delay(100);
+    delay(200);
     _uart->begin(_baud);
 
     if (!autosense()) {
