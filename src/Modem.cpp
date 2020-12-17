@@ -287,16 +287,31 @@ void ModemClass::poll()
         if (c == '\n') {
           _lastResponseOrUrcMillis = millis();
 
+          int endOfResponse = 0;
+          if (_buffer.startsWith("+CMGL: ")) {
+            // SMS responses can contain "OK\r\n"
+            for(int nextSMS = 0; nextSMS != -1; nextSMS = _buffer.indexOf("+CMGL: ",endOfResponse)) {
+              // First line is SMS info
+              nextSMS = _buffer.indexOf("\r\n",nextSMS);
+              // Second line is SMS content
+              endOfResponse = _buffer.indexOf("\r\n",nextSMS);
+              if (endOfResponse == -1) {
+                // Not yet complete SMS
+                break;
+              }
+            }
+          }
+          
           int responseResultIndex = _buffer.lastIndexOf("OK\r\n");
-          if (responseResultIndex != -1) {
+          if (responseResultIndex >= endOfResponse) {
             _ready = 1;
           } else {
             responseResultIndex = _buffer.lastIndexOf("ERROR\r\n");
-            if (responseResultIndex != -1) {
+            if (responseResultIndex >= endOfResponse) {
               _ready = 2;
             } else {
               responseResultIndex = _buffer.lastIndexOf("NO CARRIER\r\n");
-              if (responseResultIndex != -1) {
+              if (responseResultIndex >= endOfResponse) {
                 _ready = 3;
               }
             }
