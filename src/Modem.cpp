@@ -45,7 +45,11 @@ int ModemClass::begin(bool restart)
   if (_resetPin > -1 && restart) {
     pinMode(_resetPin, OUTPUT);
     digitalWrite(_resetPin, HIGH);
-    delay(100);
+    delayMicroseconds(150);
+    digitalWrite(_resetPin, LOW);
+    delay(3);
+    digitalWrite(_resetPin, HIGH);
+    delay(600);
     digitalWrite(_resetPin, LOW);
   } else {
     if (!autosense()) {
@@ -68,7 +72,7 @@ int ModemClass::begin(bool restart)
     }
 
     _uart->end();
-    delay(200);
+    delay(100);
     _uart->begin(_baud);
 
     if (!autosense()) {
@@ -287,31 +291,16 @@ void ModemClass::poll()
         if (c == '\n') {
           _lastResponseOrUrcMillis = millis();
 
-          int endOfResponse = 0;
-          if (_buffer.startsWith("+CMGL: ")) {
-            // SMS responses can contain "OK\r\n"
-            for(int nextSMS = 0; nextSMS != -1; nextSMS = _buffer.indexOf("+CMGL: ",endOfResponse)) {
-              // First line is SMS info
-              nextSMS = _buffer.indexOf("\r\n",nextSMS);
-              // Second line is SMS content
-              endOfResponse = _buffer.indexOf("\r\n",nextSMS);
-              if (endOfResponse == -1) {
-                // Not yet complete SMS
-                break;
-              }
-            }
-          }
-          
           int responseResultIndex = _buffer.lastIndexOf("OK\r\n");
-          if (responseResultIndex >= endOfResponse) {
+          if (responseResultIndex != -1) {
             _ready = 1;
           } else {
             responseResultIndex = _buffer.lastIndexOf("ERROR\r\n");
-            if (responseResultIndex >= endOfResponse) {
+            if (responseResultIndex != -1) {
               _ready = 2;
             } else {
               responseResultIndex = _buffer.lastIndexOf("NO CARRIER\r\n");
-              if (responseResultIndex >= endOfResponse) {
+              if (responseResultIndex != -1) {
                 _ready = 3;
               }
             }
