@@ -1,5 +1,5 @@
 /*
-  This file is part of the MKR GSM library.
+  This file is part of the MKRGSM library.
   Copyright (C) 2017  Arduino AG (http://www.arduino.cc/)
 
   This library is free software; you can redistribute it and/or
@@ -129,7 +129,7 @@ public:
    */
   void stop();
 
-  /** Set ssl profile
+  /** Set SSL profile
    */
   void setCertificateValidationLevel(uint8_t ssl);
 

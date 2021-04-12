@@ -1,7 +1,7 @@
 /*
-  This sketch Shows how to use the HTTP command to
-  makes http request to the https end point and stores
-  the result in the Sara u201 internal storage
+  This sketch shows how to use the HTTP command to
+  make an HTTP request to the HTTPS end point and store
+  the result in the SARA-U201 internal storage
 
   Circuit:
   - MKR GSM 1400 board
@@ -38,7 +38,7 @@ int port = 443; // port 80 is the default for HTTP
 constexpr char* filename { "get.ffs" };
 
 
-// Read bloack size
+// Read block size
 constexpr unsigned int blockSize { 512 };
 
 

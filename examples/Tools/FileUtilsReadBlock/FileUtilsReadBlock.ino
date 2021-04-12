@@ -1,14 +1,14 @@
 /*
   Read large files block-by-block from the GSM module filesystem.
 
-  This sketch allows you to read large (max 2.5MB) files from the
+  This sketch allows you to read large (max 2.5 MB) files from the
   module's internal filesystem using successive block-by-block reads.
 
-  The contents of the file is printed to Serial port as an
+  The contents of the file are printed to the Serial port as an
   hexadecimal string which can be later converted to the original
-  content using an external tools, such as 'xxd', eg. 
+  content using an external tool, such as 'xxd', eg. 
 
-    'xxd -p -r sketck_output.txt data.bin'
+    'xxd -p -r sketch_output.txt data.bin'
 
   Circuit:
   - MKR GSM 1400 board
@@ -25,7 +25,7 @@ GSMFileUtils fileUtils(false);
 // An existing file
 constexpr char* filename { "update.bin" };
 
-// Read bloack size
+// Read block size
 constexpr unsigned int blockSize { 512 };
 
 void setup()

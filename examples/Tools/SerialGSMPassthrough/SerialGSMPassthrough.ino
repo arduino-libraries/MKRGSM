@@ -2,7 +2,7 @@
    SerialGSMPassthrough sketch
 
    This sketch allows you to send AT commands from the USB CDC serial port
-   of the MKR GSM 1400 board to the onboard ublox SARA-U201 celluar module.
+   of the MKR GSM 1400 board to the onboard u-blox SARA-U201 celluar module.
 
    For a list of supported AT commands see:
    https://www.u-blox.com/sites/default/files/u-blox-CEL_ATCommands_%28UBX-13002752%29.pdf
@@ -10,7 +10,7 @@
    Circuit:
    - MKR GSM 1400 board
    - Antenna
-   - 1500 mAh or higher lipo battery connected
+   - 1500 mAh or higher LiPo battery connected
    - SIM card
 
    Make sure the Serial Monitor's line ending is set to "Both NL and CR"
@@ -23,7 +23,7 @@
 unsigned long baud = 115200;
 
 void setup() {
-  // reset the ublox module
+  // reset the u-blox module
   pinMode(GSM_RESETN, OUTPUT);
   digitalWrite(GSM_RESETN, HIGH);
   delay(100);
@@ -42,4 +42,3 @@ void loop() {
     Serial.write(SerialGSM.read());
   }
 }
-

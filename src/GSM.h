@@ -1,5 +1,5 @@
 /*
-  This file is part of the MKR GSM library.
+  This file is part of the MKRGSM library.
   Copyright (C) 2017  Arduino AG (http://www.arduino.cc/)
 
   This library is free software; you can redistribute it and/or
@@ -40,7 +40,7 @@ public:
                          start-up. If it is running, it will restart. Takes up to 10
                          seconds
       @param synchronous If TRUE the call only returns after the Start is complete
-                         or fails. If FALSE the call will return inmediately. You have
+                         or fails. If FALSE the call will return immediately. You have
                          to call repeatedly ready() until you get a result. Default is TRUE.
       @return If synchronous, GSM3_NetworkStatus_t. If asynchronous, returns 0.
     */

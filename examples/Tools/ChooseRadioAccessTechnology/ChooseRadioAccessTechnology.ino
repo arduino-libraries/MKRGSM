@@ -6,7 +6,7 @@
 
   You can choose among 2G, 3G/UTMS or a combination of both.
 
-  The chosen configuration will be saved to modem's internal memory
+  The chosen configuration will be saved to the modem's internal memory
   and will be preserved through MKR GSM 1400 sketch uploads.
 
   In order to change the RAT, you will need to run this sketch again.
@@ -38,7 +38,7 @@ void setup() {
   Serial.println();
   Serial.println("You can choose among 2G, 3G/UMTS or a combination of both.");
   Serial.println();
-  Serial.println("The chosen configuration will be saved to modem's internal memory");
+  Serial.println("The chosen configuration will be saved to the modem's internal memory");
   Serial.println("and will be preserved through MKR GSM 1400 sketch uploads.");
   Serial.println();
   Serial.println("In order to change the RAT, you will need to run this sketch again.");

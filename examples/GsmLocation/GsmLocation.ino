@@ -2,7 +2,7 @@
   Location
 
   This sketch uses the celluar network to determine the location of a MKR GSM 1400 board
-  and prints it to the Serial monitor. The location is  based on the cellular towers in
+  and prints it to the Serial Monitor. The location is based on the cellular towers in
   range, and requires a GPRS data connection to be enabled.
 
   Circuit:
@@ -75,4 +75,3 @@ void loop() {
     Serial.println();
   }
 }
-

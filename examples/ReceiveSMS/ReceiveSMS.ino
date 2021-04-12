@@ -25,7 +25,7 @@ const char PINNUMBER[] = SECRET_PINNUMBER;
 GSM gsmAccess;
 GSM_SMS sms;
 
-// Array to hold the number a SMS is retreived from
+// Array to hold the number a SMS is retrieved from
 char senderNumber[20];
 
 void setup() {
@@ -87,4 +87,3 @@ void loop() {
   delay(1000);
 
 }
-

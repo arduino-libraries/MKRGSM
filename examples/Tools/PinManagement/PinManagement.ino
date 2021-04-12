@@ -24,7 +24,7 @@ String user_input = "";
 // authenticated with PIN code
 bool auth = false;
 
-// serial monitor result messages
+// Serial Monitor result messages
 String oktext = "OK";
 String errortext = "ERROR";
 
@@ -32,13 +32,13 @@ void setup() {
   // initialize serial communications and wait for port to open:
   Serial.begin(9600);
   while (!Serial) {
-    ; // wait for serial port to connect. Needed for Leonardo only
+    ; // wait for serial port to connect. Needed for native USB port only
   }
 
   Serial.println("Change PIN example\n");
   PINManager.begin();
 
-  // check if the SIM have pin lock
+  // check if the SIM has pin lock
   while (!auth) {
     int pin_query = PINManager.isPIN();
     if (pin_query == 1) {
@@ -51,7 +51,7 @@ void setup() {
         PINManager.setPINUsed(true);
         Serial.println(oktext);
       } else {
-        // if PIN code was incorrected
+        // if PIN code was incorrect
         Serial.println("Incorrect PIN. Remember that you have 3 opportunities.");
       }
     } else if (pin_query == -1) {
@@ -66,7 +66,7 @@ void setup() {
         PINManager.setPINUsed(true);
         Serial.println(oktext);
       } else {
-        // if PUK o the new PIN are incorrect
+        // if PUK or the new PIN are incorrect
         Serial.println("Incorrect PUK or invalid new PIN. Try again!.");
       }
     } else if (pin_query == -2) {
@@ -74,7 +74,7 @@ void setup() {
       Serial.println("PIN and PUK locked. Use PIN2/PUK2 in a mobile phone.");
       while (true);
     } else {
-      // SIM does not requires authetication
+      // SIM does not require authentication
       Serial.println("No pin necessary.");
       auth = true;
     }
@@ -85,7 +85,7 @@ void setup() {
   if (PINManager.checkReg() == 0) {
     Serial.println(oktext);
   }
-  // if you are connect by roaming
+  // if you are connected by roaming
   else if (PINManager.checkReg() == 1) {
     Serial.println("ROAMING " + oktext);
   } else {
@@ -97,7 +97,7 @@ void setup() {
 
 void loop() {
   // Function loop implements pin management user menu
-  // Only if you SIM use pin lock, you can change PIN code
+  // Only if your SIM uses pin lock can you change the PIN code
   // user_op variables save user option
 
   Serial.println("Choose an option:\n1 - On/Off PIN.");

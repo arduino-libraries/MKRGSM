@@ -1,5 +1,5 @@
 /*
-  This file is part of the MKR GSM library.
+  This file is part of the MKRGSM library.
   Copyright (C) 2017  Arduino AG (http://www.arduino.cc/)
 
   This library is free software; you can redistribute it and/or
@@ -74,7 +74,7 @@ public:
    */
   int peek();
 
-  /** Delete the SMS from Modem memory and proccess answer
+  /** Delete the SMS from Modem memory and process answer
    */
   void flush();
 

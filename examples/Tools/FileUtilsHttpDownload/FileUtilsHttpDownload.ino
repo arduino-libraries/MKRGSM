@@ -1,5 +1,5 @@
 /*
-  Download large file and store it into the GSM module filesystem.
+  Download a large file and store it into the GSM module filesystem.
 
  This sketch connects to a website through a MKR GSM 1400 board and
  downloads a large file and stores it into the filesystem of the GSM

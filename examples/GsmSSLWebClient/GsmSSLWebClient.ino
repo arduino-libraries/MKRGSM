@@ -3,7 +3,7 @@
 
  This sketch connects to a website using SSL through a MKR GSM 1400 board. Specifically,
  this example downloads the URL "http://www.arduino.cc/asciilogo.txt" and
- prints it to the Serial monitor.
+ prints it to the Serial Monitor.
 
  Circuit:
  * MKR GSM 1400 board

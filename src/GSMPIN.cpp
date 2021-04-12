@@ -1,5 +1,5 @@
 /*
-  This file is part of the MKR GSM library.
+  This file is part of the MKRGSM library.
   Copyright (C) 2017  Arduino AG (http://www.arduino.cc/)
 
   This library is free software; you can redistribute it and/or
@@ -83,7 +83,7 @@ void GSMPIN::changePIN(String old, String pin)
 {
   MODEM.sendf("AT+CPWD=\"SC\",\"%s\",\"%s\"", old.c_str(), pin.c_str());
   if (MODEM.waitForResponse(10000) == 1) {
-    Serial.println("Pin changed succesfully.");
+    Serial.println("Pin changed successfully.");
   } else {
     Serial.println("ERROR");
   }

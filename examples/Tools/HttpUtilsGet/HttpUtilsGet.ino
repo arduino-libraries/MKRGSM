@@ -1,7 +1,7 @@
 /*
-  This sketch Shows how to use the HTTP command to
-  makes http request and stores the result in the 
-  Sara u201 internal storage
+  This sketch shows how to use the HTTP command to
+  make an HTTP request and store the result in the 
+  SARA-U201 internal storage
 
   Circuit:
   - MKR GSM 1400 board
@@ -37,7 +37,7 @@ int port = 80; // port 80 is the default for HTTP
 // An existing file
 constexpr char* filename { "get.ffs" };
 
-// Read bloack size
+// Read block size
 constexpr unsigned int blockSize { 512 };
 
 
@@ -67,7 +67,7 @@ void setup() {
   }
   fileUtils.begin(false);
 
-  // configurae all the parameters to make the http request
+  // configure all the parameters to make the http request
   httpClient.configServer(server, port);
   httpClient.gsmGet(path, filename);
 }

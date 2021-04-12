@@ -34,14 +34,14 @@ GSMModem modemTest;
 // Save data variables
 String IMEI = "";
 
-// serial monitor result messages
+// Serial Monitor result messages
 String errortext = "ERROR";
 
 void setup() {
   // initialize serial communications and wait for port to open:
   Serial.begin(9600);
   while (!Serial) {
-    ; // wait for serial port to connect. Needed for Leonardo only
+    ; // wait for serial port to connect. Needed for native USB port only
   }
 
   Serial.println("GSM networks scanner");
@@ -80,12 +80,11 @@ void loop() {
   Serial.print("Current carrier: ");
   Serial.println(scannerNetworks.getCurrentCarrier());
 
-  // returns strength and ber
-  // signal strength in 0-31 scale. 31 means power > 51dBm
+  // returns strength and BER
+  // signal strength in 0-31 scale. 31 means power > 51 dBm
   // BER is the Bit Error Rate. 0-7 scale. 99=not detectable
   Serial.print("Signal Strength: ");
   Serial.print(scannerNetworks.getSignalStrength());
   Serial.println(" [0-31]");
 
 }
-
