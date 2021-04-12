@@ -1,5 +1,5 @@
 /*
-  This file is part of the MKR GSM library.
+  This file is part of the MKRGSM library.
   Copyright (C) 2017  Arduino AG (http://www.arduino.cc/)
 
   This library is free software; you can redistribute it and/or
@@ -35,10 +35,10 @@ public:
 
   // Sending UDP packets
 
-  // Start building up a packet to send to the remote host specific in ip and port
+  // Start building up a packet to send to the remote host specified by ip and port
   // Returns 1 if successful, 0 if there was a problem with the supplied IP address or port
   virtual int beginPacket(IPAddress ip, uint16_t port);
-  // Start building up a packet to send to the remote host specific in host and port
+  // Start building up a packet to send to the remote host specified by ip and port
   // Returns 1 if successful, 0 if there was a problem resolving the hostname or port
   virtual int beginPacket(const char *host, uint16_t port);
   // Finish off this packet and send it

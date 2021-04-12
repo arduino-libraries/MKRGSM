@@ -1,5 +1,5 @@
 /*
-  This file is part of the MKR GSM library.
+  This file is part of the MKRGSM library.
   Copyright (C) 2017  Arduino AG (http://www.arduino.cc/)
 
   This library is free software; you can redistribute it and/or
@@ -28,7 +28,7 @@ class GSMVoiceCall : public ModemUrcHandler {
 
 public:
   /** Service creation
-      @param synch    If true, the service calls are synchronois
+      @param synch    If true, the service calls are synchronous
     */
   GSMVoiceCall(bool synch = true);
 
@@ -46,12 +46,12 @@ public:
   int ready();
 
   /** Place a voice call. If asynchronous, returns while ringing. If synchronous
-      returns if the call is stablished or cancelled.
+      returns if the call is established or cancelled.
       @param to         Receiver number. Country extension can be used or not.
                         Char buffer should not be released or used until command is over
-      @param timeout    In millisecods. Time ringing before closing the call. 
+      @param timeout    In milliseconds. Time ringing before closing the call. 
                         Only used in synchronous mode.
-                        If zero, ring undefinitely
+                        If zero, ring indefinitely
       @return In asynchronous mode returns 0 if last command is still executing, 1 success, >1 error
               In synchronous mode returns 1 if the call is placed, 0 if not.
   */    
@@ -63,7 +63,7 @@ public:
   */    
   int answerCall();
 
-  /** Hang a stablished call or an incoming ring
+  /** Hang an established call or an incoming ring
       @return In asynchronous mode returns 0 if last command is still executing, 1 success, >1 error
               In synchronous mode returns 1 if the call is answered, 0 if not.
   */    
@@ -73,7 +73,7 @@ public:
       @param buffer     pointer to the buffer memory
       @param bufsize    size of available memory area, at least should be 10 characters
       @return In asynchronous mode returns 0 if last command is still executing, 1 success, >1 error
-              In synchronous mode returns 1 if the number is correcty taken 0 if not
+              In synchronous mode returns 1 if the number is correctly taken 0 if not
   */    
   int retrieveCallingNumber(char* buffer, int bufsize);
 

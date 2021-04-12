@@ -2,15 +2,15 @@
  Make Voice Call
 
  This sketch, for the MKR GSM 1400 board, puts a voice call to
- a remote phone number that you enter through the serial monitor.
- To make it work, open the serial monitor, and when you see the
- READY message, type a phone number. Make sure the serial monitor
+ a remote phone number that you enter through the Serial Monitor.
+ To make it work, open the Serial Monitor, and when you see the
+ READY message, type a phone number. Make sure the Serial Monitor
  is set to send a just newline when you press return.
 
  Circuit:
  * MKR GSM 1400 board
  * Antenna
-* SIM card that can send voice calls
+ * SIM card that can send voice calls
 
 
  created Mar 2012
@@ -102,4 +102,3 @@ void loop() {
     }
   }
 }
-

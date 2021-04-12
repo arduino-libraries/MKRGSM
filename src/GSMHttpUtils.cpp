@@ -1,5 +1,5 @@
 /*
-  This file is part of the MKR GSM library.
+  This file is part of the MKRGSM library.
   Copyright (C) 2020  Arduino AG (http://www.arduino.cc/)
 
   This library is free software; you can redistribute it and/or
@@ -191,7 +191,7 @@ void GSMHttpUtils::configServer(const char* url, int httpport) {
 }
 
 void GSMHttpUtils::head(const char* path, const char* filename) {
-  // Makes a HEAD request and store the resposne in _file
+  // Makes a HEAD request and store the response in _file
   MODEM.sendf("AT+UHTTPC=0,0,\"%s\",\"%s\"",path, filename);
   MODEM.waitForResponse(100);
 

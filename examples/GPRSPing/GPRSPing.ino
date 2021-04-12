@@ -1,6 +1,6 @@
 /*
 
- This uses an MKR GSM 1400 to continuously pings given host specified by IP Address or name.
+ This uses an MKR GSM 1400 to continuously ping a host specified by IP Address or name.
 
 Circuit:
 * MKR GSM 1400 board

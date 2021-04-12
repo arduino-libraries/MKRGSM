@@ -2,8 +2,8 @@
  SMS sender
 
  This sketch, for the MKR GSM 1400 board,sends an SMS message
- you enter in the serial monitor. Connect your Arduino with the
- GSM shield and SIM card, open the serial monitor, and wait for
+ you enter in the Serial Monitor. Connect your Arduino with the
+ GSM shield and SIM card, open the Serial Monitor, and wait for
  the "READY" message to appear in the monitor. Next, type a
  message to send and press "return". Make sure the serial
  monitor is set to send a newline when you press return.
@@ -58,11 +58,11 @@ void setup() {
 void loop() {
 
   Serial.print("Enter a mobile number: ");
-  char remoteNum[20];  // telephone number to send sms
+  char remoteNum[20];  // telephone number to send SMS
   readSerial(remoteNum);
   Serial.println(remoteNum);
 
-  // sms text
+  // SMS text
   Serial.print("Now, enter SMS content: ");
   char txtMsg[200];
   readSerial(txtMsg);

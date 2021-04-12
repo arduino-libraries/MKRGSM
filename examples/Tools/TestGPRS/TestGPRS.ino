@@ -1,8 +1,8 @@
 /*
 
- This sketch test the MKR GSM 1400 board's ability to connect to a
+ This sketch tests the MKR GSM 1400 board's ability to connect to a
  GPRS network. It asks for APN information through the
- serial monitor and tries to connect to example.org.
+ Serial Monitor and tries to connect to example.org.
 
  Circuit:
  * MKR GSM 1400 board
@@ -26,7 +26,7 @@ GSM gsmAccess;        // GSM access: include a 'true' parameter for debug enable
 GPRS gprsAccess;  // GPRS access
 GSMClient client;  // Client service for TCP connection
 
-// messages for serial monitor response
+// messages for Serial Monitor response
 String oktext = "OK";
 String errortext = "ERROR";
 
@@ -45,7 +45,7 @@ void setup() {
   // initialize serial communications and wait for port to open:
   Serial.begin(9600);
   while (!Serial) {
-    ; // wait for serial port to connect. Needed for Leonardo only
+    ; // wait for serial port to connect. Needed for native USB port only
   }
 }
 
@@ -109,7 +109,7 @@ void loop() {
     Serial.print("Connecting and sending GET request to example.org...");
     int res_connect;
 
-    // if use a proxy, connect with it
+    // if using a proxy, connect with it
     if (use_proxy) {
       res_connect = client.connect(proxy, pport);
     } else {
@@ -120,7 +120,7 @@ void loop() {
       // make a HTTP 1.0 GET request (client sends the request)
       client.print("GET ");
 
-      // if use a proxy, the path is example.org URL
+      // if using a proxy, the path is the example.org URL
       if (use_proxy) {
         client.print(urlproxy);
       } else {

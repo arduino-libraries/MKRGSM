@@ -85,7 +85,7 @@ void loop()
     Udp.read(packetBuffer, NTP_PACKET_SIZE); // read the packet into the buffer
 
     //the timestamp starts at byte 40 of the received packet and is four bytes,
-    // or two words, long. First, esxtract the two words:
+    // or two words, long. First, extract the two words:
 
     unsigned long highWord = word(packetBuffer[40], packetBuffer[41]);
     unsigned long lowWord = word(packetBuffer[42], packetBuffer[43]);
@@ -155,4 +155,3 @@ unsigned long sendNTPpacket(IPAddress& address)
   Udp.endPacket();
   //Serial.println("6");
 }
-

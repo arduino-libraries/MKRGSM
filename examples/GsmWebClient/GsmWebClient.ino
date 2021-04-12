@@ -3,7 +3,7 @@
 
  This sketch connects to a website through a MKR GSM 1400 board. Specifically,
  this example downloads the URL "http://www.example.org/" and
- prints it to the Serial monitor.
+ prints it to the Serial Monitor.
 
  Circuit:
  * MKR GSM 1400 board

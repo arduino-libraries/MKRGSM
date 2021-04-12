@@ -2,11 +2,11 @@
   ArduinoMqttClient - SSLCertificateManagement
 
   This example shows how to upload a self signed certificate
-  by GSMSSLClient's APIs and connects to a MQTT broker
-  and publishes a message to a topic once a second.
+  by GSMSSLClient's APIs, connect to a MQTT broker,
+  and publish a message to a topic once a second.
 
   The circuit:
-  - Arduino MKRGSM1400
+  - Arduino MKR GSM 1400
 
   This example code is in the public domain.
 */
@@ -28,7 +28,7 @@ GPRS gprs;
 GSM gsmAccess;
 MqttClient mqttClient(client);
 
-// replace with your brooker, port and topic
+// replace with your broker, port and topic
 const char broker[] = "";
 int        port     = 8883;
 const char topic[]  = "";
@@ -40,7 +40,7 @@ int count = 0;
 
 
 void setup() {
-  //Initialize serial and wait for port to open:
+  // Initialize serial and wait for port to open:
   Serial.begin(9600);
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
@@ -97,7 +97,7 @@ void loop() {
   // avoids being disconnected by the broker
   mqttClient.poll();
 
-  // avoid having delays in loop, we'll use the strategy from BlinkWithoutDelay
+  // to avoid having delays in loop, we'll use the strategy from BlinkWithoutDelay
   // see: File -> Examples -> 02.Digital -> BlinkWithoutDelay for more info
   unsigned long currentMillis = millis();
 

@@ -1,5 +1,5 @@
 /*
-  This file is part of the MKR GSM library.
+  This file is part of the MKRGSM library.
   Copyright (C) 2017  Arduino AG (http://www.arduino.cc/)
 
   This library is free software; you can redistribute it and/or
@@ -21,9 +21,9 @@
 
 #include "GSMBand.h"
 
-/* Used in URAT for set the access technology, the first value indicate
- the technology used (0 GSM/GPRS/eGSM (single mode) , 1 GSM/GPRS/eGSM and UMTS(dual mode))
- the second parameter set, if more than one, which technology's bands should be preferred(0 GSM/GPRS/eGSM, 2 UTRAN)*/
+/* Used in URAT to set the access technology, the first value indicates
+ the technology used (0 GSM/GPRS/eGSM (single mode), 1 GSM/GPRS/eGSM and UMTS(dual mode))
+ the second parameter sets, if more than one, which technology's bands should be preferred(0 GSM/GPRS/eGSM, 2 UTRAN)*/
 #define GSM_BANDS "1,0"
 #define UMTS_BANDS "1,2"
 
