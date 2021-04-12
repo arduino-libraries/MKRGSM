@@ -1,11 +1,14 @@
-= MKRGSM Library for Arduino =
+:repository-owner: arduino-libraries
+:repository-name: MKRGSM
 
-image:https://travis-ci.org/arduino-libraries/MKRGSM.svg?branch=master["Build Status", link="https://travis-ci.org/arduino-libraries/MKRGSM"]
+= {repository-name} Library for Arduino =
+
+image:https://github.com/{repository-owner}/{repository-name}/actions/workflows/compile-examples.yml/badge.svg["Compile Examples status", link="https://github.com/{repository-owner}/{repository-name}/actions/workflows/compile-examples.yml"]
 
 This library enables an Arduino MKR GSM 1400 board to do most of the operations you can do with a GSM phone: place and receive voice calls, send and receive SMS, and connect to the internet over a GPRS network. 
 
 For more information about this library please visit us at
-http://www.arduino.cc/en/Reference/MKRGSM
+http://www.arduino.cc/en/Reference/{repository-name}
 
 == License ==
 
