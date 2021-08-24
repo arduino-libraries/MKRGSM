@@ -3283,12 +3283,12 @@ void loop()
     // show IMEI in serial monitor
     Serial.println("Modem's IMEI: " + IMEI);
     // reset modem to check booting:
-    Serial.print("Reseting modem...");
+    Serial.print("Resetting modem...");
     modem.begin();
     // get and check IMEI one more time
     if(modem.getIMEI() != NULL)
     {
-      Serial.println("Modem is functoning properly");
+      Serial.println("Modem is functioning properly");
     }
     else
     {
