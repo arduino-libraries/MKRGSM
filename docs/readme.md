@@ -1,14 +1,14 @@
 # MKRGSM library
 
-The MKR GSM library can be installed using the Arduino library manager.
+The [MKR GSM library](https://www.arduino.cc/en/Reference/MKRGSM) can be installed using the [Arduino library manager](https://www.arduino.cc/en/Guide/Libraries).
 
-With the Arduino MKR GSM 1400 and this library you can do most of the operations you can do with a GSM phone: place and receive voice calls, send and receive SMS, and connect to the internet over a GPRS network. The on board module, operates in 3G with a 2G fallback.
+With the [Arduino MKR GSM 1400](https://store.arduino.cc/mkr-gsm-1400) and this library you can do most of the operations you can do with a GSM phone: place and receive voice calls, send and receive SMS, and connect to the internet over a GPRS network. The on board module, operates in 3G with a 2G fallback.
 
-Arduino MKR GSM 1400 has a modem that transfers data from a serial port to the GSM network. The modem executes operations via a series of AT commands. The library abstracts low level communications between the modem and SIM card. It relies on the Serial library for communication between the modem and Arduino.
+Arduino MKR GSM 1400 has a modem that transfers data from a serial port to the GSM network. The modem executes operations via a series of AT commands. The library abstracts low level communications between the modem and SIM card. It relies on the [Serial library](https://www.arduino.cc/en/Reference/Serial) for communication between the modem and Arduino.
 
 Typically, each individual command is part of a larger series necessary to execute a particular function. The library can also receive information and return it to you when necessary.
 
-This library is based on the GSM library of the Arduino GSM shield, adding new features like UDP, SSL and DTMF tone recognition.
+This library is based on the [GSM](https://www.arduino.cc/en/Reference/GSM) library of the Arduino GSM shield, adding new features like UDP, SSL and DTMF tone recognition.
 
 To use this library
 ```
