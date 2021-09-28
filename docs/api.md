@@ -936,6 +936,8 @@ Peek at the next available DTMF tone received during a phone call. A phone call 
 
 voice.peekDTMF()
 
+```
+
 Return
 The next available DTMF tone if present, -1 otherwise
 
@@ -952,8 +954,10 @@ Read the next available DTMF tone received during a phone call. A phone call mus
 
 voice.readDTMF()
 
+```
 
 #### Returns
+
 A character containing the received DTMF tone, -1 otherwise
 
 ### `voice.writeDTMF()`
