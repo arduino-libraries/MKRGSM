@@ -62,9 +62,9 @@ void setup() {
   Serial.println("You're connected to the network");
   Serial.println();
 
-  // eraseAllCertificate erases all the certificates stored in the onboard
+  // eraseAllCertificates erases all the certificates stored in the onboard
   // GSM module
-  client.eraseAllCertificate();
+  client.eraseAllCertificates();
 
   client.setUserRoots(SECRET_GSM_ROOT_CERTS, SECRET_GSM_ROOT_SIZE);
   client.setSignedCertificate(SECRET_CERT, "MKRGSM01", sizeof(SECRET_CERT));
