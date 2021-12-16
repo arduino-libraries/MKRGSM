@@ -72,13 +72,11 @@ void setup() {
 
   httpClient.enableSSL();
   httpClient.configServer(server, port);
-  httpClient.gsmGet(path, filename);
-
-
+  httpClient.get(path, filename);
 }
 
 void loop() {
-  if (client.responseStatus()) {
+  if (httpClient.responseStatus()) {
     Serial.println("received");
 
     readFile();
