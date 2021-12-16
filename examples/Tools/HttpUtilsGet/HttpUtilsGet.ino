@@ -69,11 +69,11 @@ void setup() {
 
   // configure all the parameters to make the http request
   httpClient.configServer(server, port);
-  httpClient.gsmGet(path, filename);
+  httpClient.get(path, filename);
 }
 
 void loop() {
-  if (client.responseStatus()) {
+  if (httpClient.responseStatus()) {
     Serial.println("received");
     String fileList[10];
     auto size = fileUtils.listFiles(fileList);
