@@ -12,7 +12,7 @@ struct Config : public Printable {
     {
         JSONVar conf;
 
-        conf["deviceId"] = deviceId;
+        conf["deviceId"] = deviceId.c_str();
         conf["timestamp"] = timestamp;
 
         return JSON.stringify(conf);
@@ -28,7 +28,8 @@ struct Config : public Printable {
         if (!checkProperty(conf, "timestamp", "number"))
             return false;
 
-        deviceId = conf["deviceId"];
+        const char * c_str_device_id = conf["deviceId"];
+        deviceId = String(c_str_device_id);
         timestamp = int { conf["timestamp"] };
 
         return true;
