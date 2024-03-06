@@ -34,6 +34,7 @@ jobs:
           - fqbn: arduino:samd:mkrgsm1400
             platforms: |
               - name: arduino:samd
+            artifact-name-suffix: arduino-samd-mkrgsm1400
 
     steps:
       - name: Checkout repository
@@ -60,4 +61,4 @@ jobs:
         with:
           if-no-files-found: error
           path: ${{ env.SKETCHES_REPORTS_PATH }}
-          name: ${{ env.SKETCHES_REPORTS_PATH }}
+          name: sketches-report-${{ matrix.board.artifact-name-suffix }}
