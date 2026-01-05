@@ -51,6 +51,8 @@ public:
 
   size_t write(uint8_t c);
   size_t write(const uint8_t*, size_t);
+  size_t read(uint8_t*, size_t, int32_t timeout=-1);
+  void escapeSequence(uint32_t t1=1500, uint32_t t2=1500, bool waitResponse=false);
 
   void send(const char* command);
   void send(const String& command) { send(command.c_str()); }
