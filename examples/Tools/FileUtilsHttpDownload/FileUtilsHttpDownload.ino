@@ -61,7 +61,7 @@ void setup()
 
     printFiles(fileUtils);
 
-    auto server = promptAndReadLine("Please, enter server name:", "arduino.cc");
+    auto server = promptAndReadLine("Please, enter server name:", "arduino.tips");
     auto port = promptAndReadInt("Please, enter server port:", 80);
     auto filename = promptAndReadLine("Please, enter file name:", "asciilogo.txt");
     auto filesize = promptAndReadInt("Please, enter file size:", 2263);
