@@ -229,11 +229,7 @@ int GSMClient::connect()
     stop();
   }
 
-  if (_synch) {
-    while (ready() == 0);
-  } else if (ready() == 0) {
-    return 0;
-  }
+  while (ready() == 0);
 
   _state = CLIENT_STATE_CREATE_SOCKET;
 
